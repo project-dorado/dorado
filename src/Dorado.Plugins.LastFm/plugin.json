@@ -1,0 +1,13 @@
+{
+  "id": "com.dorado.lastfm",
+  "name": "Last.fm Scrobbler",
+  "version": "1.0.0",
+  "author": "Dorado",
+  "description": "Scrobbles played tracks to Last.fm (now-playing + scrobble) using the official API.",
+  "sdkVersion": "1.0",
+  "entryPoint": "Dorado.Plugins.LastFm.dll",
+  "capabilities": [
+    { "type": "event-listening", "scopes": ["playback", "metadata"] },
+    { "type": "network-access", "scopes": ["https"] }
+  ]
+}

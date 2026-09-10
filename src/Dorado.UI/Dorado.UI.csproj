@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Dorado.Infrastructure.External\Dorado.Infrastructure.External.csproj" />
     <ProjectReference Include="..\Dorado.Infrastructure.Video\Dorado.Infrastructure.Video.csproj" />
     <ProjectReference Include="..\Dorado.Plugins.Sdk\Dorado.Plugins.Sdk.csproj" />
+    <ProjectReference Include="..\Dorado.Plugins.Host\Dorado.Plugins.Host.csproj" />
   </ItemGroup>
 
   <ItemGroup>

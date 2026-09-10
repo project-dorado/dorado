@@ -1,0 +1,13 @@
+{
+  "id": "com.dorado.discord",
+  "name": "Discord Rich Presence",
+  "version": "1.0.0",
+  "author": "Dorado",
+  "description": "Displays the current track, artist, and play status on your Discord profile.",
+  "sdkVersion": "1.0",
+  "entryPoint": "Dorado.Plugins.Discord.dll",
+  "capabilities": [
+    { "type": "event-listening", "scopes": ["playback", "metadata"] },
+    { "type": "network-access", "scopes": ["ipc"] }
+  ]
+}

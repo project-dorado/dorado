@@ -26,4 +26,29 @@ public class AvaloniaFolderPickerService : IFolderPickerService
         }
         return null;
     }
+
+    public async Task<string?> PickFileAsync(string title = "Select File", string extension = "*.*")
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow?.StorageProvider is { } storageProvider)
+        {
+            var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = title,
+                AllowMultiple = false,
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType(extension.TrimStart('*').TrimStart('.').ToUpperInvariant())
+                    {
+                        Patterns = new[] { extension.StartsWith("*") ? extension : $"*{extension}" }
+                    }
+                }
+            });
+
+            if (files.Count > 0)
+            {
+                return files[0].TryGetLocalPath();
+            }
+        }
+        return null;
+    }
 }

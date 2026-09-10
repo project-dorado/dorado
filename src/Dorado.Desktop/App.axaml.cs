@@ -13,6 +13,7 @@ using Dorado.Infrastructure.Devices;
 using Dorado.Infrastructure.External;
 using Dorado.Infrastructure.Persistence;
 using Dorado.Infrastructure.Video;using Dorado.UI.Services;
+using Dorado.Plugins.Host;
 using Dorado.UI.ViewModels;
 
 namespace Dorado.Desktop;
@@ -34,6 +35,11 @@ public partial class App : Avalonia.Application
 
         // Seed initial rich demo data
         SeedDemoData(_serviceProvider);
+
+        // Plugin host: attach the player-event bridge and start enabled plugins.
+        var pluginManager = _serviceProvider.GetRequiredService<PluginManager>();
+        _serviceProvider.GetRequiredService<PluginEventBridge>().Attach();
+        _ = pluginManager.StartEnabledAsync();
 
         // Populate AppInfo for the About page: runtime + commit identifier.
         AppInfo.RuntimeIdentifier =
@@ -91,6 +97,18 @@ public partial class App : Avalonia.Application
         services.AddSingleton<IVideoPlaybackEngine, VideoPlaybackEngine>();
         services.AddSingleton<ISyncEngine, SyncEngine>();
         services.AddSingleton<ISyncGroupService, SyncGroupService>();
+
+        // Plugin host (Phase 12): out-of-process plugins with an event bridge.
+        services.AddSingleton(sp =>
+        {
+            var options = new PluginManagerOptions();
+            var storage = new PluginStorage(Path.Combine(options.ConfigDirectory, "storage"));
+            var hostServices = new PluginHostServices(storage, sp.GetRequiredService<IMediaLibraryService>());
+            return new PluginManager(options, plugin => new ProcessPluginTransport(plugin), hostServices);
+        });
+        services.AddSingleton(sp => new PluginEventBridge(
+            sp.GetRequiredService<IPlayerCoordinator>(),
+            sp.GetRequiredService<PluginManager>()));
 
         // 3. Audio & Hardware Subsystems
         services.AddSingleton<AudioEngine>();

@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-167%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-184%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -45,8 +45,11 @@ src/
 ├── Dorado.Infrastructure.Video/         # libVLCSharp (playback + now-playing clips)
 ├── Dorado.Infrastructure.Devices/       # IDeviceTransport abstraction + SimulatedDeviceTransport (real MTPZ hardware-N/A)
 ├── Dorado.Infrastructure.External/      # MusicBrainz, Fanart.tv, Last.fm, LRCLIB metadata aggregators
-├── Dorado.Plugins.Protocol/             # Shared JSON-RPC message contracts
-├── Dorado.Plugins.Sdk/                  # Sandboxed out-of-process plugin SDK
+├── Dorado.Plugins.Protocol/             # Shared JSON-RPC message contracts + RPC channel
+├── Dorado.Plugins.Sdk/                  # Plugin SDK + runtime (stdio transport, host context)
+├── Dorado.Plugins.Host/                 # Out-of-process plugin host, .znp loader, event bridge
+├── Dorado.Plugins.LastFm/               # Reference plugin: Last.fm scrobbler
+├── Dorado.Plugins.Discord/              # Reference plugin: Discord Rich Presence
 ├── Dorado.UI/                           # Shared Avalonia XAML views, ViewModels, styles, animations
 └── Dorado.Desktop/                      # Desktop executable for Linux and Windows
 ```
@@ -115,6 +118,12 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Real About sub-pivot:** product name, tagline, version, runtime identifier, build date, copyright, MIT license, EULA link
 - **First-launch wizard** (welcome → monitored folders → library scan → done) + **What's New** dialog on version change
 
+### Plugins
+- **Out-of-process plugin host** (`Dorado.Plugins.Host`): `.znp` (zip) installer, `plugin.json` manifest validation, stdio JSON-RPC with health/restart supervision, and a host-service bridge (`logger/log`, `storage/get|set`, `library/queryTracks`, `ui/showToast`)
+- **Player-event bridge** mapping `IPlayerCoordinator` events to `playback/trackChanged`, `playback/stateChanged`, `rating/changed`
+- **Settings → Software → Plugins** page with install / enable / disable / open-folder
+- **Reference plugins:** Last.fm Scrobbler (now-playing + scrobble threshold rules, api_sig signing) and Discord Rich Presence (IPC handshake + activity payload)
+
 ### Visual & Motion
 - **Authentic Zune 4.8 color palette** extracted from shipped PNG pixels + decompiled UIX corpus
 - **Segoe Z Light / ZUC Light / ZLC Light** font family bundle (real `SEGOEZ-LIGHT.TTC`) with Selawik/Inter fallbacks
@@ -129,7 +138,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **167 unit tests** passing (XUnit + Avalonia headless harness)
+- **184 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 

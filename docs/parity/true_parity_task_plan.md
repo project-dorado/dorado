@@ -77,7 +77,7 @@ refresh · milestone commit.
 | Phase | Goal | Status |
 |---|---|---|
 | **0 — OSINT registry + reconciliation** | Catalog community sources with license/clean-room notes; reconcile docs vs code (`gap_inventory.md` §0, `GEMINI.md` FTS5, README test count). | ✅ Done |
-| **12 — Plugin host runtime** | Out-of-process host (`.znp` loader, `plugin.json`, stdio/socket JSON-RPC, health/restart, host services), event bridge from `IPlayerCoordinator`, `SoftwareSubPivot.Plugins` settings page; reference `Dorado.Plugins.LastFm` + `Dorado.Plugins.Discord`. | NEXT |
+| **12 — Plugin host runtime** | Out-of-process host (`.znp` loader, `plugin.json`, stdio/socket JSON-RPC, health/restart, host services), event bridge from `IPlayerCoordinator`, `SoftwareSubPivot.Plugins` settings page; reference `Dorado.Plugins.LastFm` + `Dorado.Plugins.Discord`. | ✅ Done |
 | **13 — Listening intelligence** | Audio-feature analysis (BPM/key/energy/spectral) persisted per track; feature-vector similarity feeding Smart DJ + Mixview; first-class auto-updating `DynamicMix` entities. | Planned |
 | **14 — Podcast modernization** | Feed normalization (redirects, HTML enclosures, Patreon/Anchor quirks) + series-level grouping. | Planned |
 | **15 — MTP transport** | `MtpTransport` implementing `IDeviceTransport` (libusb; reuse product IDs `063E/0710/0715/0723`) + in-memory virtual MTP target for contract tests. Hardware stays N-A. | Planned |

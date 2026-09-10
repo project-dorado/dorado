@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Interfaces;
 using Dorado.Application.Models;
+using Dorado.Plugins.Host;
 
 namespace Dorado.UI.ViewModels;
 
@@ -37,7 +39,8 @@ public enum SoftwareSubPivot
     Metadata,
     Display,
     General,
-    About
+    About,
+    Plugins
 }
 
 public enum DeviceSubPivot
@@ -48,6 +51,51 @@ public enum DeviceSubPivot
     DeviceInfo
 }
 
+/// <summary>Row model for the Settings → Software → Plugins page.</summary>
+public sealed class PluginRow : ViewModelBase
+{
+    public PluginRow(string id, string name, string version, string author, string description)
+    {
+        Id = id;
+        Name = name;
+        Version = version;
+        Author = author;
+        Description = description;
+    }
+
+    public string Id { get; }
+    public string Name { get; }
+    public string Version { get; }
+    public string Author { get; }
+    public string Description { get; }
+
+    public string Summary => $"{Name}  ·  v{Version}  ·  {Author}";
+
+    private bool _isEnabled;
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
+        {
+            if (SetProperty(ref _isEnabled, value))
+            {
+                Toggled?.Invoke(this, value);
+            }
+        }
+    }
+
+    private string _status = string.Empty;
+    public string Status
+    {
+        get => _status;
+        set => SetProperty(ref _status, value);
+    }
+
+    public Action<PluginRow, bool>? Toggled { get; set; }
+
+    public void SetEnabledSilent(bool value) => _isEnabled = value;
+}
+
 public class SettingsViewModel : ViewModelBase
 {
     private readonly ISoundEffectService? _soundService;
@@ -56,6 +104,7 @@ public class SettingsViewModel : ViewModelBase
     private readonly IPlayerCoordinator? _playerCoordinator;
     private readonly IDeviceSyncService? _deviceSyncService;
     private readonly ISettingsStore? _settingsStore;
+    private readonly PluginManager? _pluginManager;
     private bool _isRestoringSettings = true;
     private bool _firstLaunchCompleted;
     private string _whatsNewSeenVersion = string.Empty;
@@ -117,6 +166,7 @@ public class SettingsViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsDisplaySubPivotActive));
                 OnPropertyChanged(nameof(IsGeneralSubPivotActive));
                 OnPropertyChanged(nameof(IsAboutSubPivotActive));
+                OnPropertyChanged(nameof(IsPluginsSubPivotActive));
                 OnPropertyChanged(nameof(IsSyncOptionsSubPivotActive));
                 OnPropertyChanged(nameof(IsSpaceReservationSubPivotActive));
                 OnPropertyChanged(nameof(IsWirelessSyncSubPivotActive));
@@ -148,6 +198,7 @@ public class SettingsViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsDisplaySubPivotActive));
                 OnPropertyChanged(nameof(IsGeneralSubPivotActive));
                 OnPropertyChanged(nameof(IsAboutSubPivotActive));
+                OnPropertyChanged(nameof(IsPluginsSubPivotActive));
             }
         }
     }
@@ -166,6 +217,84 @@ public class SettingsViewModel : ViewModelBase
     public bool IsDisplaySubPivotActive => IsSoftwarePivotActive && SoftwarePivot == SoftwareSubPivot.Display;
     public bool IsGeneralSubPivotActive => IsSoftwarePivotActive && SoftwarePivot == SoftwareSubPivot.General;
     public bool IsAboutSubPivotActive => IsSoftwarePivotActive && SoftwarePivot == SoftwareSubPivot.About;
+    public bool IsPluginsSubPivotActive => IsSoftwarePivotActive && SoftwarePivot == SoftwareSubPivot.Plugins;
+
+    // ==========================================
+    // PLUGINS (Phase 12)
+    // ==========================================
+    public ObservableCollection<PluginRow> Plugins { get; } = new();
+    public ICommand InstallPluginCommand { get; }
+    public ICommand OpenPluginsFolderCommand { get; }
+    public bool HasPlugins => Plugins.Count > 0;
+
+    private void RefreshPlugins()
+    {
+        if (_pluginManager is null)
+        {
+            return;
+        }
+
+        Plugins.Clear();
+        foreach (var info in _pluginManager.Plugins)
+        {
+            var row = new PluginRow(info.Id, info.Name, info.Version, info.Author, info.Description)
+            {
+                Status = string.IsNullOrEmpty(info.LastError)
+                    ? info.Status.ToString()
+                    : $"{info.Status} — {info.LastError}"
+            };
+            row.Toggled = async (pluginRow, enabled) =>
+            {
+                if (_pluginManager is not null)
+                {
+                    await _pluginManager.SetEnabledAsync(pluginRow.Id, enabled);
+                }
+            };
+            row.SetEnabledSilent(info.Enabled);
+            Plugins.Add(row);
+        }
+
+        OnPropertyChanged(nameof(HasPlugins));
+    }
+
+    private async Task OnInstallPluginAsync()
+    {
+        if (_folderPicker is null || _pluginManager is null)
+        {
+            return;
+        }
+
+        var path = await _folderPicker.PickFileAsync("Install Plugin Package", ".znp");
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return;
+        }
+
+        try
+        {
+            await _pluginManager.InstallAsync(path);
+        }
+        catch
+        {
+            // Install errors surface through the manager's plugin state.
+        }
+
+        RefreshPlugins();
+    }
+
+    private void OnOpenPluginsFolder()
+    {
+        var directory = _pluginManager?.PluginsDirectory ?? PluginManagerOptions.DefaultPluginsDirectory();
+        try
+        {
+            Directory.CreateDirectory(directory);
+            Process.Start(new ProcessStartInfo { FileName = directory, UseShellExecute = true });
+        }
+        catch
+        {
+            // Best-effort convenience; ignore shell failures.
+        }
+    }
 
     private DeviceSubPivot _devicePivot = DeviceSubPivot.SyncOptions;
     public DeviceSubPivot DevicePivot
@@ -1032,7 +1161,8 @@ public class SettingsViewModel : ViewModelBase
         IMediaLibraryService? libraryService = null,
         IPlayerCoordinator? playerCoordinator = null,
         IDeviceSyncService? deviceSyncService = null,
-        ISettingsStore? settingsStore = null)
+        ISettingsStore? settingsStore = null,
+        PluginManager? pluginManager = null)
     {
         _soundService = soundService;
         _folderPicker = folderPicker;
@@ -1040,6 +1170,16 @@ public class SettingsViewModel : ViewModelBase
         _playerCoordinator = playerCoordinator;
         _deviceSyncService = deviceSyncService;
         _settingsStore = settingsStore;
+        _pluginManager = pluginManager;
+
+        if (_pluginManager is not null)
+        {
+            _pluginManager.Changed += (_, _) => RefreshPlugins();
+        }
+
+        InstallPluginCommand = new AsyncRelayCommand(OnInstallPluginAsync);
+        OpenPluginsFolderCommand = new RelayCommand(OnOpenPluginsFolder);
+        RefreshPlugins();
 
         _selectedAccent = AccentColors[0];
         _selectedBackground = BackgroundThemes[1]; // Default to authentic Zune Vector Ribbon

@@ -56,6 +56,11 @@ public class MediaLibraryAndSettingsTests : IDisposable
         {
             return Task.FromResult(SelectedPath);
         }
+
+        public Task<string?> PickFileAsync(string title = "Select File", string extension = "*.*")
+        {
+            return Task.FromResult<string?>(null);
+        }
     }
 
     [Fact]

@@ -12,6 +12,7 @@ using Dorado.Application.Services;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 using Dorado.Infrastructure.Audio;
+using Dorado.Plugins.Host;
 
 namespace Dorado.UI.ViewModels;
 
@@ -576,7 +577,8 @@ public class MainShellViewModel : ViewModelBase
         IVideoPlaybackEngine? videoEngine = null,
         IPhotoLibraryService? photoLibraryService = null,
         ISyncEngine? syncEngine = null,
-        ISyncGroupService? syncGroupService = null)
+        ISyncGroupService? syncGroupService = null,
+        PluginManager? pluginManager = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -591,7 +593,7 @@ public class MainShellViewModel : ViewModelBase
         CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
-        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore);
+        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager);
 
         // Onboarding (FIRSTLAUNCH + WHATSNEW parity): wizard on first run, What's New on version change.
         var startupSettings = settingsStore?.Load();

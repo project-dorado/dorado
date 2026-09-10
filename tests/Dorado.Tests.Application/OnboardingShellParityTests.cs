@@ -84,6 +84,7 @@ public class OnboardingShellParityTests : IDisposable
         private readonly string _directory;
         public TempFolderPicker(string directory) => _directory = directory;
         public Task<string?> PickFolderAsync(string title = "Select Music Collection Folder") => Task.FromResult<string?>(_directory);
+        public Task<string?> PickFileAsync(string title = "Select File", string extension = "*.*") => Task.FromResult<string?>(null);
     }
 
     [Fact]

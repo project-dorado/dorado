@@ -5,4 +5,6 @@ namespace Dorado.Application.Interfaces;
 public interface IFolderPickerService
 {
     Task<string?> PickFolderAsync(string title = "Select Music Collection Folder");
+
+    Task<string?> PickFileAsync(string title = "Select File", string extension = "*.*");
 }

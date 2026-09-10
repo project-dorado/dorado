@@ -66,6 +66,9 @@
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="About">
         <TextBlock Text="about" Classes="subpivot" Classes.active="{Binding IsAboutSubPivotActive}" />
       </Button>
+      <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Plugins">
+        <TextBlock Text="plugins" Classes="subpivot" Classes.active="{Binding IsPluginsSubPivotActive}" />
+      </Button>
     </StackPanel>
 
     <!-- Device Sub-Pivots -->
@@ -687,6 +690,54 @@
               <TextBlock Text="• Open Architecture: Clean Architecture with decoupled domain, application, audio, and UI tiers." Classes="body" />
             </StackPanel>
           </Border>
+        </StackPanel>
+
+        <!-- SUB-PANEL: PLUGINS -->
+        <StackPanel Spacing="24" IsVisible="{Binding IsPluginsSubPivotActive}">
+          <StackPanel Spacing="10">
+            <TextBlock Text="PLUGINS" Classes="section-header" />
+            <TextBlock Text="Out-of-process extensions. Each runs sandboxed behind JSON-RPC and may subscribe to playback, scrobbling, and rich-presence events."
+                       Classes="caption" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="zune-action" Command="{Binding InstallPluginCommand}">
+              <TextBlock Text="INSTALL .ZNP…" />
+            </Button>
+            <Button Classes="zune-action" Command="{Binding OpenPluginsFolderCommand}">
+              <TextBlock Text="OPEN PLUGINS FOLDER" />
+            </Button>
+          </StackPanel>
+
+          <ItemsControl ItemsSource="{Binding Plugins}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                        BorderBrush="{DynamicResource ZuneBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0"
+                        Padding="16"
+                        Margin="0,0,0,10"
+                        MaxWidth="760"
+                        HorizontalAlignment="Left">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                      <TextBlock Text="{Binding Summary}" Classes="body" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding Description}" Classes="caption" TextWrapping="Wrap" MaxWidth="560" />
+                      <TextBlock Text="{Binding Status}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+                    </StackPanel>
+                    <ToggleSwitch Grid.Column="1" OnContent="ON" OffContent="OFF"
+                                  IsChecked="{Binding IsEnabled}"
+                                  Foreground="{DynamicResource ZuneAccentBrush}"
+                                  Margin="16,0,0,0"
+                                  VerticalAlignment="Center" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <TextBlock Text="No plugins installed." Classes="caption" IsVisible="{Binding !HasPlugins}" />
         </StackPanel>
 
         <!-- ======================================================== -->
