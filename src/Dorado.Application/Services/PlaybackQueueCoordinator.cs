@@ -146,11 +146,12 @@ public class PlaybackQueueCoordinator : IPlayerCoordinator, IEqualizerControl
     }
 
     /// <summary>
-    /// True when playback progress is simulated: no real engine, unavailable output, or demo tracks
-    /// without an on-disk/stream source. The simulated clock (AudioEngine) only advances in this mode.
+    /// True when playback progress is simulated: no real engine, unavailable output, a source that
+    /// failed to open, or demo tracks without an on-disk/stream source. The simulated clock
+    /// (<c>AudioEngine</c>) only advances in this mode.
     /// </summary>
     public bool IsSimulatedPlayback =>
-        _audioEngine is not { IsAvailable: true }
+        _audioEngine is not { IsAvailable: true, HasActiveSource: true }
         || CurrentTrack == null
         || string.IsNullOrWhiteSpace(CurrentTrack.FilePath);
 
@@ -395,9 +396,13 @@ public class PlaybackQueueCoordinator : IPlayerCoordinator, IEqualizerControl
         _pendingAutoTrack = null;
         LoadReplayGainFactor(track);
 
-        if (!IsSimulatedPlayback)
+        // Attempt real output whenever the track has a source. This must NOT be gated on
+        // IsSimulatedPlayback: the engine only reports IsAvailable after its first
+        // LoadAndPlay call, so gating on it created a deadlock where the engine was never
+        // initialized and playback never produced sound.
+        if (_audioEngine != null && !string.IsNullOrWhiteSpace(track.FilePath))
         {
-            _audioEngine!.LoadAndPlay(track.FilePath);
+            _audioEngine.LoadAndPlay(track.FilePath);
             ApplyOutputVolume();
         }
 

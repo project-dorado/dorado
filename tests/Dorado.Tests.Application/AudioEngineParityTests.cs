@@ -20,6 +20,8 @@ public class AudioEngineParityTests
     private sealed class FakeAudioOutputEngine : IAudioOutputEngine
     {
         public bool IsAvailable { get; set; } = true;
+        public bool HasActiveSource { get; set; }
+        public bool LoadSucceeds { get; set; } = true;
         public List<string> LoadedUris { get; } = new();
         public string? LastTransitionUri { get; private set; }
         public double LastTransitionSeconds { get; private set; } = -1;
@@ -32,7 +34,11 @@ public class AudioEngineParityTests
         public event EventHandler? TrackEnded;
         public event EventHandler? TrackTransitioned;
 
-        public void LoadAndPlay(string sourceUri) => LoadedUris.Add(sourceUri);
+        public void LoadAndPlay(string sourceUri)
+        {
+            LoadedUris.Add(sourceUri);
+            HasActiveSource = IsAvailable && LoadSucceeds;
+        }
         public void Play() => PlayCalls++;
         public void Pause() => PauseCalls++;
         public void Stop() => StopCalls++;
@@ -246,5 +252,65 @@ public class AudioEngineParityTests
 
         Assert.Equal(1, engine.PauseCalls);
         Assert.Equal(1, engine.PlayCalls);
+    }
+
+    /// <summary>
+    /// Regression: the engine must be initialized on the first play even though it reports
+    /// IsAvailable=false before its first LoadAndPlay (the old code gated LoadAndPlay on the
+    /// not-yet-initialized IsAvailable, so a real engine was never started and produced no sound).
+    /// </summary>
+    [Fact]
+    public void PlayTrackAsync_WithUnavailableEngine_StillAttemptsToLoad()
+    {
+        var engine = new FakeAudioOutputEngine { IsAvailable = false };
+        var coordinator = new PlaybackQueueCoordinator(engine, new FakeReplayGainService());
+        var track = MakeTrack("One", "/music/one.mp3");
+
+        coordinator.PlayTrackAsync(track, new[] { track });
+
+        Assert.Contains("/music/one.mp3", engine.LoadedUris);
+        Assert.True(coordinator.IsSimulatedPlayback);
+    }
+
+    /// <summary>
+    /// When the device initializes but the source cannot be opened, position must fall back to
+    /// the simulated clock rather than freezing at 0:00.
+    /// </summary>
+    [Fact]
+    public void PlayTrackAsync_WhenSourceFailsToOpen_FallsBackToSimulated()
+    {
+        var engine = new FakeAudioOutputEngine { IsAvailable = true, LoadSucceeds = false };
+        var coordinator = new PlaybackQueueCoordinator(engine, new FakeReplayGainService());
+        var track = MakeTrack("One", "/music/one.mp3");
+
+        coordinator.PlayTrackAsync(track, new[] { track });
+
+        Assert.Contains("/music/one.mp3", engine.LoadedUris);
+        Assert.True(coordinator.IsSimulatedPlayback);
+    }
+
+    /// <summary>
+    /// The silent-fallback clock must actually advance the coordinator's position while a
+    /// simulated track is playing (previously the clock service was never instantiated by the
+    /// app, so the HUD stayed at 0:00).
+    /// </summary>
+    [Fact]
+    public async Task AudioEngine_AdvancesSimulatedPlaybackClock()
+    {
+        var engine = new FakeAudioOutputEngine { IsAvailable = false };
+        var coordinator = new PlaybackQueueCoordinator(engine, new FakeReplayGainService());
+        using var clock = new AudioEngine(coordinator);
+
+        var track = MakeTrack("Demo"); // No file path → simulated playback.
+        await coordinator.PlayTrackAsync(track, new[] { track });
+        Assert.True(coordinator.IsSimulatedPlayback);
+
+        var deadline = DateTime.UtcNow.AddSeconds(3);
+        while (coordinator.CurrentPosition <= TimeSpan.Zero && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(50);
+        }
+
+        Assert.True(coordinator.CurrentPosition > TimeSpan.Zero);
     }
 }

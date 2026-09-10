@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using ManagedBass;
 using ManagedBass.Mix;
@@ -19,8 +20,6 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine, IEqualizerContro
     private const int MixerChannels = 2;
     private const int FftBandCount = 24;
 
-    private static readonly string[] WindowsNativeNames = { "bass.dll", "bassmix.dll", "bassflac.dll", "bass_aac.dll", "bassopus.dll" };
-    private static readonly string[] LinuxNativeNames = { "libbass.so", "libbassmix.so", "libbassflac.so", "libbass_aac.so", "libbassopus.so" };
     private static readonly string[] PluginNames = { "bassflac", "bass_aac", "bassopus" };
 
     private readonly object _gate = new();
@@ -52,7 +51,23 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine, IEqualizerContro
     private volatile bool _eqEnabled;
     private bool _eqDspRegistered;
 
+    static BassAudioOutputEngine()
+    {
+        ConfigureNativeLibraryResolution();
+    }
+
     public bool IsAvailable { get; private set; }
+
+    public bool HasActiveSource
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return ActiveSource != 0;
+            }
+        }
+    }
 
     public event EventHandler? TrackEnded;
     public event EventHandler? TrackTransitioned;
@@ -600,16 +615,9 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine, IEqualizerContro
         _initialized = true;
         try
         {
-            EnsureNativeLibrariesLoaded();
             LoadFormatPlugins();
 
-            IsAvailable = Bass.Init(-1, MixerFrequency);
-            if (!IsAvailable)
-            {
-                // Fall back to the "No Sound" dummy device (headless/CI) so the pipeline still runs.
-                IsAvailable = Bass.Init(0, MixerFrequency);
-            }
-
+            IsAvailable = TryInitializeOutputDevice();
             if (IsAvailable)
             {
                 Bass.Start();
@@ -634,20 +642,153 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine, IEqualizerContro
         return IsAvailable;
     }
 
-    private static void EnsureNativeLibrariesLoaded()
+    /// <summary>
+    /// Opens a real playback device. The system default is tried first; if that fails we
+    /// probe physical devices (preferring the flagged default). BASS device 0 is the silent
+    /// "No sound" device and is deliberately never used as a fallback — opening it reported
+    /// <see cref="IsAvailable"/> = true while producing no audio. When no real device opens
+    /// we leave the engine unavailable so the coordinator runs its simulated clock instead.
+    /// </summary>
+    private static bool TryInitializeOutputDevice()
     {
-        var isWindows = OperatingSystem.IsWindows();
-        var names = isWindows ? WindowsNativeNames : LinuxNativeNames;
-        var rid = ResolveRuntimeIdentifier();
-
-        foreach (var name in names)
+        if (Bass.Init(-1, MixerFrequency))
         {
-            var path = Path.Combine(AppContext.BaseDirectory, "Native", rid, name);
+            return true;
+        }
+
+        var candidates = new List<(int Index, bool IsDefault)>();
+        for (var i = 1; i < 64; i++)
+        {
+            if (!Bass.GetDeviceInfo(i, out var info))
+            {
+                if (i > 8)
+                {
+                    break;
+                }
+
+                continue;
+            }
+
+            if (info.IsEnabled)
+            {
+                candidates.Add((i, info.IsDefault));
+            }
+        }
+
+        foreach (var candidate in candidates.OrderByDescending(c => c.IsDefault))
+        {
+            if (Bass.Init(candidate.Index, MixerFrequency))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Registers a DllImport resolver so ManagedBass (and ManagedBass.Mix) load the BASS
+    /// natives from <c>Native/&lt;rid&gt;/</c>, and — on Linux — preloads the system ALSA
+    /// library before BASS uses it. Without the resolver the Mix add-on cannot be found and
+    /// the engine silently degrades; without the ALSA preload a shadowing ALSA build (for
+    /// example Homebrew's) fails to load PipeWire/Pulse plugin modules and BASS opens the
+    /// silent "No sound" device.
+    /// </summary>
+    private static void ConfigureNativeLibraryResolution()
+    {
+        try
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                PreloadSystemAlsa();
+            }
+
+            var nativeDir = Path.Combine(AppContext.BaseDirectory, "Native", ResolveRuntimeIdentifier());
+            var isWindows = OperatingSystem.IsWindows();
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["bass"] = isWindows ? "bass.dll" : "libbass.so",
+                ["bassmix"] = isWindows ? "bassmix.dll" : "libbassmix.so",
+            };
+
+            RegisterNativeResolver(typeof(Bass).Assembly, nativeDir, map);
+            RegisterNativeResolver(typeof(BassMix).Assembly, nativeDir, map);
+        }
+        catch
+        {
+            // Default probing still applies; unavailable native libs degrade via IsAvailable.
+        }
+    }
+
+    private static void RegisterNativeResolver(Assembly assembly, string nativeDir, IReadOnlyDictionary<string, string> map)
+    {
+        try
+        {
+            NativeLibrary.SetDllImportResolver(assembly, (name, _, _) =>
+            {
+                if (map.TryGetValue(name, out var file))
+                {
+                    var path = Path.Combine(nativeDir, file);
+                    if (File.Exists(path))
+                    {
+                        return NativeLibrary.Load(path);
+                    }
+                }
+
+                return IntPtr.Zero;
+            });
+        }
+        catch
+        {
+            // A resolver may already be registered for this assembly by the host; ignore.
+        }
+    }
+
+    private static void PreloadSystemAlsa()
+    {
+        if (IsLibraryLoaded("libasound"))
+        {
+            return;
+        }
+
+        var candidates = new[]
+        {
+            "/usr/lib64/libasound.so.2",
+            "/usr/lib/libasound.so.2",
+            "/lib64/libasound.so.2",
+            "/lib/libasound.so.2",
+            "/usr/lib/x86_64-linux-gnu/libasound.so.2",
+            "/usr/lib/aarch64-linux-gnu/libasound.so.2",
+            "/usr/lib/arm-linux-gnueabihf/libasound.so.2",
+        };
+
+        foreach (var path in candidates)
+        {
             if (File.Exists(path))
             {
                 NativeLibrary.TryLoad(path, out _);
+                return;
             }
         }
+    }
+
+    private static bool IsLibraryLoaded(string fragment)
+    {
+        try
+        {
+            foreach (var line in File.ReadLines("/proc/self/maps"))
+            {
+                if (line.Contains(fragment, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        return false;
     }
 
     private static void LoadFormatPlugins()

@@ -28,9 +28,6 @@ public class UserStatsService : IUserStatsService
 
         return new ZuneProfile
         {
-            ZuneTag = "ZuneFan_2006",
-            StatusMessage = "Bringing back the authentic Metro experience",
-            MemberSinceUtc = new DateTime(2006, 11, 14), // Zune launch date!
             TotalTracksPlayed = allPlays.Count,
             TotalListeningTime = TimeSpan.FromSeconds(totalSecs),
             AvatarUri = string.Empty
@@ -43,13 +40,7 @@ public class UserStatsService : IUserStatsService
         var allPlays = history.Concat(_sessionPlays).ToList();
         if (allPlays.Count == 0)
         {
-            return new List<TopArtistStat>
-            {
-                new() { ArtistName = "Rush", PlayCount = 14, Percentage = 40.0 },
-                new() { ArtistName = "Daft Punk", PlayCount = 11, Percentage = 31.0 },
-                new() { ArtistName = "Pink Floyd", PlayCount = 6, Percentage = 17.0 },
-                new() { ArtistName = "Fleetwood Mac", PlayCount = 4, Percentage = 12.0 }
-            };
+            return Array.Empty<TopArtistStat>();
         }
 
         var groups = allPlays

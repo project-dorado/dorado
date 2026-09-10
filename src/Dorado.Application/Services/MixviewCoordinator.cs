@@ -122,30 +122,6 @@ public class MixviewCoordinator : IMixviewService
             });
         }
 
-        // Procedural fallbacks to guarantee a lush 8-satellite constellation if library is sparse
-        var fallbackSeeds = new (string Title, string Subtitle, MixNodeType Type)[]
-        {
-            ("Similar Listeners", "COMMUNITY MIX", MixNodeType.Artist),
-            ("Top Influences", "HISTORICAL ROOTS", MixNodeType.Artist),
-            ("Synthesized Wave", "GENRE SATELLITE", MixNodeType.Track),
-            ("Acoustic Sessions", "RARE RECORDING", MixNodeType.Album),
-            ("Live at Red Rocks", "CONCERT ARCHIVE", MixNodeType.Album),
-            ("Collaborators", "STUDIO CONNECTIONS", MixNodeType.Artist)
-        };
-
-        int fallbackIdx = 0;
-        while (satellites.Count < 8 && fallbackIdx < fallbackSeeds.Length)
-        {
-            var fb = fallbackSeeds[fallbackIdx++];
-            satellites.Add(new MixNode
-            {
-                Id = Guid.NewGuid(),
-                Title = fb.Title,
-                Subtitle = fb.Subtitle,
-                NodeType = fb.Type
-            });
-        }
-
         // Calculate organic orbital coordinates
         int count = satellites.Count;
         for (int i = 0; i < count; i++)

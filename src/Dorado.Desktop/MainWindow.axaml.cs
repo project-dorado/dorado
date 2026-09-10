@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Dorado.UI.ViewModels;
 using Dorado.UI.Views;
 
@@ -14,6 +15,43 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        // Toggle playback on Space from anywhere, even when a song/album Button still has
+        // focus after being clicked. Tunnelling intercepts the key before the focused
+        // control, and swallowing the matching KeyUp stops the Button from activating.
+        AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyUpEvent, OnPreviewKeyUp, RoutingStrategies.Tunnel);
+    }
+
+    private void OnPreviewKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Space || DataContext is not MainShellViewModel vm)
+        {
+            return;
+        }
+
+        if (FocusManager?.GetFocusedElement() is TextBox)
+        {
+            return;
+        }
+
+        vm.PlayPauseCommand.Execute(null);
+        e.Handled = true;
+    }
+
+    private void OnPreviewKeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Space || DataContext is not MainShellViewModel)
+        {
+            return;
+        }
+
+        if (FocusManager?.GetFocusedElement() is TextBox)
+        {
+            return;
+        }
+
+        e.Handled = true;
     }
 
     private void OnResizeZonePointerPressed(object? sender, PointerPressedEventArgs e)

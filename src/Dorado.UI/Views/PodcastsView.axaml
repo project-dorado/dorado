@@ -11,26 +11,33 @@
 
   <Grid RowDefinitions="Auto,*" Margin="40,6,40,16">
     <!-- Top Bar: RSS Feed Subscription Input -->
-    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
-      <TextBox Grid.Column="0" 
-               Watermark="Paste Podcast RSS Feed URL (e.g. https://feeds.npr.org/...)..." 
-               Text="{Binding NewFeedUrl}"
-               CornerRadius="0"
-               Background="{DynamicResource ZuneSurfaceElevatedBrush}"
-               Foreground="{DynamicResource ZuneTextActiveBrush}"
-               BorderBrush="{DynamicResource ZuneBorderBrush}"
-               BorderThickness="1"
-               Padding="12,8" />
-      <Button Grid.Column="1" 
-              Classes="zune-accent-btn" 
-              Command="{Binding SubscribeCommand}"
-              Margin="12,0,0,0">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock Text="+" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" />
-          <TextBlock Text="SUBSCRIBE PODCAST" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" />
-        </StackPanel>
-      </Button>
-    </Grid>
+    <StackPanel Grid.Row="0" Margin="0,0,0,20" Spacing="6">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Grid.Column="0" 
+                 Watermark="Paste Podcast RSS Feed URL (e.g. https://feeds.npr.org/...)..." 
+                 Text="{Binding NewFeedUrl}"
+                 CornerRadius="0"
+                 Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                 Foreground="{DynamicResource ZuneTextActiveBrush}"
+                 BorderBrush="{DynamicResource ZuneBorderBrush}"
+                 BorderThickness="1"
+                 Padding="12,8" />
+        <Button Grid.Column="1" 
+                Classes="zune-accent-btn" 
+                Command="{Binding SubscribeCommand}"
+                Margin="12,0,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="+" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" />
+            <TextBlock Text="SUBSCRIBE PODCAST" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
+      </Grid>
+      <TextBlock Text="{Binding SubscribeStatus}"
+                 Classes="caption"
+                 Foreground="{DynamicResource ZuneAccentBrush}"
+                 TextWrapping="Wrap"
+                 IsVisible="{Binding HasSubscribeStatus}" />
+    </StackPanel>
 
     <!-- Content: Two-Column Podcasts Browser -->
     <Grid Grid.Row="1" ColumnDefinitions="300,32,*">

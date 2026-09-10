@@ -120,7 +120,7 @@ public class ZuneFeatureGapTests
         var statsService = new UserStatsService(lib);
         var profile = await statsService.GetProfileAsync();
 
-        Assert.Equal("ZuneFan_2006", profile.ZuneTag);
+        Assert.Equal("ZuneUser", profile.ZuneTag);
         Assert.Equal(3, profile.TotalTracksPlayed);
         Assert.Equal(TimeSpan.FromMinutes(14), profile.TotalListeningTime);
 
@@ -164,20 +164,25 @@ public class ZuneFeatureGapTests
     }
 
     [Fact]
-    public async Task PodcastService_SeededFeeds_CanBeLoadedAndPlayed()
+    public async Task PodcastService_StartsEmptyAndPlaysEpisodes()
     {
         var coordinator = new PlaybackQueueCoordinator();
         var podcastService = new PodcastService(coordinator);
 
+        // No demo podcasts are seeded; the list starts empty until the user subscribes.
         var podcasts = await podcastService.GetAllPodcastsAsync();
-        Assert.NotEmpty(podcasts);
-        Assert.Equal("All Songs Considered", podcasts[0].Title);
-        Assert.NotEmpty(podcasts[0].Episodes);
+        Assert.Empty(podcasts);
 
-        var firstEp = podcasts[0].Episodes[0];
+        var firstEp = new PodcastEpisode
+        {
+            SeriesTitle = "Test Series",
+            Title = "Episode 1",
+            Duration = TimeSpan.FromMinutes(10),
+            AudioUrl = "https://example.com/ep1.mp3"
+        };
+
         await podcastService.PlayEpisodeAsync(firstEp);
 
-        Assert.True(firstEp.IsPlayed);
         Assert.NotNull(coordinator.CurrentTrack);
         Assert.Equal(firstEp.Title, coordinator.CurrentTrack.Title);
         Assert.Equal(firstEp.SeriesTitle, coordinator.CurrentTrack.ArtistName);

@@ -9,6 +9,13 @@ public interface IAudioOutputEngine : IDisposable
 {
     bool IsAvailable { get; }
 
+    /// <summary>
+    /// True when the engine currently holds a decodable source and can report position/duration.
+    /// Lets the coordinator fall back to the simulated clock when a source fails to open even
+    /// though the output device initialized.
+    /// </summary>
+    bool HasActiveSource { get; }
+
     /// <summary>Replaces the audible output with the given file path or stream URL and begins playback.</summary>
     void LoadAndPlay(string sourceUri);
 

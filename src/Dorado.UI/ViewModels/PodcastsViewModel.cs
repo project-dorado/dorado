@@ -11,6 +11,7 @@ public class PodcastsViewModel : ViewModelBase
     private readonly IPodcastService _podcastService;
     private PodcastSeries? _selectedPodcast;
     private string _newFeedUrl = string.Empty;
+    private string _subscribeStatus = string.Empty;
 
     public ObservableCollection<PodcastSeries> Podcasts { get; } = new();
     public ObservableCollection<PodcastEpisode> Episodes { get; } = new();
@@ -40,6 +41,20 @@ public class PodcastsViewModel : ViewModelBase
         set => SetProperty(ref _newFeedUrl, value);
     }
 
+    public string SubscribeStatus
+    {
+        get => _subscribeStatus;
+        private set
+        {
+            if (SetProperty(ref _subscribeStatus, value))
+            {
+                OnPropertyChanged(nameof(HasSubscribeStatus));
+            }
+        }
+    }
+
+    public bool HasSubscribeStatus => !string.IsNullOrWhiteSpace(_subscribeStatus);
+
     public ICommand SelectPodcastCommand { get; }
     public ICommand PlayEpisodeCommand { get; }
     public ICommand SubscribeCommand { get; }
@@ -61,12 +76,22 @@ public class PodcastsViewModel : ViewModelBase
         });
         SubscribeCommand = new AsyncRelayCommand(async () =>
         {
-            if (!string.IsNullOrWhiteSpace(NewFeedUrl))
+            if (string.IsNullOrWhiteSpace(NewFeedUrl))
+            {
+                return;
+            }
+
+            SubscribeStatus = string.Empty;
+            try
             {
                 var created = await _podcastService.SubscribeAsync(NewFeedUrl);
                 Podcasts.Add(created);
                 SelectedPodcast = created;
                 NewFeedUrl = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                SubscribeStatus = $"Could not subscribe to that feed: {ex.Message}";
             }
         });
         RefreshCommand = new AsyncRelayCommand(LoadPodcastsAsync);
