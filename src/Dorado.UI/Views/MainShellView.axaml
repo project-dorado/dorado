@@ -146,7 +146,8 @@
         <!-- Second Row: Primary Panoramic Pivots & Search / Mode Toggles -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="12,0,16,0">
           <!-- Left: Iconic Zune Metro Panoramic Pivots (pannable at narrow widths — content bleeds off the right edge) -->
-          <ScrollViewer Grid.Column="0"
+          <Grid Grid.Column="0">
+          <ScrollViewer x:Name="PivotStrip"
                         HorizontalScrollBarVisibility="Hidden"
                         VerticalScrollBarVisibility="Disabled"
                         PointerWheelChanged="OnPivotStripPointerWheelChanged"
@@ -172,6 +173,18 @@
               </Button>
             </StackPanel>
           </ScrollViewer>
+            <!-- Procedural chevron scroll affordances (Phase 22) -->
+            <Button HorizontalAlignment="Left" VerticalAlignment="Center"
+                    Background="Transparent" BorderThickness="0" CornerRadius="0" Padding="4"
+                    Click="OnPivotScrollLeft" ToolTip.Tip="Scroll pivots left">
+              <Path Data="M 8,0 L 0,7 L 8,14" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="2" />
+            </Button>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Background="Transparent" BorderThickness="0" CornerRadius="0" Padding="4"
+                    Click="OnPivotScrollRight" ToolTip.Tip="Scroll pivots right">
+              <Path Data="M 0,0 L 8,7 L 0,14" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="2" />
+            </Button>
+          </Grid>
 
           <!-- Right: Back, Search Box, Now Playing & Settings -->
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">

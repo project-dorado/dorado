@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-242%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-247%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -151,6 +151,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Parallax 3D pivot slide** with Quickplay-specific variant
 - **Drawer slide-in / fade animations** for Bio, Showlist, SyncToast
 - **Idle screensaver** with 3D Y-axis album rotation + text drift
+- **Procedural clean-room visuals**: golden-angle hub map constellation on Quickplay, dashed iris-art reveal behind Now Playing (offline `IrisArtControl`), and vector chevron scroll affordances on the pivot strip
 - **Now Playing ENTER button** with hover/pressed per-frame icon variants
 
 ### Design System & Verification
@@ -158,7 +159,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **242 unit tests** passing (XUnit + Avalonia headless harness)
+- **247 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -167,7 +168,6 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 Items that remain, in approximate priority order. **No gap is unplanned** — each is in the [`docs/parity/deferred_registry.md`](docs/parity/deferred_registry.md) with rationale.
 
 ### Medium-priority features (Tiers C / D)
-- **Tier D2 — Hub hero artwork maps** on Quickplay (source assets absent after IP remediation; procedural clean-room equivalent) *(Phase 22)*
 
 ### Smaller polish
 - **MusicBrainz + AcoustID auto-metadata + dedup** at scan time

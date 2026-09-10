@@ -148,6 +148,23 @@ public partial class MainShellView : UserControl
         _pivotVelocity = 0;
     }
 
+    private void OnPivotScrollLeft(object? sender, RoutedEventArgs e) => ScrollPivot(-260);
+
+    private void OnPivotScrollRight(object? sender, RoutedEventArgs e) => ScrollPivot(260);
+
+    private void ScrollPivot(double delta)
+    {
+        var strip = this.FindControl<ScrollViewer>("PivotStrip");
+        if (strip is null)
+        {
+            return;
+        }
+
+        StopPivotInertia();
+        strip.Offset = new Vector(
+            PivotPanMath.ClampOffset(strip.Offset.X + delta, strip.Extent.Width, strip.Viewport.Width), 0);
+    }
+
     /// <summary>
     /// Tier A1: the Zune 4.8 cropped-header back affordance. Clicking the cropped title
     /// on a detail page (Now Playing / Mixview) pops back to the parent pivot; on a wizard

@@ -41,6 +41,9 @@
         </Border>
       </Grid>
 
+      <!-- Procedural iris art reveal (clean-room replacement for NOWPLAYINGARTLOGO/ARTSHAPE) -->
+      <views:IrisArtControl IsHitTestVisible="False" Opacity="0.6" />
+
       <!-- Giant Ambient Typographic Watermark (Tier A3: slow 3D Y-axis rotation while idle) -->
       <TextBlock Text="{Binding ArtistName}"
                  FontSize="140"

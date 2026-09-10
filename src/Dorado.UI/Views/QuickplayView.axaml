@@ -3,12 +3,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.QuickplayView"
              x:DataType="vm:QuickplayViewModel">
 
   <Grid ColumnDefinitions="360,*" Margin="40,10,40,20">
+    <!-- Procedural hub map (clean-room replacement for QuickPlayMap artwork) -->
+    <views:HubMapControl Grid.Column="1" Count="{Binding Pins.Count}" Seed="11" Opacity="0.55" IsHitTestVisible="False" />
+
     <!-- Left Wing: Smart DJ Mix Hub -->
     <Border Grid.Column="0" 
             Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
