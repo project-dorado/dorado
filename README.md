@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-211%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-214%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -91,6 +91,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Sync-group engine** with rule builder, dry-run plan, guest sessions, capacity-aware transport
 - **Reverse sync** (device → PC) manifest
 - **Simulated device transport** (`SimulatedDeviceTransport`) with gas gauge, sync instructions toast, slide-in animation
+- **Real MTP transport seam** (`MtpTransport` + `IMtpDeviceClient`): a libusb-backed client (`LibUsbMtpDeviceClient`, USB product-ID detection) and an in-memory `VirtualMtpDeviceClient` share one contract; the sync engine is transport-agnostic (real MTPZ session layer remains hardware-N-A)
 - **FirstConnect wizard** (per-serial device arrival: name → media-type sync → privacy → done; Tier 4)
 - **Per-device sync rules** (music/podcasts/video/pictures)
 - **Wireless sync** stub (real wireless is hardware-N-A)
@@ -149,7 +150,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **211 unit tests** passing (XUnit + Avalonia headless harness)
+- **214 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
