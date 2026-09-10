@@ -161,7 +161,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 ### Medium-priority features (Tiers C / D)
 - **Tier C1 — Custom artist backgrounds** (`Mixview` / Now Playing): Fanart.tv already integrated; needs the catalog.zune.net-style artist-photo fallback community has restored via servers like `spidersandmoths/ZuneArtistImages`
 - **Tier C3 — Reputation Badges** (Album Power Listener / Artist Power Listener / Forums / Reviews — Bronze/Silver/Gold tiers, "badges did not expire")
-- **Tier D2 — Hub hero artwork maps** on Quickplay (`QuickPlayMap_*.png` / `SoftwareMap_*.png` shipped but unbound)
+- **Tier D2 — Hub hero artwork maps** on Quickplay (source `QuickPlayMap_*.png` / `SoftwareMap_*.png` assets are **absent** after the IP-remediation commit; a procedural clean-room equivalent is planned)
 - **Tier D3 — Reusable confirm/error dialog service** (`IDialogService`) replacing hand-rolled dialogs
 
 ### Smaller polish
@@ -238,21 +238,21 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 
 | Domain | Parity | Status |
 |---|---|---|
-| A. Shell & Navigation | **~90%** | Authentic chrome, cropped-header back, panoramic pivot, parallax slide |
-| B. Quickplay | **~80%** | Smart DJ hearts-aware, deck panorama, hubs; still missing artwork maps |
-| C. Collection (music) | **~90%** | Artists/Albums/Songs/Genres/Playlists/Smart Playlists + Find Album Info |
+| A. Shell & Navigation | **~92%** | Authentic chrome, cropped-header back, panoramic pivot, parallax + drag-inertia pan |
+| B. Quickplay | **~85%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; artwork maps pending |
+| C. Collection (music) | **~92%** | Artists/Albums/Songs/Genres/Playlists/Smart Playlists + Find Album Info + FTS5 search |
 | D. Now Playing | **~90%** | 3 modes + Ken-Burns + idle screensaver + bio/lyrics/showlist drawers |
-| E. Mixview | **~60%** | Local mosaic only; missing external artist satellites |
-| F. Audio engine | **~85%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, podcasts |
+| E. Mixview | **~65%** | Local mosaic + audio-feature similarity engine; external satellites pending |
+| F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
 | G. CD Land | **~40%** | Full UI, simulated rip/burn (no optical drive) |
-| H. Device sync | **~65%** | Sync-group engine, dry-run, guest sessions, reverse sync, FirstConnect wizard |
-| I. Podcasts | **~75%** | Subscribe + mark-all-played + stream playback |
-| J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute only |
-| K. Settings & Management | **~85%** | 12 software pages + 4 device pages + dark/light theme |
+| H. Device sync | **~70%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam |
+| I. Podcasts | **~85%** | Subscribe + normalization + mark-all-played + stream playback |
+| J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute; reputation-badge taxonomy pending |
+| K. Settings & Management | **~88%** | 13 software pages + 4 device pages + plugins + language + dark/light theme |
 | L. First-launch & onboarding | **~90%** | First-launch wizard + What's New + FirstConnect wizard |
-| M. Platform services (ZMDB, sharing) | **~50%** | SQLite substitute; UPnP/share/MUI deferred |
+| M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis persistence; UPnP/share/MUI deferred |
 
-**Weighted overall parity: ~85%** (UI presentation strongly, hardware-dependent features neutrally).
+**Weighted overall parity: ~88%** (UI presentation strongly, hardware-dependent features neutrally; measured 2026-09-10 after Phases 12–17).
 
 ---
 

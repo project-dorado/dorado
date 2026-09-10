@@ -57,18 +57,16 @@ All user interfaces in this project MUST strictly follow the authentic Zune desi
 
 The codebase follows Clean Architecture with strict separation of concerns:
 
-- `src/Dorado.Domain`: Entities, value objects, domain events, business invariants. (Zero external GUI/audio dependencies).
-- `src/Dorado.Application`: Application use cases, playback coordinators, library services, sync orchestrators, plugin interfaces.
-- `src/Dorado.Infrastructure.Persistence`: SQLite database (EF Core, WAL journaling). Full-text search is currently in-memory prefix matching; FTS5 indexing is a planned Phase 16 item, not yet implemented.
-- `src/Dorado.Infrastructure.Audio`: Audio playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, system media controls (Linux MPRIS, Windows SMTC).
-- `src/Dorado.Infrastructure.Devices`: Physical Zune USB synchronization:
-  - Transport backends: `libusb` on Linux, `WinUSB` on Windows.
-  - MTP / MTPZ security handshake.
-  - ZMDB fast binary parser (F-marker record extractor).
-  - USB PPP / TCP / DNS / HTTP reverse interceptor (`192.168.55.100`) for streaming artist biography XML and JPEG artwork directly to connected Zunes.
-  - SSDP / PTP/IP wireless synchronization listener.
-- `src/Dorado.Infrastructure.External`: Metadata aggregators (MusicBrainz, Fanart.tv, Last.fm, ZuneNetApi).
-- `src/Dorado.Plugins.Protocol` & `src/Dorado.Plugins.Sdk`: Out-of-process JSON-RPC sandboxed plugin architecture.
+- `src/Dorado.Domain`: Entities, value objects, business invariants. (Zero external GUI/audio dependencies).
+- `src/Dorado.Application`: Application use cases, playback coordinator, smart-DJ / audio-analysis / dynamic-mix services, library services, sync orchestrators, plugin interfaces, localization, and an `IDialogService` contract.
+- `src/Dorado.Infrastructure.Persistence`: SQLite database (EF Core, WAL journaling) plus an **FTS5 full-text index** over the collection (external-content `TrackSearch`, trigger-synced, `SearchIndex`).
+- `src/Dorado.Infrastructure.Audio`: BASS playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, and a managed **10-band equalizer** (BASS DSP). *System media controls (Linux MPRIS / Windows SMTC) are **not** implemented yet.*
+- `src/Dorado.Infrastructure.Devices`: Zune device integration:
+  - USB product-ID detection (`ZuneUsbDeviceProbe`, VID `045e`) and the `MtpTransport` / `IMtpDeviceClient` seam.
+  - `LibUsbMtpDeviceClient` (detection skeleton). *The MTPZ session/handshake, ZMDB binary parser, and SSDP/PTP-IP wireless listener are **not** implemented (hardware N-A).*
+  - `ZuneUsbHttpInterceptor` (USB-PPP reverse-HTTP placeholder).
+- `src/Dorado.Infrastructure.External`: Metadata aggregators (MusicBrainz, Cover Art Archive, Fanart.tv, LRCLIB, Wikipedia) and the podcast feed client.
+- `src/Dorado.Plugins.Protocol` / `Dorado.Plugins.Sdk` / `Dorado.Plugins.Host`: Out-of-process JSON-RPC sandboxed plugin architecture (+ Last.fm and Discord reference plugins).
 - `src/Dorado.UI`: Shared Avalonia XAML views, view models, controls, animations, and theme resources.
 - `src/Dorado.Desktop`: Desktop host executable for Linux and Windows.
 

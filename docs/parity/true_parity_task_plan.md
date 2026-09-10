@@ -84,3 +84,26 @@ refresh · milestone commit.
 | **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅; A–Z type-ahead deferred (needs a list-control scroll-into-view refactor). | 🟡 EQ+FTS5 done |
 | **16b — Fidelity medium** | Drag-inertia pivot strip ✅; Quickplay hub hero maps + Iris art-frame animation deferred (assets absent post IP move — need clean-room recreation). | 🟡 Partial |
 | **17 — i18n first pass** | `ILocalizationService` + catalog, `en` + `fr`, language selector in Settings → General, persisted. Remaining string extraction/locales incremental (see deferred registry). | ✅ Done |
+
+---
+
+# Next Program — Phases 18–23 "Fidelity Finish" (approved 2026-09-10)
+
+Scoping decisions: **north star = finish Zune fidelity leftovers**; native/OS deps acceptable
+**where cross-platform and guarded**; plugin ecosystem maturity **in scope** (tooling +
+integration tests + expanded services); **no Zune hardware** (MTPZ stays N-A).
+Visual recreation is **procedural/vector in code** (clean-room, no binary assets); dialogs are
+an **in-shell modal overlay**; A–Z type-ahead spans **all lists**; badges implement the
+**full Zune taxonomy with local Forums/Reviews substitutes**.
+
+Order: **18 → 19 → 20 → 21 → 22 → 23**. Each phase: tests · design audit 0 violations ·
+Release 0 warnings · README scorecard + `deferred_registry.md` refresh · milestone commit.
+
+| Phase | Goal | Status |
+|---|---|---|
+| **18 — Reconciliation baseline** | Fix `GEMINI.md` aspirational claims (MPRIS/SMTC, WinUSB/libusb, ZMDB/SSDP), add OS-media + real-DSP analysis to the registry, correct README hub-map claim, re-measure scorecard (~85% → ~88%). | ✅ Done |
+| **19 — Interaction fidelity** | `IDialogService` (in-shell modal) + migrate destructive confirms; long-press-to-pin (B3); A–Z type-ahead across all lists (ListView + `ScrollIntoView`). | NEXT |
+| **20 — Reputation badges (C3)** | Tiered (Bronze/Silver/Gold) Album/Artist Power Listener + Milestones; Reviews substitute (local review entity/editor); Forums substitute (Curator reputation from edits/playlists/pins). | Planned |
+| **21 — Artist-background fallback (C1)** | `IArtistImageProvider` chain: Fanart.tv → community `ZuneArtistImages` (configurable) → Wikimedia/Last.fm → theme fallback. | Planned |
+| **22 — Clean-room visuals (D2 + Iris + chevrons)** | Procedural hub hero map; code-generated Iris art-frame reveal; vector pivot chevrons. | Planned |
+| **23 — Plugin ecosystem maturity** | `.znp` pack target + author template/sample; real stdio process E2E tests; expanded `player/*` + paginated `library/queryTracks` services. | Planned |
