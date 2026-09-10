@@ -462,8 +462,25 @@ public class MainShellViewModel : ViewModelBase
         }
     }
 
+    private bool _showTotalTime;
+    public bool ShowTotalTime
+    {
+        get => _showTotalTime;
+        set
+        {
+            if (SetProperty(ref _showTotalTime, value))
+            {
+                OnPropertyChanged(nameof(FormattedDurationText));
+            }
+        }
+    }
+
     public string ElapsedTimeText => CurrentPosition.ToString(@"m\:ss");
     public string RemainingTimeText => (Duration - CurrentPosition).ToString(@"\-m\:ss");
+
+    public string FormattedDurationText => ShowTotalTime
+        ? Duration.ToString(@"m\:ss")
+        : (Duration - CurrentPosition).ToString(@"\-m\:ss");
 
     public double Volume
     {
@@ -472,6 +489,19 @@ public class MainShellViewModel : ViewModelBase
         {
             _playerCoordinator.Volume = value / 100.0;
             OnPropertyChanged();
+        }
+    }
+
+    public bool IsMuted
+    {
+        get => _playerCoordinator.IsMuted;
+        set
+        {
+            if (_playerCoordinator.IsMuted != value)
+            {
+                _playerCoordinator.IsMuted = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -511,6 +541,8 @@ public class MainShellViewModel : ViewModelBase
     public ICommand ToggleNowPlayingCommand { get; } = null!;
     public ICommand ToggleShuffleCommand { get; } = null!;
     public ICommand ToggleRepeatCommand { get; } = null!;
+    public ICommand ToggleTimeDisplayCommand { get; } = null!;
+    public ICommand ToggleMuteCommand { get; } = null!;
     public ICommand SeekCommand { get; } = null!;
     public ICommand StopCommand { get; } = null!;
     public ICommand RewindCommand { get; } = null!;
@@ -905,6 +937,8 @@ public class MainShellViewModel : ViewModelBase
         ToggleDislikeCommand = new AsyncRelayCommand(OnToggleDislikeAsync);
         ToggleShuffleCommand = new RelayCommand(() => Shuffle = !Shuffle);
         ToggleRepeatCommand = new RelayCommand(() => Repeat = !Repeat);
+        ToggleTimeDisplayCommand = new RelayCommand(() => ShowTotalTime = !ShowTotalTime);
+        ToggleMuteCommand = new RelayCommand(() => IsMuted = !IsMuted);
         ToggleCompactModeCommand = new RelayCommand(() => IsCompactMode = !IsCompactMode);
         ClearSearchCommand = new RelayCommand(() => HeaderSearchQuery = string.Empty);
         OpenDeviceCommand = new RelayCommand(() => ActivePivot = NavigationPivot.Device);
@@ -969,6 +1003,28 @@ public class MainShellViewModel : ViewModelBase
                 _equalizerFrame = (_equalizerFrame % 10) + 1;
                 RefreshNowPlayingIcon();
             };
+
+            // HUD position cadence. Real audio advances inside the output engine, so the bound
+            // progress/elapsed/remaining values only refresh on state changes; without this
+            // tick the transport stuck at 0:00 while a track played.
+            _positionTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(200)
+            };
+            _positionTimer.Tick += (_, _) =>
+            {
+                if (!IsPlaying)
+                {
+                    return;
+                }
+
+                OnPropertyChanged(nameof(CurrentPosition));
+                OnPropertyChanged(nameof(ProgressPercentage));
+                OnPropertyChanged(nameof(ElapsedTimeText));
+                OnPropertyChanged(nameof(RemainingTimeText));
+                OnPropertyChanged(nameof(FormattedDurationText));
+            };
+            _positionTimer.Start();
 
             // Tier A3: idle screensaver for Now Playing. Ticks at 60fps when in Now Playing and
             // advances _nowPlayingIdleProgress (0..1 over IdleFullSeconds-IdleStartSeconds) plus
@@ -1205,6 +1261,7 @@ public class MainShellViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProgressPercentage));
         OnPropertyChanged(nameof(ElapsedTimeText));
         OnPropertyChanged(nameof(RemainingTimeText));
+        OnPropertyChanged(nameof(FormattedDurationText));
         OnPropertyChanged(nameof(CurrentRating));
         OnPropertyChanged(nameof(IsFavorite));
         OnPropertyChanged(nameof(IsDisliked));
@@ -1224,6 +1281,7 @@ public class MainShellViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProgressPercentage));
         OnPropertyChanged(nameof(ElapsedTimeText));
         OnPropertyChanged(nameof(RemainingTimeText));
+        OnPropertyChanged(nameof(FormattedDurationText));
         OnPropertyChanged(nameof(Shuffle));
         OnPropertyChanged(nameof(Repeat));
 

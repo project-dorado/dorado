@@ -32,6 +32,59 @@ public partial class MainShellView : UserControl
         }
     }
 
+    private void OnSeekPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control surface || DataContext is not MainShellViewModel vm)
+        {
+            return;
+        }
+
+        if (!e.GetCurrentPoint(surface).Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        _isSeeking = true;
+        e.Pointer.Capture(surface);
+        vm.SeekCommand.Execute(FractionAt(surface, e.GetPosition(surface).X));
+        e.Handled = true;
+    }
+
+    private void OnSeekPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!_isSeeking || sender is not Control surface || DataContext is not MainShellViewModel vm)
+        {
+            return;
+        }
+
+        vm.SeekCommand.Execute(FractionAt(surface, e.GetPosition(surface).X));
+        e.Handled = true;
+    }
+
+    private void OnSeekPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isSeeking)
+        {
+            return;
+        }
+
+        _isSeeking = false;
+
+        if (sender is Control surface && DataContext is MainShellViewModel vm)
+        {
+            vm.SeekCommand.Execute(FractionAt(surface, e.GetPosition(surface).X));
+        }
+
+        e.Pointer.Capture(null);
+        e.Handled = true;
+    }
+
+    private static double FractionAt(Control surface, double x)
+    {
+        var width = surface.Bounds.Width;
+        return width <= 0 ? 0 : Math.Clamp(x / width, 0.0, 1.0);
+    }
+
     private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var window = TopLevel.GetTopLevel(this) as Window;

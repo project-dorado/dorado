@@ -39,6 +39,10 @@ public static class ZuneGlyphs
     public static Geometry Speaker { get; } = StreamGeometry.Parse(
         "M4,9 H8 L13,5 V19 L8,15 H4 Z");
 
+    /// <summary>A speaker body with a mute mark; draw with a fill.</summary>
+    public static Geometry SpeakerMute { get; } = StreamGeometry.Parse(
+        "M4,9 H8 L13,5 V19 L8,15 H4 Z M16,9.5 L17.5,8 L22.5,13 L21,14.5 Z M21,8 L22.5,9.5 L17.5,14.5 L16,13 Z");
+
     // ---- transport glyphs (stroked) -------------------------------------
 
     /// <summary>Two looping arrows (repeat). Draw with Stroke, no Fill.</summary>

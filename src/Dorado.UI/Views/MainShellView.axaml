@@ -376,14 +376,37 @@
               BorderBrush="{DynamicResource ZuneBorderBrush}"
               BorderThickness="0,1,0,0">
         <Grid RowDefinitions="Auto,*">
-          <!-- 2px Hairline Seek Scrubber across Full Window Width -->
-          <ProgressBar Grid.Row="0" 
-                       Height="3" 
-                       CornerRadius="0"
-                       Value="{Binding ProgressPercentage}" 
-                       Maximum="1.0" 
-                       Foreground="{DynamicResource ZuneAccentBrush}" 
-                       Background="{DynamicResource ZuneInputBackgroundBrush}" />
+          <!-- Hairline Seek Scrubber across Full Window Width (draggable to seek; 2px expands to 4px on hover) -->
+          <Border Grid.Row="0"
+                  x:Name="SeekSurface"
+                  Height="14"
+                  Background="Transparent"
+                  Cursor="Hand"
+                  ToolTip.Tip="Drag to seek"
+                  PointerPressed="OnSeekPointerPressed"
+                  PointerMoved="OnSeekPointerMoved"
+                  PointerReleased="OnSeekPointerReleased">
+            <Border.Styles>
+              <Style Selector="Border#SeekSurface ProgressBar">
+                <Setter Property="Height" Value="2" />
+                <Setter Property="Transitions">
+                  <Transitions>
+                    <DoubleTransition Property="Height" Duration="0:0:0.150" Easing="CubicEaseOut" />
+                  </Transitions>
+                </Setter>
+              </Style>
+              <Style Selector="Border#SeekSurface:pointerover ProgressBar">
+                <Setter Property="Height" Value="4" />
+              </Style>
+            </Border.Styles>
+            <ProgressBar VerticalAlignment="Center"
+                         CornerRadius="0"
+                         Value="{Binding ProgressPercentage}"
+                         Maximum="1.0"
+                         Foreground="{DynamicResource ZuneAccentBrush}"
+                         Background="{DynamicResource ZuneInputBackgroundBrush}"
+                         IsHitTestVisible="False" />
+          </Border>
 
           <!-- Controls Row (Auto columns keep the HUD intact down to the authentic 734px minimum) -->
           <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="28,0,28,0" VerticalAlignment="Center">
@@ -466,13 +489,28 @@
 
             <!-- Right: Scrub Timers & Volume Slider -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" VerticalAlignment="Center">
-              <TextBlock Text="{Binding ElapsedTimeText}" Classes="caption" VerticalAlignment="Center" />
-              <TextBlock Text="/" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
-              <TextBlock Text="{Binding RemainingTimeText}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+              <!-- Interactive Scrub Timer (Click toggles between remaining and total time) -->
+              <Button Command="{Binding ToggleTimeDisplayCommand}"
+                      Padding="4,2"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Cursor="Hand"
+                      ToolTip.Tip="Toggle remaining / total duration">
+                <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding ElapsedTimeText}" Classes="caption" VerticalAlignment="Center" />
+                  <TextBlock Text="/" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                  <TextBlock Text="{Binding FormattedDurationText}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                </StackPanel>
+              </Button>
 
-              <!-- Volume Control -->
-              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="10,0,0,0">
-                <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="19" Height="16" VerticalAlignment="Center" />
+              <!-- Volume Control & Mute Button -->
+              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="6,0,0,0">
+                <Button Command="{Binding ToggleMuteCommand}" Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Mute / Unmute">
+                  <Panel Width="19" Height="16" VerticalAlignment="Center">
+                    <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsMuted}" Width="19" Height="16" />
+                    <Path Data="{x:Static design:ZuneGlyphs.SpeakerMute}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding IsMuted}" Width="19" Height="16" />
+                  </Panel>
+                </Button>
                 <Slider Width="70"
                         Value="{Binding Volume}" 
                         Minimum="0" 
