@@ -1,0 +1,13 @@
+{
+  "id": "com.example.sample",
+  "name": "Sample Plugin",
+  "version": "1.0.0",
+  "author": "You",
+  "description": "A minimal Dorado plugin that logs playback events.",
+  "sdkVersion": "1.0",
+  "entryPoint": "Dorado.Plugin.Sample.dll",
+  "capabilities": [
+    { "type": "event-listening", "scopes": ["playback"] },
+    { "type": "host-services", "scopes": ["logger", "storage"] }
+  ]
+}

@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-247%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-251%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -143,6 +143,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Player-event bridge** mapping `IPlayerCoordinator` events to `playback/trackChanged`, `playback/stateChanged`, `rating/changed`
 - **Settings → Software → Plugins** page with install / enable / disable / open-folder
 - **Reference plugins:** Last.fm Scrobbler (now-playing + scrobble threshold rules, api_sig signing) and Discord Rich Presence (IPC handshake + activity payload)
+- **Plugin tooling:** `dotnet publish` emits a distributable `.znp` (`PackZnp` target), an author template at `templates/plugin-sample/`, expanded host services (`player/getState|play|pause|next|previous|seek`), and a real process-boundary E2E test spawning the reference plugins over stdio
 
 ### Visual & Motion
 - **Authentic Zune 4.8 color palette** extracted from shipped PNG pixels + decompiled UIX corpus
@@ -159,7 +160,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **247 unit tests** passing (XUnit + Avalonia headless harness)
+- **251 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 

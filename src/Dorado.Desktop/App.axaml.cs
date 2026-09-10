@@ -111,7 +111,10 @@ public partial class App : Avalonia.Application
         {
             var options = new PluginManagerOptions();
             var storage = new PluginStorage(Path.Combine(options.ConfigDirectory, "storage"));
-            var hostServices = new PluginHostServices(storage, sp.GetRequiredService<IMediaLibraryService>());
+            var hostServices = new PluginHostServices(
+                storage,
+                sp.GetRequiredService<IMediaLibraryService>(),
+                sp.GetRequiredService<IPlayerCoordinator>());
             return new PluginManager(options, plugin => new ProcessPluginTransport(plugin), hostServices);
         });
         services.AddSingleton(sp => new PluginEventBridge(

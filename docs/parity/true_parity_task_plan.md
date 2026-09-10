@@ -106,4 +106,4 @@ Release 0 warnings · README scorecard + `deferred_registry.md` refresh · miles
 | **20 — Reputation badges (C3)** | Tiered (Bronze/Silver/Gold) Album/Artist Power Listener, Milestone, Marathon; local Reviews (prompt + persistence); Curator/Forums substitute. | ✅ Done |
 | **21 — Artist-background fallback (C1)** | Fanart.tv → configurable community-mirror fallback (`CommunityArtistImageProvider`, clean-room) → theme art; Settings toggle + URL. | ✅ Done |
 | **22 — Clean-room visuals (D2 + Iris + chevrons)** | `HubMapControl` (golden-angle constellation), `IrisArtControl` (dashed ring reveal), vector pivot chevrons. | ✅ Done |
-| **23 — Plugin ecosystem maturity** | `.znp` pack target + author template/sample; real stdio process E2E tests; expanded `player/*` + paginated `library/queryTracks` services. | Planned |
+| **23 — Plugin ecosystem maturity** | `.znp` PackZnp target ✅, author template ✅, real stdio process E2E tests ✅, expanded `player/*` host services ✅. | ✅ Done |

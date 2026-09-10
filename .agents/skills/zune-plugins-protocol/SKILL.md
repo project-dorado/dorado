@@ -123,9 +123,13 @@ Fires when the user updates the heart rating:
 
 Plugins can invoke methods on the host via standard JSON-RPC requests:
 - `logger/log`: Log info, warning, or error messages into the central player log.
-- `storage/get` & `storage/set`: Encrypted key-value persistence for credentials (e.g. Last.fm session tokens).
+- `storage/get` & `storage/set`: Key-value persistence, isolated per plugin (e.g. Last.fm session tokens).
 - `library/queryTracks`: Query tracks by artist, album, or search text.
 - `ui/showToast`: Display a native Zune-styled sliding toast notification.
+- `player/getState`: Returns `{ state, isPlaying, title, artist, positionMs }`.
+- `player/play` / `player/pause`: Idempotent transport control.
+- `player/next` / `player/previous`: Skip tracks.
+- `player/seek`: `{ positionMs }`.
 
 ---
 
@@ -136,4 +140,15 @@ Plugins can invoke methods on the host via standard JSON-RPC requests:
   - `plugin.json` (at root)
   - Compiled plugin binaries and dependent DLLs / native libraries
   - Optional assets (icons, licenses)
-- Installation: Drag-and-drop into Settings > Software > Plugins, or placing into the `~/.local/share/dorado/plugins` (Linux) or `%LOCALAPPDATA%\Dorado\plugins` (Windows) folder.
+- Installation: Drag-and-drop into Settings > Software > Plugins, or placing into the `~/.local/share/Dorado/plugins` (Linux) or `%LOCALAPPDATA%\Dorado\plugins` (Windows) folder.
+
+### Building a `.znp`
+
+Plugin projects that reference `Dorado.Plugins.Sdk` and include a `plugin.json` (`CopyToOutputDirectory`) get a `PackZnp` target automatically in the sample template:
+
+```bash
+dotnet publish -c Release
+# -> bin/Release/net8.0/<AssemblyName>.znp  (plugin.json + binaries + deps)
+```
+
+A minimal author template lives at `templates/plugin-sample/`.

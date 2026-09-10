@@ -331,12 +331,17 @@ internal sealed class FakePlayerCoordinator : IPlayerCoordinator
     public bool IsSimulatedPlayback => false;
     public IReadOnlyList<Track> Queue => Array.Empty<Track>();
 
+    public int NextCalls { get; private set; }
+    public int PreviousCalls { get; private set; }
+    public int PlayPauseCalls { get; private set; }
+    public TimeSpan? LastSeek { get; private set; }
+
     public Task PlayTrackAsync(Track track, IEnumerable<Track>? contextQueue = null) => Task.CompletedTask;
-    public Task PlayPauseAsync() => Task.CompletedTask;
+    public Task PlayPauseAsync() { PlayPauseCalls++; return Task.CompletedTask; }
     public Task StopAsync() => Task.CompletedTask;
-    public Task NextAsync() => Task.CompletedTask;
-    public Task PreviousAsync() => Task.CompletedTask;
-    public Task SeekAsync(TimeSpan position) => Task.CompletedTask;
+    public Task NextAsync() { NextCalls++; return Task.CompletedTask; }
+    public Task PreviousAsync() { PreviousCalls++; return Task.CompletedTask; }
+    public Task SeekAsync(TimeSpan position) { LastSeek = position; return Task.CompletedTask; }
     public Task SetRatingAsync(Guid trackId, HeartRating rating) => Task.CompletedTask;
     public void Enqueue(IEnumerable<Track> tracks) { }
     public void PlayNext(IEnumerable<Track> tracks) { }

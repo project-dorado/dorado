@@ -19,4 +19,13 @@
     </None>
   </ItemGroup>
 
+  <!-- `dotnet publish` also emits a distributable .znp package next to the output. -->
+  <Target Name="PackZnp" AfterTargets="Publish">
+    <PropertyGroup>
+      <ZnpDestination>$(PublishDir)../$(AssemblyName).znp</ZnpDestination>
+    </PropertyGroup>
+    <ZipDirectory SourceDirectory="$(PublishDir)" DestinationFile="$(ZnpDestination)" Overwrite="true" />
+    <Message Importance="high" Text="Packed plugin: $(ZnpDestination)" />
+  </Target>
+
 </Project>

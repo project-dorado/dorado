@@ -12,6 +12,7 @@ namespace Dorado.Plugins.Host;
 public sealed class PluginHostServices
 {
     private readonly IMediaLibraryService? _library;
+    private readonly IPlayerCoordinator? _player;
     private readonly PluginStorage _storage;
     private readonly Action<string, string, string>? _logSink;
     private readonly Action<string, string>? _toastSink;
@@ -19,11 +20,13 @@ public sealed class PluginHostServices
     public PluginHostServices(
         PluginStorage storage,
         IMediaLibraryService? library = null,
+        IPlayerCoordinator? player = null,
         Action<string, string, string>? logSink = null,
         Action<string, string>? toastSink = null)
     {
         _storage = storage;
         _library = library;
+        _player = player;
         _logSink = logSink;
         _toastSink = toastSink;
     }
@@ -89,6 +92,47 @@ public sealed class PluginHostServices
                 return new { ok = true };
             }
 
+            case "player/getState":
+                return new
+                {
+                    state = _player?.State.ToString() ?? "Stopped",
+                    isPlaying = _player?.State == PlaybackState.Playing,
+                    title = _player?.CurrentTrack?.Title,
+                    artist = _player?.CurrentTrack?.ArtistName,
+                    positionMs = (long)(_player?.CurrentPosition.TotalMilliseconds ?? 0)
+                };
+
+            case "player/play":
+                if (_player is { State: not PlaybackState.Playing })
+                {
+                    await _player.PlayPauseAsync().ConfigureAwait(false);
+                }
+
+                return new { ok = true };
+
+            case "player/pause":
+                if (_player is { State: PlaybackState.Playing })
+                {
+                    await _player.PlayPauseAsync().ConfigureAwait(false);
+                }
+
+                return new { ok = true };
+
+            case "player/next":
+                if (_player is not null) await _player.NextAsync().ConfigureAwait(false);
+                return new { ok = true };
+
+            case "player/previous":
+                if (_player is not null) await _player.PreviousAsync().ConfigureAwait(false);
+                return new { ok = true };
+
+            case "player/seek":
+            {
+                var positionMs = GetLong(parameters, "positionMs") ?? 0;
+                if (_player is not null) await _player.SeekAsync(TimeSpan.FromMilliseconds(positionMs)).ConfigureAwait(false);
+                return new { ok = true };
+            }
+
             default:
                 throw new PluginRpcException(-32601, $"Method not found: {method}");
         }
@@ -103,6 +147,21 @@ public sealed class PluginHostServices
                 JsonValueKind.String => value.GetString(),
                 JsonValueKind.Null => null,
                 _ => value.ToString()
+            };
+        }
+
+        return null;
+    }
+
+    private static long? GetLong(JsonElement? parameters, string name)
+    {
+        if (parameters is { } element && element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value))
+        {
+            return value.ValueKind switch
+            {
+                JsonValueKind.Number when value.TryGetInt64(out var number) => number,
+                JsonValueKind.String when long.TryParse(value.GetString(), out var parsed) => parsed,
+                _ => null
             };
         }
 
