@@ -507,6 +507,35 @@
       <Grid Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsFirstConnectWizardOpen}" Background="#D9000000" ZIndex="108">
         <views:FirstConnectWizardView DataContext="{Binding FirstConnectWizardVM}" HorizontalAlignment="Center" VerticalAlignment="Center" />
       </Grid>
+
+      <!-- In-Shell Modal Dialog (Phase 19a) — confirmations/alerts (DIALOG.UIX / ERRORDIALOG.UIX parity) -->
+      <Grid Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsDialogOpen}" Background="#E8000000" ZIndex="130">
+        <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                BorderBrush="{DynamicResource ZuneBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="0"
+                Padding="28"
+                MinWidth="400"
+                MaxWidth="520"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <StackPanel Spacing="18">
+            <TextBlock Text="{Binding DialogTitle}" Classes="hero" FontSize="24" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding DialogMessage}" Classes="body" TextWrapping="Wrap" MaxWidth="460" />
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+              <Button Classes="zune-action"
+                      IsVisible="{Binding HasDialogCancel}"
+                      Command="{Binding CancelDialogCommand}">
+                <TextBlock Text="{Binding DialogCancelText}" FontWeight="SemiBold" FontSize="11" />
+              </Button>
+              <Button Classes="zune-accent-btn"
+                      Command="{Binding ConfirmDialogCommand}">
+                <TextBlock Text="{Binding DialogConfirmText}" FontWeight="SemiBold" FontSize="11" />
+              </Button>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
     </Grid>
   </Panel>
 </UserControl>

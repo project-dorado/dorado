@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-216%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-226%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -67,6 +67,9 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Parallax 3D pivot slide** (`PivotParallaxTransition`, 420ms cubic ease-out, scale 0.92; Quickplay variant 320ms/0.85)
 - **Compact mini-player** with drag-to-move, showlist toggle, volume slider (480×110)
 - **8-zone edge resize handles** for window drag-resize
+- **In-shell modal dialog service** (`IDialogService`) for confirmations/alerts, migrating destructive actions (playlist delete, clear library)
+- **A–Z type-ahead jump** across the Collection, Podcasts, Videos, and Playlists lists
+- **Long-press to pin** an album to Quickplay (press-and-hold, with tap/long-press disambiguation)
 
 ### Audio Playback (REAL)
 - **BASS engine** with gapless transitions, equal-power crossfade, ReplayGain volume leveling
@@ -150,7 +153,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **216 unit tests** passing (XUnit + Avalonia headless harness)
+- **226 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -159,13 +162,11 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 Items that remain, in approximate priority order. **No gap is unplanned** — each is in the [`docs/parity/deferred_registry.md`](docs/parity/deferred_registry.md) with rationale.
 
 ### Medium-priority features (Tiers C / D)
-- **Tier C1 — Custom artist backgrounds** (`Mixview` / Now Playing): Fanart.tv already integrated; needs the catalog.zune.net-style artist-photo fallback community has restored via servers like `spidersandmoths/ZuneArtistImages`
-- **Tier C3 — Reputation Badges** (Album Power Listener / Artist Power Listener / Forums / Reviews — Bronze/Silver/Gold tiers, "badges did not expire")
-- **Tier D2 — Hub hero artwork maps** on Quickplay (source `QuickPlayMap_*.png` / `SoftwareMap_*.png` assets are **absent** after the IP-remediation commit; a procedural clean-room equivalent is planned)
-- **Tier D3 — Reusable confirm/error dialog service** (`IDialogService`) replacing hand-rolled dialogs
+- **Tier C1 — Custom artist backgrounds** (`Mixview` / Now Playing): Fanart.tv already integrated; needs the catalog.zune.net-style artist-photo fallback community has restored via servers like `spidersandmoths/ZuneArtistImages` *(Phase 21)*
+- **Tier C3 — Reputation Badges** (Album Power Listener / Artist Power Listener / Forums / Reviews — Bronze/Silver/Gold tiers, "badges did not expire") *(Phase 20)*
+- **Tier D2 — Hub hero artwork maps** on Quickplay (source assets absent after IP remediation; procedural clean-room equivalent) *(Phase 22)*
 
 ### Smaller polish
-- **Tier B3 — Long-press to pin** to Quickplay (from `dorado-hd` canon)
 - **MusicBrainz + AcoustID auto-metadata + dedup** at scan time
 - **Direct device playback** from desktop (play tracks off the device)
 - **On-the-fly WMA Lossless transcoding** during sync
@@ -175,7 +176,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 - **Tier D1 — Real CD rip/burn pipeline** (capability-gated — needs optical-drive access)
 - **Zune Card + Friends social layer** (the most-requested missing feature, but the Zune Social servers are dead; local-only substitute)
 - **Wireless song squirt** (device-to-device peer-to-peer)
-- **Drag-inertia panoramic pivot pan** (replacing current wheel-pan with touch/drag + chevron scroll arrows)
+- **Chevron scroll-arrow overlay** on the pivot strip (drag-inertia pan already shipped)
 
 ### Hardware-N-A (documented in `deferred_registry.md`)
 - **Real MTPZ device sync** (`ZuneWmduDLL` parity) — needs physical Zune hardware

@@ -188,7 +188,8 @@ public class CollectionViewModel : ViewModelBase
         ISmartPlaylistService? smartPlaylistService = null,
         IVideoLibraryService? videoLibraryService = null,
         IVideoPlaybackEngine? videoEngine = null,
-        IPhotoLibraryService? photoLibraryService = null)
+        IPhotoLibraryService? photoLibraryService = null,
+        IDialogService? dialogService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -209,7 +210,7 @@ public class CollectionViewModel : ViewModelBase
             slideshow.RequestClose += (_, _) => ActiveSlideshowVM = null;
             ActiveSlideshowVM = slideshow;
         };
-        PlaylistsVM = new PlaylistsViewModel(libraryService, playerCoordinator, smartPlaylistService);
+        PlaylistsVM = new PlaylistsViewModel(libraryService, playerCoordinator, smartPlaylistService, dialogService);
 
         OpenEditMetadataCommand = new RelayCommand<Track>(track =>
         {

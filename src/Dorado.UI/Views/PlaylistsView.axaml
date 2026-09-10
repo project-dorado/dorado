@@ -7,6 +7,7 @@
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
              x:Class="Dorado.UI.Views.PlaylistsView"
+             TextInput="OnTypeAheadText"
              x:DataType="vm:PlaylistsViewModel">
 
   <Grid ColumnDefinitions="260,32,*" Margin="0,16,0,0">
@@ -35,7 +36,7 @@
 
       <!-- Playlists List -->
       <ScrollViewer Grid.Row="2" MaxHeight="220">
-        <ListBox ItemsSource="{Binding Playlists}"
+        <ListBox x:Name="PlaylistsList" ItemsSource="{Binding Playlists}"
                  SelectedItem="{Binding SelectedPlaylist}"
                  Background="Transparent"
                  CornerRadius="0">
@@ -169,7 +170,7 @@
 
         <!-- Tracklist Table -->
         <ScrollViewer Grid.Row="3">
-          <ItemsControl ItemsSource="{Binding SelectedPlaylistTracks}">
+          <ItemsControl x:Name="PlaylistTracksList" ItemsSource="{Binding SelectedPlaylistTracks}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="models:Track">
                 <!-- Tier B2: drag source — PointerPressed starts a DoDragDrop with the track payload. -->
@@ -244,7 +245,7 @@
                    Margin="0,0,0,8" />
 
         <ScrollViewer Grid.Row="3">
-          <ItemsControl ItemsSource="{Binding SelectedSmartPlaylistTracks}">
+          <ItemsControl x:Name="SmartTracksList" ItemsSource="{Binding SelectedSmartPlaylistTracks}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="models:Track">
                 <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" Padding="6,8" CornerRadius="0">

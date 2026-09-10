@@ -171,14 +171,18 @@ public class PlaylistsViewModel : ViewModelBase
 
     private readonly System.Collections.Generic.Dictionary<Guid, Avalonia.Threading.DispatcherTimer> _hoverSwapTimers = new();
 
+    private readonly IDialogService? _dialogService;
+
     public PlaylistsViewModel(
         IMediaLibraryService libraryService,
         IPlayerCoordinator playerCoordinator,
-        ISmartPlaylistService? smartPlaylistService = null)
+        ISmartPlaylistService? smartPlaylistService = null,
+        IDialogService? dialogService = null)
     {
         _libraryService = libraryService;
         _playerCoordinator = playerCoordinator;
         _smartPlaylistService = smartPlaylistService;
+        _dialogService = dialogService;
 
         CreatePlaylistCommand = new AsyncRelayCommand(OnCreatePlaylistAsync);
         DeletePlaylistCommand = new AsyncRelayCommand<Playlist>(OnDeletePlaylistAsync);
@@ -267,6 +271,20 @@ public class PlaylistsViewModel : ViewModelBase
     {
         var target = playlist ?? SelectedPlaylist;
         if (target == null) return;
+
+        if (_dialogService is not null)
+        {
+            var confirmed = await _dialogService.ConfirmAsync(new DialogRequest(
+                "Delete playlist",
+                $"Delete \u201c{target.Name}\u201d? This cannot be undone.",
+                "DELETE",
+                "CANCEL",
+                IsDestructive: true));
+            if (!confirmed)
+            {
+                return;
+            }
+        }
 
         await _libraryService.DeletePlaylistAsync(target.Id);
         await LoadPlaylistsAsync();

@@ -7,9 +7,45 @@ namespace Dorado.UI.Views;
 
 public partial class PlaylistsView : UserControl
 {
+    private readonly TypeAheadBuffer _typeAhead = new();
+
     public PlaylistsView()
     {
         InitializeComponent();
+    }
+
+    /// <summary>A–Z jump: match playlists (selection + scroll), then the selected playlist's tracks.</summary>
+    private void OnTypeAheadText(object? sender, TextInputEventArgs e)
+    {
+        if (e.Source is TextBox || string.IsNullOrEmpty(e.Text) || e.Text.Length != 1)
+        {
+            return;
+        }
+
+        var character = e.Text[0];
+        if (!char.IsLetterOrDigit(character) || DataContext is not ViewModels.PlaylistsViewModel vm)
+        {
+            return;
+        }
+
+        var prefix = _typeAhead.Append(character, DateTime.UtcNow);
+
+        var playlistIndex = TypeAheadSearch.FindIndex(vm.Playlists, prefix, playlist => playlist.Name);
+        if (playlistIndex >= 0)
+        {
+            vm.SelectedPlaylist = vm.Playlists[playlistIndex];
+            PlaylistsList.ScrollIntoView(vm.Playlists[playlistIndex]);
+            e.Handled = true;
+            return;
+        }
+
+        var trackIndex = TypeAheadSearch.FindIndex(vm.SelectedPlaylistTracks, prefix, track => track.Title);
+        if (trackIndex >= 0)
+        {
+            PlaylistTracksList.ContainerFromIndex(trackIndex)?.BringIntoView();
+        }
+
+        e.Handled = true;
     }
 
     /// <summary>

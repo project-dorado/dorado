@@ -6,6 +6,7 @@
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.PodcastsView"
+             TextInput="OnTypeAheadText"
              x:DataType="vm:PodcastsViewModel">
 
   <Grid RowDefinitions="Auto,*" Margin="40,6,40,16">
@@ -40,7 +41,7 @@
               BorderThickness="0,0,1,0" 
               Padding="0,0,16,0">
         <ScrollViewer>
-          <ItemsControl ItemsSource="{Binding Podcasts}">
+          <ItemsControl x:Name="PodcastsList" ItemsSource="{Binding Podcasts}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="models:PodcastSeries">
                 <Button Command="{Binding $parent[UserControl].((vm:PodcastsViewModel)DataContext).SelectPodcastCommand}"
@@ -93,7 +94,7 @@
 
         <!-- Episode Items -->
         <ScrollViewer Grid.Row="1">
-          <ItemsControl ItemsSource="{Binding Episodes}">
+          <ItemsControl x:Name="EpisodesList" ItemsSource="{Binding Episodes}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="models:PodcastEpisode">
                 <Button Command="{Binding $parent[UserControl].((vm:PodcastsViewModel)DataContext).PlayEpisodeCommand}"

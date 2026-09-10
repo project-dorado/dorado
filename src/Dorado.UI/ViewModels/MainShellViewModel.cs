@@ -37,6 +37,7 @@ public class MainShellViewModel : ViewModelBase
     private readonly IUserStatsService? _userStatsService;
     private readonly IPodcastService? _podcastService;
     private readonly IVideoLibraryService? _videoLibraryService;
+    private readonly IDialogService? _dialogService;
 
     private NavigationPivot _activePivot = NavigationPivot.Quickplay;
     private readonly Stack<NavigationPivot> _navigationHistory = new();
@@ -54,6 +55,16 @@ public class MainShellViewModel : ViewModelBase
     private bool _isNowPlayingButtonPressed;
     private bool _isNowPlayingPlaying;
     private string _nowPlayingIconSource = "avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.ENTER.PNG";
+
+    // In-shell modal dialog state (Phase 19a).
+    private TaskCompletionSource<bool>? _dialogCompletion;
+    private bool _isDialogOpen;
+    private string _dialogTitle = string.Empty;
+    private string _dialogMessage = string.Empty;
+    private string _dialogConfirmText = "OK";
+    private string _dialogCancelText = "CANCEL";
+    private bool _hasDialogCancel = true;
+    private bool _isDialogDestructive;
 
     // Tier A3: idle screensaver for Now Playing. _nowPlayingIdleProgress 0..1 (1 = fully idle);
     // _nowPlayingArtRotation 0..360 degrees; both advance via the idle timer while the user is inactive
@@ -480,6 +491,8 @@ public class MainShellViewModel : ViewModelBase
     }
 
     // Commands
+    public ICommand ConfirmDialogCommand { get; } = null!;
+    public ICommand CancelDialogCommand { get; } = null!;
     public ICommand SelectPivotCommand { get; } = null!;
     public ICommand PlayPauseCommand { get; } = null!;
     public ICommand NextCommand { get; } = null!;
@@ -521,6 +534,88 @@ public class MainShellViewModel : ViewModelBase
     }
 
     public bool IsFirstLaunchWizardOpen => FirstLaunchWizardVM != null;
+
+    // ==========================================
+    // IN-SHELL MODAL DIALOG (Phase 19a)
+    // ==========================================
+    public bool IsDialogOpen
+    {
+        get => _isDialogOpen;
+        private set => SetProperty(ref _isDialogOpen, value);
+    }
+
+    public string DialogTitle
+    {
+        get => _dialogTitle;
+        private set => SetProperty(ref _dialogTitle, value);
+    }
+
+    public string DialogMessage
+    {
+        get => _dialogMessage;
+        private set => SetProperty(ref _dialogMessage, value);
+    }
+
+    public string DialogConfirmText
+    {
+        get => _dialogConfirmText;
+        private set => SetProperty(ref _dialogConfirmText, value);
+    }
+
+    public string DialogCancelText
+    {
+        get => _dialogCancelText;
+        private set => SetProperty(ref _dialogCancelText, value);
+    }
+
+    public bool HasDialogCancel
+    {
+        get => _hasDialogCancel;
+        private set => SetProperty(ref _hasDialogCancel, value);
+    }
+
+    public bool IsDialogDestructive
+    {
+        get => _isDialogDestructive;
+        private set => SetProperty(ref _isDialogDestructive, value);
+    }
+
+    private async Task<bool> ShowDialogAsync(DialogRequest request, CancellationToken cancellationToken)
+    {
+        var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            DialogTitle = request.Title;
+            DialogMessage = request.Message;
+            DialogConfirmText = request.ConfirmText;
+            DialogCancelText = request.CancelText ?? "CANCEL";
+            HasDialogCancel = request.CancelText is not null;
+            IsDialogDestructive = request.IsDestructive;
+            _dialogCompletion = completion;
+            IsDialogOpen = true;
+        });
+
+        using var registration = cancellationToken.Register(() => completion.TrySetResult(false));
+        return await completion.Task;
+    }
+
+    private void ConfirmDialog()
+    {
+        IsDialogOpen = false;
+        var completion = _dialogCompletion;
+        _dialogCompletion = null;
+        completion?.TrySetResult(true);
+    }
+
+    private void CancelDialog()
+    {
+        IsDialogOpen = false;
+        var completion = _dialogCompletion;
+        _dialogCompletion = null;
+        completion?.TrySetResult(false);
+    }
+
 
     private FirstConnectWizardViewModel? _firstConnectWizardVM;
     public FirstConnectWizardViewModel? FirstConnectWizardVM
@@ -580,7 +675,8 @@ public class MainShellViewModel : ViewModelBase
         ISyncGroupService? syncGroupService = null,
         PluginManager? pluginManager = null,
         IDynamicMixService? dynamicMixService = null,
-        ILocalizationService? localization = null)
+        ILocalizationService? localization = null,
+        IDialogService? dialogService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -592,10 +688,10 @@ public class MainShellViewModel : ViewModelBase
 
         // Child ViewModels
         QuickplayVM = new QuickplayViewModel(playerCoordinator, libraryService, smartDJService, dynamicMixService);
-        CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService);
+        CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService, dialogService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
-        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization);
+        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization, dialogService);
 
         // Onboarding (FIRSTLAUNCH + WHATSNEW parity): wizard on first run, What's New on version change.
         var startupSettings = settingsStore?.Load();
@@ -697,6 +793,15 @@ public class MainShellViewModel : ViewModelBase
         };
 
         // Setup commands
+        _dialogService = dialogService;
+        if (dialogService is Dorado.Application.Services.DialogService host)
+        {
+            host.ConfirmHandler = ShowDialogAsync;
+        }
+
+        ConfirmDialogCommand = new RelayCommand(ConfirmDialog);
+        CancelDialogCommand = new RelayCommand(CancelDialog);
+
         SelectPivotCommand = new RelayCommand<NavigationPivot>(pivot => ActivePivot = pivot);
         PlayPauseCommand = new AsyncRelayCommand(() => _playerCoordinator.PlayPauseAsync());
         NextCommand = new AsyncRelayCommand(() => _playerCoordinator.NextAsync());

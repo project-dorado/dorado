@@ -8,6 +8,7 @@
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.CollectionView"
+             TextInput="OnTypeAheadText"
              x:DataType="vm:CollectionViewModel">
 
   <Panel>
@@ -65,7 +66,7 @@
                 BorderThickness="0,0,1,0" 
                 Padding="0,0,16,0">
           <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding Artists}">
+            <ItemsControl x:Name="ArtistsList" ItemsSource="{Binding Artists}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="models:Artist">
                   <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).SelectArtistCommand}"
@@ -225,7 +226,7 @@
                    Margin="0,0,0,12"
                    IsVisible="{Binding HasFindAlbumInfoStatus}" />
         <ScrollViewer Grid.Row="1">
-        <ItemsControl ItemsSource="{Binding Albums}">
+        <ItemsControl x:Name="AlbumsList" ItemsSource="{Binding Albums}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <WrapPanel Orientation="Horizontal" />
@@ -233,8 +234,10 @@
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="models:Album">
-              <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayAlbumCommand}"
-                      CommandParameter="{Binding}"
+              <Button Click="OnAlbumClicked"
+                      PointerPressed="OnAlbumPointerPressed"
+                      PointerMoved="OnAlbumPointerMoved"
+                      PointerReleased="OnAlbumPointerReleased"
                       Padding="0" 
                       Margin="0,0,24,24">
                 <Button.ContextMenu>
@@ -305,7 +308,7 @@
 
         <!-- Song Rows -->
         <ScrollViewer Grid.Row="1">
-          <ItemsControl ItemsSource="{Binding Songs}">
+          <ItemsControl x:Name="SongsList" ItemsSource="{Binding Songs}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="models:Track">
                 <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlaySongCommand}"
@@ -362,7 +365,7 @@
 
       <!-- 4. GENRES SUB-PIVOT -->
       <ScrollViewer IsVisible="{Binding IsGenresActive}">
-        <ItemsControl ItemsSource="{Binding Genres}">
+        <ItemsControl x:Name="GenresList" ItemsSource="{Binding Genres}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <WrapPanel Orientation="Horizontal" />

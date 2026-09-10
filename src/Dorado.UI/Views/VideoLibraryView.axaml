@@ -7,6 +7,7 @@
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
              x:Class="Dorado.UI.Views.VideoLibraryView"
+             TextInput="OnTypeAheadText"
              x:DataType="vm:VideoLibraryViewModel">
 
   <Panel>
@@ -29,7 +30,7 @@
     <!-- Video Grid -->
     <ScrollViewer Grid.Row="2">
       <Panel>
-        <ItemsControl ItemsSource="{Binding Videos}" IsVisible="{Binding HasVideos}">
+        <ItemsControl x:Name="VideosList" ItemsSource="{Binding Videos}" IsVisible="{Binding HasVideos}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <WrapPanel Orientation="Horizontal" />

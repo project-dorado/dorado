@@ -106,6 +106,7 @@ public class SettingsViewModel : ViewModelBase
     private readonly ISettingsStore? _settingsStore;
     private readonly PluginManager? _pluginManager;
     private readonly ILocalizationService _localization;
+    private readonly IDialogService? _dialogService;
     private bool _isRestoringSettings = true;
     private bool _firstLaunchCompleted;
     private string _whatsNewSeenVersion = string.Empty;
@@ -1225,7 +1226,8 @@ public class SettingsViewModel : ViewModelBase
         IDeviceSyncService? deviceSyncService = null,
         ISettingsStore? settingsStore = null,
         PluginManager? pluginManager = null,
-        ILocalizationService? localization = null)
+        ILocalizationService? localization = null,
+        IDialogService? dialogService = null)
     {
         _soundService = soundService;
         _folderPicker = folderPicker;
@@ -1234,6 +1236,7 @@ public class SettingsViewModel : ViewModelBase
         _deviceSyncService = deviceSyncService;
         _settingsStore = settingsStore;
         _pluginManager = pluginManager;
+        _dialogService = dialogService;
         _localization = localization ?? Dorado.Application.Services.LocalizationService.Default;
         _localization.LocaleChanged += (_, _) =>
         {
@@ -1579,11 +1582,27 @@ public class SettingsViewModel : ViewModelBase
 
     private async Task OnClearDemoLibraryAsync()
     {
-        if (_libraryService != null)
+        if (_libraryService == null)
         {
-            await _libraryService.ClearDemoDataAsync();
-            ScanStatusText = "Demo placeholder data cleared.";
+            return;
         }
+
+        if (_dialogService is not null)
+        {
+            var confirmed = await _dialogService.ConfirmAsync(new DialogRequest(
+                "Clear demo library",
+                "Remove all demo placeholder tracks and albums from the collection? Real files are not deleted.",
+                "CLEAR",
+                "CANCEL",
+                IsDestructive: true));
+            if (!confirmed)
+            {
+                return;
+            }
+        }
+
+        await _libraryService.ClearDemoDataAsync();
+        ScanStatusText = "Demo placeholder data cleared.";
     }
 
     private static string NormalizePath(string path)

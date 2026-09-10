@@ -99,6 +99,8 @@ public partial class App : Avalonia.Application
         services.AddSingleton<ISyncEngine, SyncEngine>();
         services.AddSingleton<ISyncGroupService, SyncGroupService>();
         services.AddSingleton<ILocalizationService, LocalizationService>();
+        services.AddSingleton<DialogService>();
+        services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<DialogService>());
         services.AddSingleton<IAudioFeatureStore, SqliteAudioFeatureStore>();
         services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
         services.AddSingleton<IDynamicMixService, DynamicMixService>();
