@@ -89,12 +89,12 @@
         </StackPanel>
       </StackPanel>
 
-      <!-- Ambient Audio Spectrum Equalizer (Reactive Bars) -->
-      <ItemsControl ItemsSource="{Binding VisualizerBars}" 
+      <!-- Ambient Audio Spectrum Equalizer (Devkanro 24-Band Reactive Bars with 300ms Peak-Hold) -->
+      <ItemsControl ItemsSource="{Binding VisualizerBands}" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Bottom" 
                     Margin="0,0,48,32" 
-                    Opacity="0.75"
+                    Opacity="0.85"
                     IsHitTestVisible="False">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
@@ -102,12 +102,21 @@
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Border Width="3" 
-                    Height="{Binding}" 
-                    Background="{DynamicResource ZuneAccentBrush}" 
-                    CornerRadius="0" 
-                    VerticalAlignment="Bottom" />
+          <DataTemplate x:DataType="vm:VisualizerBandItem">
+            <Panel Width="3" Height="52" VerticalAlignment="Bottom">
+              <Border Width="3" 
+                      Height="{Binding Value}" 
+                      Background="{DynamicResource ZuneAccentBrush}" 
+                      CornerRadius="0" 
+                      VerticalAlignment="Bottom" />
+              <!-- Devkanro 300ms Peak-Hold Cap (1px hairline) -->
+              <Border Width="3" 
+                      Height="1" 
+                      Margin="{Binding PeakMargin}" 
+                      Background="{DynamicResource ZuneTextActiveBrush}" 
+                      CornerRadius="0" 
+                      VerticalAlignment="Bottom" />
+            </Panel>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
@@ -163,7 +172,7 @@
               <TextBlock Text="{Binding UpcomingQueueCount, StringFormat={}{0} tracks queued}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" Margin="0,4,0,0" />
             </StackPanel>
             <Button Grid.Column="1" Command="{Binding ToggleShowlistCommand}" Padding="6" Classes="window-control">
-              <TextBlock Text="✕" FontSize="11" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+              <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="10" Height="10" VerticalAlignment="Center" />
             </Button>
           </Grid>
 
@@ -249,12 +258,20 @@
             </Panel>
           </Button>
 
-          <!-- Timer -->
-          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="8,0,0,0">
-            <TextBlock Text="{Binding ElapsedTimeText}" Classes="caption" VerticalAlignment="Center" />
-            <TextBlock Text="/" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
-            <TextBlock Text="{Binding RemainingTimeText}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
-          </StackPanel>
+          <!-- Timer (Click toggles between remaining and total time) -->
+          <Button Command="{Binding ToggleTimeDisplayCommand}"
+                  Padding="4,2"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Cursor="Hand"
+                  ToolTip.Tip="Toggle remaining / total duration"
+                  Margin="8,0,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+              <TextBlock Text="{Binding ElapsedTimeText}" Classes="caption" VerticalAlignment="Center" />
+              <TextBlock Text="/" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+              <TextBlock Text="{Binding FormattedDurationText}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            </StackPanel>
+          </Button>
         </StackPanel>
       </Border>
     </Grid>
@@ -281,11 +298,12 @@
                       Margin="8">
                 <Grid>
                   <Border Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
-                    <TextBlock Text="♫" 
-                               FontSize="36" 
-                               HorizontalAlignment="Center" 
-                               VerticalAlignment="Center" 
-                               Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" 
+                          Stretch="Uniform" 
+                          Width="32" Height="32" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center" 
+                          Fill="{DynamicResource ZuneTextDimmedBrush}" />
                   </Border>
                   <!-- Overlay Album Title at Bottom -->
                   <Border VerticalAlignment="Bottom" Background="#DD111111" Padding="6,4">
@@ -324,7 +342,7 @@
       <!-- Lyrics & Bio Toggle -->
       <Button Command="{Binding ToggleBioDrawerCommand}" Classes="zune-action">
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <TextBlock Text="≡" FontSize="12" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.QueueLines}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="1.5" Width="12" Height="12" VerticalAlignment="Center" />
           <TextBlock Text="LYRICS &amp; BIO" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
         </StackPanel>
       </Button>
@@ -332,7 +350,7 @@
       <!-- View Mode Switch -->
       <Button Command="{Binding ToggleModeCommand}" Classes="zune-action">
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <TextBlock Text="⊞" FontSize="12" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.GridMosaic}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="12" Height="12" VerticalAlignment="Center" />
           <TextBlock Text="WALL / CANVAS / VIDEO" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
         </StackPanel>
       </Button>

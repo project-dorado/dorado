@@ -59,6 +59,9 @@ public class NowPlayingViewModel : ViewModelBase
     private readonly System.Timers.Timer _visualizerTimer;
     private readonly Random _random = new();
 
+    private readonly double[] _visualizerPeaks = new double[24];
+    private readonly int[] _peakHoldCounters = new int[24];
+
     public event EventHandler<string>? LaunchMixviewRequested;
 
     private NowPlayingMode _mode = NowPlayingMode.ArtistCanvas;
@@ -69,6 +72,7 @@ public class NowPlayingViewModel : ViewModelBase
     public ObservableCollection<Album> MosaicWallAlbums { get; } = new();
     public ObservableCollection<Track> UpcomingQueue { get; } = new();
     public ObservableCollection<double> VisualizerBars { get; } = new();
+    public ObservableCollection<VisualizerBandItem> VisualizerBands { get; } = new();
 
     private readonly string[] _themeBackdrops = new[]
     {
@@ -268,6 +272,7 @@ public class NowPlayingViewModel : ViewModelBase
     private double _showlistTargetOffset;
     private double _showlistTargetOpacity;
     private Avalonia.Threading.DispatcherTimer? _drawerAnimTimer;
+    private Avalonia.Threading.DispatcherTimer? _positionTimer;
 
     public int UpcomingQueueCount => UpcomingQueue.Count;
 
@@ -283,10 +288,26 @@ public class NowPlayingViewModel : ViewModelBase
     public bool IsFavorite => CurrentTrack?.Rating == HeartRating.Favorite;
     public bool IsDisliked => CurrentTrack?.Rating == HeartRating.Dislike;
 
+    private bool _showTotalTime;
+    public bool ShowTotalTime
+    {
+        get => _showTotalTime;
+        set
+        {
+            if (SetProperty(ref _showTotalTime, value))
+            {
+                OnPropertyChanged(nameof(FormattedDurationText));
+            }
+        }
+    }
+
     public TimeSpan CurrentPosition => _playerCoordinator.CurrentPosition;
     public TimeSpan Duration => _playerCoordinator.Duration;
     public string ElapsedTimeText => CurrentPosition.ToString(@"m\:ss");
     public string RemainingTimeText => (Duration - CurrentPosition).ToString(@"\-m\:ss");
+    public string FormattedDurationText => ShowTotalTime
+        ? Duration.ToString(@"m\:ss")
+        : (Duration - CurrentPosition).ToString(@"\-m\:ss");
 
     public double ProgressPercentage
     {
@@ -308,6 +329,7 @@ public class NowPlayingViewModel : ViewModelBase
     public ICommand ToggleModeCommand { get; }
     public ICommand ToggleBioDrawerCommand { get; }
     public ICommand ToggleShowlistCommand { get; }
+    public ICommand ToggleTimeDisplayCommand { get; }
     public ICommand PlayQueueTrackCommand { get; }
     public ICommand ResetHudTimerCommand { get; }
     public ICommand PlayPauseCommand { get; }
@@ -340,10 +362,13 @@ public class NowPlayingViewModel : ViewModelBase
             _enrichmentService.EnrichmentCompleted += OnEnrichmentCompleted;
         }
 
-        // Initialize 24 ambient visualizer bars
+        // Initialize 24 ambient visualizer bars and peak-hold bands
         for (int i = 0; i < 24; i++)
         {
+            _visualizerPeaks[i] = 4.0;
+            _peakHoldCounters[i] = 0;
             VisualizerBars.Add(4.0);
+            VisualizerBands.Add(new VisualizerBandItem { Value = 4.0, Peak = 4.0 });
         }
 
         // Auto-hiding HUD timer (fades out after 3.5 seconds of idle)
@@ -369,8 +394,8 @@ public class NowPlayingViewModel : ViewModelBase
         };
         _slideshowTimer.Start();
 
-        // Ambient visualizer update loop (every 75ms)
-        _visualizerTimer = new System.Timers.Timer(75) { AutoReset = true };
+        // Ambient visualizer update loop (33ms cadence ~ 30fps with Devkanro physical attack/decay & peak hold)
+        _visualizerTimer = new System.Timers.Timer(33) { AutoReset = true };
         _visualizerTimer.Elapsed += (s, e) =>
         {
             if (IsPlaying && _audioEngine is { IsAvailable: true })
@@ -383,7 +408,31 @@ public class NowPlayingViewModel : ViewModelBase
                     {
                         // Peak-weighted so bass bands read taller, matching Zune's energy distribution.
                         double weight = 1.0 + (1.0 - (i / (double)VisualizerBars.Count)) * 0.9;
-                        VisualizerBars[i] = Math.Clamp(bands[i] * weight * 45.0 + 4.0, 4.0, 49.0);
+                        double target = Math.Clamp(bands[i] * weight * 45.0 + 4.0, 4.0, 49.0);
+                        double current = VisualizerBars[i];
+                        double nextVal = target > current
+                            ? Math.Clamp(current + (target - current) * 0.75, 4.0, 49.0)
+                            : Math.Max(4.0, current * 0.82);
+
+                        VisualizerBars[i] = nextVal;
+
+                        // Devkanro peak-hold ballistics: 10 frames (~330ms) hold before gravity decay
+                        if (nextVal >= _visualizerPeaks[i])
+                        {
+                            _visualizerPeaks[i] = nextVal;
+                            _peakHoldCounters[i] = 10;
+                        }
+                        else if (_peakHoldCounters[i] > 0)
+                        {
+                            _peakHoldCounters[i]--;
+                        }
+                        else
+                        {
+                            _visualizerPeaks[i] = Math.Max(nextVal, _visualizerPeaks[i] * 0.90);
+                        }
+
+                        VisualizerBands[i].Value = nextVal;
+                        VisualizerBands[i].Peak = _visualizerPeaks[i];
                     }
 
                     return;
@@ -396,8 +445,30 @@ public class NowPlayingViewModel : ViewModelBase
                 {
                     // Simulated natural spectrum distribution (higher energy in bass, taper in highs)
                     double factor = 1.0 - (i * 0.03);
-                    double height = 4.0 + (_random.NextDouble() * 45.0 * factor);
-                    VisualizerBars[i] = height;
+                    double target = 4.0 + (_random.NextDouble() * 45.0 * factor);
+                    double current = VisualizerBars[i];
+                    double nextVal = target > current
+                        ? Math.Clamp(current + (target - current) * 0.75, 4.0, 49.0)
+                        : Math.Max(4.0, current * 0.82);
+
+                    VisualizerBars[i] = nextVal;
+
+                    if (nextVal >= _visualizerPeaks[i])
+                    {
+                        _visualizerPeaks[i] = nextVal;
+                        _peakHoldCounters[i] = 10;
+                    }
+                    else if (_peakHoldCounters[i] > 0)
+                    {
+                        _peakHoldCounters[i]--;
+                    }
+                    else
+                    {
+                        _visualizerPeaks[i] = Math.Max(nextVal, _visualizerPeaks[i] * 0.90);
+                    }
+
+                    VisualizerBands[i].Value = nextVal;
+                    VisualizerBands[i].Peak = _visualizerPeaks[i];
                 }
             }
             else
@@ -406,12 +477,36 @@ public class NowPlayingViewModel : ViewModelBase
                 {
                     if (VisualizerBars[i] > 4.0)
                     {
-                        VisualizerBars[i] = Math.Max(4.0, VisualizerBars[i] * 0.7);
+                        VisualizerBars[i] = Math.Max(4.0, VisualizerBars[i] * 0.82);
                     }
+                    _visualizerPeaks[i] = Math.Max(VisualizerBars[i], _visualizerPeaks[i] * 0.85);
+                    VisualizerBands[i].Value = VisualizerBars[i];
+                    VisualizerBands[i].Peak = _visualizerPeaks[i];
                 }
             }
         };
         _visualizerTimer.Start();
+
+        // Elapsed/remaining refresh cadence. Real audio advances inside the output engine, so
+        // these bound values must be re-read on a UI cadence instead of only on state changes.
+        _positionTimer = new Avalonia.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(200)
+        };
+        _positionTimer.Tick += (_, _) =>
+        {
+            if (!IsPlaying)
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(CurrentPosition));
+            OnPropertyChanged(nameof(ProgressPercentage));
+            OnPropertyChanged(nameof(ElapsedTimeText));
+            OnPropertyChanged(nameof(RemainingTimeText));
+            OnPropertyChanged(nameof(FormattedDurationText));
+        };
+        _positionTimer.Start();
 
         ToggleModeCommand = new RelayCommand(() =>
         {
@@ -442,6 +537,8 @@ public class NowPlayingViewModel : ViewModelBase
             TriggerHudActivity();
             UpdateDrawerTargets();
         });
+
+        ToggleTimeDisplayCommand = new RelayCommand(() => ShowTotalTime = !ShowTotalTime);
 
         PlayQueueTrackCommand = new AsyncRelayCommand<Track>(async track =>
         {
@@ -548,6 +645,7 @@ public class NowPlayingViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProgressPercentage));
         OnPropertyChanged(nameof(ElapsedTimeText));
         OnPropertyChanged(nameof(RemainingTimeText));
+        OnPropertyChanged(nameof(FormattedDurationText));
         OnPropertyChanged(nameof(IsFavorite));
         OnPropertyChanged(nameof(IsDisliked));
         UpdateUpcomingQueue();
@@ -697,6 +795,7 @@ public class NowPlayingViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProgressPercentage));
         OnPropertyChanged(nameof(ElapsedTimeText));
         OnPropertyChanged(nameof(RemainingTimeText));
+        OnPropertyChanged(nameof(FormattedDurationText));
     }
 
     private void OnRatingChanged(object? sender, HeartRatingChangedEventArgs e)
