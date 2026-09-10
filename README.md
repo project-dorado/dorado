@@ -213,7 +213,7 @@ Continuous integration (`.github/workflows/ci.yml`) builds the solution Release 
 
 ## 📊 Parity Status
 
-Verified against the full Zune 4.8 decompiled corpus (`tools/disassembly/`: 821 C# files in `zuneshell/`, 1,030 in `zunedbapi/`, 241 `.UIX` resources, 1,857 binary assets).
+Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell/`, 1,030 in `zunedbapi/`, 241 `.UIX` resources, 1,857 binary assets). For IP reasons the corpus is **not** committed here; it is kept outside the repository at `../zune-disassembly/` for reference only.
 
 | Domain | Parity | Status |
 |---|---|---|

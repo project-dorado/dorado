@@ -31,16 +31,14 @@ bld/
 *.sqlite3
 dorado.db
 
-# Disassembly temporary downloads and unpack caches
-tools/*
-!tools/disassembly
-tools/disassembly/*
-!tools/disassembly/zuneshell
-!tools/disassembly/zunedbapi
-!tools/disassembly/zuneshell_resources
-!tools/disassembly/uix
+# Zune decompilation corpus / installer payloads.
+# Deliberately NOT tracked here: Microsoft IP (decompiled source, artwork, fonts)
+# is never redistributed. The corpus lives outside the repo at
+# ../zune-disassembly/ (see scripts/disassemble_zune.py).
+tools/
+zune-disassembly/
 
-# Local Zune installer packages (kept out of VCS; decompiled trees above are tracked)
+# Local Zune installer packages
 review/
 
 # Python bytecode / caches

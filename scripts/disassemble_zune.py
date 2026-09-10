@@ -13,7 +13,13 @@ import subprocess
 import urllib.request
 
 DOWNLOAD_URL = "https://files1.majorgeeks.com/0b93caee71a9d214d0bbbc5622ea29507e3b8a7a/internet/ZunePackage.exe"
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tools", "disassembly"))
+# The decompiled corpus is deliberately kept OUTSIDE this repository (Microsoft
+# IP is not redistributed). Default: a sibling `zune-disassembly/` directory next
+# to the repo root; override with the ZUNE_DISASSEMBLY_DIR environment variable.
+BASE_DIR = os.environ.get(
+    "ZUNE_DISASSEMBLY_DIR",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "zune-disassembly")),
+)
 PKG_PATH = os.path.join(BASE_DIR, "ZunePackage.exe")
 PKG_DIR = os.path.join(BASE_DIR, "package")
 MSI_DIR = os.path.join(BASE_DIR, "msi")

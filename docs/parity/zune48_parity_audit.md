@@ -9,12 +9,12 @@
 
 | Artifact | Source | Decompile/Extract | Size |
 |---|---|---|---|
-| `ZuneShell_Dll` (managed) | `Zune-x86.msi` | ilspycmd → `tools/disassembly/zuneshell/` | 821 C# files (`ZuneUI/` = 685) |
-| `ZuneDBApi_Dll` (managed) | `Zune-x86.msi` | ilspycmd → `tools/disassembly/zunedbapi/` | 1,030 C# files (19 namespaces) |
-| `ZuneShellResources_Dll` RCDATA | `Zune-x86.msi` | 7z PE extraction → `tools/disassembly/zuneshell_resources/` | 1,857 resources (241 `.UIX` documents, 1,289 PNG, 44 JPG, 4 WAV) |
-| `zune-x64.msi` | `ZuneSetupPkg.exe` | inventoried → `tools/disassembly/setup_pkg/x64/` | x64 player payload (same managed code as x86) |
-| `zunewmdu-x86/x64.msi` | `ZuneSetupPkg.exe` | 7z → `tools/disassembly/wmdu/` | `ZuneWmduDLL` (native firmware-update service) |
-| Native component stack | `Zune-x86.msi` | inventoried → `tools/disassembly/msi/` | UIX engine ×5, ZMDB engine ×4, codecs, MTPZ, bus driver, services |
+| `ZuneShell_Dll` (managed) | `Zune-x86.msi` | ilspycmd → `zune-disassembly/zuneshell/` | 821 C# files (`ZuneUI/` = 685) |
+| `ZuneDBApi_Dll` (managed) | `Zune-x86.msi` | ilspycmd → `zune-disassembly/zunedbapi/` | 1,030 C# files (19 namespaces) |
+| `ZuneShellResources_Dll` RCDATA | `Zune-x86.msi` | 7z PE extraction → `zune-disassembly/zuneshell_resources/` | 1,857 resources (241 `.UIX` documents, 1,289 PNG, 44 JPG, 4 WAV) |
+| `zune-x64.msi` | `ZuneSetupPkg.exe` | inventoried → `zune-disassembly/setup_pkg/x64/` | x64 player payload (same managed code as x86) |
+| `zunewmdu-x86/x64.msi` | `ZuneSetupPkg.exe` | 7z → `zune-disassembly/wmdu/` | `ZuneWmduDLL` (native firmware-update service) |
+| Native component stack | `Zune-x86.msi` | inventoried → `zune-disassembly/msi/` | UIX engine ×5, ZMDB engine ×4, codecs, MTPZ, bus driver, services |
 
 Both `review/ZunePackage.exe` and `review/ZuneSetupPkg.exe` verified: `ZunePackage.exe` sha256 `ef5e5deb…` identical to the previously disassembled copy (no rework required). `ZuneSetupPkg.exe` is the offline multi-language setup bootstrapper containing the x86/x64 MSI set.
 

@@ -41,7 +41,7 @@ Effort scale: **quick-win** = ≤½ day, pure plumbing · **medium** = 1–3 day
 | `TrackMatchReviewView.axaml` | Per-track MusicBrainz match review (`FINDALBUMINFOSONGMATCH` parity). |
 | `ZuneCardView.axaml` | Local Zune Card substitute: avatar, stats, badges. |
 
-### 1.2 Cross-reference against `tools/disassembly/zuneshell/ZuneUI/*.Page.cs` (81 page classes)
+### 1.2 Cross-reference against `zune-disassembly/zuneshell/ZuneUI/*.Page.cs` (81 page classes)
 
 Pages we cover (25 / 81): `QuickplayPage`, `MusicLibraryPage`, `VideoLibraryPage`,
 `PhotoLibraryPage`, `PodcastLibraryPage`, `PlaybackPage`, `SetupLandPage` (≈FirstLaunch),
@@ -62,9 +62,9 @@ Pages we DO NOT have (visible-but-not-built, 6 / 81):
 | `ChannelLibraryPage` | Channel/Marketplace — N-A. |
 | `DeviceRestore*` (8), `DeviceRollback*` (5), `DeviceUpdate*` (8) | All device firmware lifecycle pages. |
 
-Pages in `tools/disassembly/zuneshell/ZuneUI/*.cs` but never surfaced as a View (representative list — 50+ helpers/landings not listed above): they live behind ViewModels, settings, or wizard orchestration.
+Pages in `zune-disassembly/zuneshell/ZuneUI/*.cs` but never surfaced as a View (representative list — 50+ helpers/landings not listed above): they live behind ViewModels, settings, or wizard orchestration.
 
-### 1.3 Cross-reference against `tools/disassembly/uix/*.UIX` (241 docs)
+### 1.3 Cross-reference against `zune-disassembly/uix/*.UIX` (241 docs)
 
 The `.UIX` resource names hint at "documents" rendered by the Iris UIX engine.
 We port roughly 70 of those concepts into AXAML. UIX resources we have an
@@ -309,7 +309,7 @@ This is hardware-dependent and was deferred in `deferred_registry.md`. **N-A** f
 | Pins context menu (unpin, play) | **REAL** | 
 
 **Not yet implemented:**
-- Hub hero artwork maps (`QuickPlayMap_*.png`, `SoftwareMap_*.png`) — referenced in `tools/disassembly/uix/` corpus but no assets ship and no view consumes them.
+- Hub hero artwork maps (`QuickPlayMap_*.png`, `SoftwareMap_*.png`) — referenced in `zune-disassembly/uix/` corpus but no assets ship and no view consumes them.
 - Radio panel (`RADIOPANEL.UIX`) — N-A (spectrum gone).
 - Ad/best-value tiles (`BESTVALUE.UIX`, `BILLINGOFFER.UIX`) — N-A.
 - "New" sub-deck filters by genre or period — currently just `recently added`.
