@@ -73,6 +73,28 @@
             </StackPanel>
           </Button>
         </StackPanel>
+
+        <!-- Dynamic Mixes (auto-updating rules) -->
+        <StackPanel Spacing="10" IsVisible="{Binding HasDynamicMixes}" Margin="0,8,0,0">
+          <TextBlock Text="DYNAMIC MIXES" Classes="caption" FontWeight="SemiBold"
+                     Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+          <ItemsControl ItemsSource="{Binding DynamicMixes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="models:DynamicMix">
+                <Button Classes="zune-action"
+                        Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).PlayDynamicMixCommand}"
+                        CommandParameter="{Binding}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                    <TextBlock Text="≡" FontSize="14" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
       </StackPanel>
     </Border>
 

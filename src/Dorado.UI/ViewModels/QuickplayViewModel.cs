@@ -19,6 +19,7 @@ public class QuickplayViewModel : ViewModelBase
     private readonly IPlayerCoordinator _playerCoordinator;
     private readonly IMediaLibraryService _libraryService;
     private readonly ISmartDJService _smartDJService;
+    private readonly IDynamicMixService? _dynamicMixService;
 
     private QuickplayDeck _activeDeck = QuickplayDeck.Pins;
     private string _smartDjSeedText = "Seed: Entire Collection";
@@ -26,6 +27,8 @@ public class QuickplayViewModel : ViewModelBase
     public ObservableCollection<Album> Pins { get; } = new();
     public ObservableCollection<PlayHistoryEntry> History { get; } = new();
     public ObservableCollection<Album> NewAlbums { get; } = new();
+    public ObservableCollection<DynamicMix> DynamicMixes { get; } = new();
+    public bool HasDynamicMixes => DynamicMixes.Count > 0;
 
     public QuickplayDeck ActiveDeck
     {
@@ -58,20 +61,24 @@ public class QuickplayViewModel : ViewModelBase
     public ICommand PlayHistoryItemCommand { get; }
     public ICommand PlayAlbumCommand { get; }
     public ICommand UnpinAlbumCommand { get; }
+    public ICommand PlayDynamicMixCommand { get; }
 
     public QuickplayViewModel(
         IPlayerCoordinator playerCoordinator,
         IMediaLibraryService libraryService,
-        ISmartDJService smartDJService)
+        ISmartDJService smartDJService,
+        IDynamicMixService? dynamicMixService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
         _smartDJService = smartDJService;
+        _dynamicMixService = dynamicMixService;
 
         SelectDeckCommand = new RelayCommand<QuickplayDeck>(deck => ActiveDeck = deck);
         LaunchSmartDjCommand = new AsyncRelayCommand(OnLaunchSmartDjAsync);
         PlayFavoritesMixCommand = new AsyncRelayCommand(OnPlayFavoritesMixAsync);
         PlayDiscoveryMixCommand = new AsyncRelayCommand(OnPlayDiscoveryMixAsync);
+        PlayDynamicMixCommand = new AsyncRelayCommand<DynamicMix>(OnPlayDynamicMixAsync);
         PlayHistoryItemCommand = new AsyncRelayCommand<PlayHistoryEntry>(OnPlayHistoryItemAsync);
         PlayAlbumCommand = new AsyncRelayCommand<Album>(OnPlayAlbumAsync);
         UnpinAlbumCommand = new AsyncRelayCommand<Album>(async album =>
@@ -112,6 +119,32 @@ public class QuickplayViewModel : ViewModelBase
         foreach (var album in newItems)
         {
             NewAlbums.Add(album);
+        }
+
+        if (_dynamicMixService is not null)
+        {
+            DynamicMixes.Clear();
+            foreach (var mix in _dynamicMixService.BuildDefaultMixes())
+            {
+                DynamicMixes.Add(mix);
+            }
+
+            OnPropertyChanged(nameof(HasDynamicMixes));
+        }
+    }
+
+    private async Task OnPlayDynamicMixAsync(DynamicMix? mix)
+    {
+        if (mix is null || _dynamicMixService is null)
+        {
+            return;
+        }
+
+        var allTracks = await _libraryService.GetAllTracksAsync();
+        var tracks = await _dynamicMixService.MaterializeAsync(mix, allTracks);
+        if (tracks.Count > 0)
+        {
+            await _playerCoordinator.PlayTrackAsync(tracks[0], tracks);
         }
     }
 

@@ -5,6 +5,7 @@ using Dorado.UI;
 using Dorado.UI.ViewModels;
 using Dorado.UI.Views;
 using Avalonia.Headless.XUnit;
+using CommunityToolkit.Mvvm.Input;
 using Xunit;
 
 namespace Dorado.Tests.Application;
@@ -124,6 +125,23 @@ public class NavigationAndPlaybackUiTests
 
         shellVm.ToggleNowPlayingCommand.Execute(null);
         Assert.IsType<NowPlayingViewModel>(shellVm.CurrentView);
+    }
+
+    [AvaloniaFact]
+    public async Task Quickplay_LoadsDynamicMixes_AndInvokesPlay()
+    {
+        var coordinator = new PlaybackQueueCoordinator();
+        var library = new DummyMediaLibraryService();
+        var dynamicMixes = new DynamicMixService(new AudioAnalysisService());
+
+        var qpVm = new QuickplayViewModel(coordinator, library, new SmartDJEngine(), dynamicMixes);
+        await qpVm.LoadInitialDataAsync();
+
+        Assert.True(qpVm.HasDynamicMixes);
+        Assert.Contains(qpVm.DynamicMixes, m => m.Kind == DynamicMixKind.TopPlayed);
+
+        // Executing against an empty library must complete without throwing.
+        await ((AsyncRelayCommand<DynamicMix>)qpVm.PlayDynamicMixCommand).ExecuteAsync(qpVm.DynamicMixes.First());
     }
 
     // Dummy test stubs

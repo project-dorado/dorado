@@ -578,7 +578,8 @@ public class MainShellViewModel : ViewModelBase
         IPhotoLibraryService? photoLibraryService = null,
         ISyncEngine? syncEngine = null,
         ISyncGroupService? syncGroupService = null,
-        PluginManager? pluginManager = null)
+        PluginManager? pluginManager = null,
+        IDynamicMixService? dynamicMixService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -589,7 +590,7 @@ public class MainShellViewModel : ViewModelBase
         _videoLibraryService = videoLibraryService;
 
         // Child ViewModels
-        QuickplayVM = new QuickplayViewModel(playerCoordinator, libraryService, smartDJService);
+        QuickplayVM = new QuickplayViewModel(playerCoordinator, libraryService, smartDJService, dynamicMixService);
         CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
