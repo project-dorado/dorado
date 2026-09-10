@@ -1,4 +1,3 @@
-using System.Xml.Linq;
 using Dorado.Application.Interfaces;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
@@ -8,12 +7,14 @@ namespace Dorado.Application.Services;
 public class PodcastService : IPodcastService
 {
     private readonly IPlayerCoordinator _playerCoordinator;
+    private readonly IPodcastFeedClient? _feedClient;
     private readonly List<PodcastSeries> _podcasts = new();
     private readonly HttpClient _httpClient = new();
 
-    public PodcastService(IPlayerCoordinator playerCoordinator)
+    public PodcastService(IPlayerCoordinator playerCoordinator, IPodcastFeedClient? feedClient = null)
     {
         _playerCoordinator = playerCoordinator;
+        _feedClient = feedClient;
         SeedDefaultPodcasts();
     }
 
@@ -114,38 +115,17 @@ public class PodcastService : IPodcastService
     {
         try
         {
-            var xmlString = await _httpClient.GetStringAsync(feedUrl);
-            var doc = XDocument.Parse(xmlString);
-            var channel = doc.Descendants("channel").FirstOrDefault();
-
-            var series = new PodcastSeries
+            PodcastSeries series;
+            if (_feedClient is not null)
             {
-                Title = channel?.Element("title")?.Value ?? "Untitled Podcast",
-                Author = channel?.Element("author")?.Value ?? channel?.Element(XName.Get("author", "http://www.itunes.com/dtds/podcast-1.0.dtd"))?.Value ?? "Unknown Author",
-                FeedUrl = feedUrl,
-                Description = channel?.Element("description")?.Value ?? string.Empty,
-                ArtworkUri = channel?.Element("image")?.Element("url")?.Value
-            };
-
-            var items = doc.Descendants("item").Take(20);
-            foreach (var item in items)
+                series = await _feedClient.GetSeriesAsync(feedUrl);
+            }
+            else
             {
-                var enc = item.Element("enclosure");
-                series.Episodes.Add(new PodcastEpisode
-                {
-                    SeriesId = series.Id,
-                    SeriesTitle = series.Title,
-                    Title = item.Element("title")?.Value ?? "Untitled Episode",
-                    Description = item.Element("description")?.Value ?? string.Empty,
-                    PublishedAtUtc = DateTime.TryParse(item.Element("pubDate")?.Value, out var dt) ? dt.ToUniversalTime() : DateTime.UtcNow,
-                    Duration = TimeSpan.FromMinutes(30),
-                    AudioUrl = enc?.Attribute("url")?.Value ?? string.Empty,
-                    IsPlayed = false
-                });
+                var xml = await _httpClient.GetStringAsync(feedUrl);
+                series = PodcastFeedParser.Parse(xml, feedUrl);
             }
 
-            series.EpisodeCount = series.Episodes.Count;
-            series.UnplayedCount = series.Episodes.Count;
             _podcasts.Add(series);
             return series;
         }

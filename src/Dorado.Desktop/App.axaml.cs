@@ -85,6 +85,7 @@ public partial class App : Avalonia.Application
         services.AddSingleton<ISmartDJService, SmartDJEngine>();
         services.AddSingleton<ISoundEffectService, SoundEffectService>();
         services.AddSingleton<IUserStatsService, UserStatsService>();
+        services.AddSingleton<IPodcastFeedClient, PodcastFeedClient>();
         services.AddSingleton<IPodcastService, PodcastService>();
         services.AddSingleton<IFolderPickerService, AvaloniaFolderPickerService>();
         services.AddSingleton<ISettingsStore, JsonSettingsStore>();

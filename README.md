@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-200%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-207%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -111,6 +111,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 
 ### Podcasts
 - **Series + episodes** with RSS subscribe
+- **Feed normalization** (`PodcastFeedParser` / `PodcastFeedClient`): namespace-agnostic RSS/Atom parsing, iTunes durations (`HH:MM:SS` / seconds), `<media:content>` + Atom enclosure fallbacks, relative-URL resolution, HTML description stripping, dedupe, and HTML-page → `rel="alternate"` feed discovery for Patreon/Anchor-style landing URLs
 - **Mark all played/unplayed** per series
 - **Episode playback** via streams
 
@@ -145,7 +146,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **200 unit tests** passing (XUnit + Avalonia headless harness)
+- **207 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 

@@ -39,6 +39,14 @@ internal sealed class FakeHttpMessageHandler : HttpMessageHandler
         }));
     }
 
+    public void MapText(Func<string, bool> predicate, string text, string contentType = "application/rss+xml")
+    {
+        _routes.Add((predicate, () => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(text, Encoding.UTF8, contentType)
+        }));
+    }
+
     public void MapStatus(Func<string, bool> predicate, HttpStatusCode status)
     {
         _routes.Add((predicate, () => new HttpResponseMessage(status)));
