@@ -4,123 +4,118 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
              xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
-             mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="130"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="340" d:DesignHeight="96"
              x:Class="Dorado.UI.Views.CompactMiniPlayerView"
              x:DataType="vm:MainShellViewModel"
              Background="{DynamicResource ZuneSurfaceElevatedBrush}">
 
-  <Grid RowDefinitions="Auto,Auto,*" PointerPressed="OnMiniBarPointerPressed">
-    <!-- 1. Top Mini System Bar: Brand Wordmark & Restore/Close Window Controls -->
-    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="12,6,8,2">
-      <!-- Mini Brand Mark -->
-      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-        <Image Source="avares://Dorado.UI/Assets/dorado_32.png" Width="14" Height="14" VerticalAlignment="Center" />
-        <TextBlock Text="ZUNE" 
-                   FontFamily="{StaticResource ZunePivotFontFamily}" 
-                   FontSize="10" 
-                   FontWeight="Bold" 
-                   LetterSpacing="2" 
-                   Foreground="{DynamicResource ZuneTextDimmedBrush}" 
+  <!-- Zune 4.8 compact mini player (MINIMODE parity): a 340x96 floating HUD with flush
+       square album art, marquee-trimmed metadata, slim transport and a bottom hairline seek. -->
+  <Panel PointerPressed="OnMiniBarPointerPressed">
+    <Grid RowDefinitions="*,2">
+      <Grid Grid.Row="0" ColumnDefinitions="94,*,Auto">
+
+        <!-- Left edge: square album artwork, flush with the window border -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource ZuneCardBrush}"
+                BorderBrush="{DynamicResource ZuneBorderBrush}"
+                BorderThickness="0,0,1,0"
+                CornerRadius="0"
+                ClipToBounds="True">
+          <Grid>
+            <Image Source="{Binding CurrentTrack.ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}"
+                   Stretch="UniformToFill"
+                   HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
-      </StackPanel>
+            <Path Data="{x:Static design:ZuneGlyphs.MusicNote}"
+                  Stretch="Uniform" Width="30" Height="30"
+                  Fill="{DynamicResource ZuneTextDimmedBrush}"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  IsVisible="{Binding CurrentTrack.ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
+            <!-- Mini Heart badge if favorite -->
+            <Path Data="{x:Static design:ZuneGlyphs.Heart}"
+                  Stretch="Uniform"
+                  IsVisible="{Binding IsFavorite}"
+                  Width="14" Height="13"
+                  Fill="{DynamicResource ZuneAccentBrush}"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,4,4" />
+          </Grid>
+        </Border>
 
-      <!-- Window Action Controls: Restore & Close -->
-      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-        <Button Classes="window-control" Command="{Binding ToggleCompactModeCommand}" ToolTip.Tip="Restore to Full Zune Window">
-          <Path Data="{x:Static design:ZuneGlyphs.Restore}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="13" Height="14" />
-        </Button>
-        <Button Classes="window-control window-close" Click="OnCloseClicked" ToolTip.Tip="Close">
-          <Path Data="{x:Static design:ZuneGlyphs.Close}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="13" Height="14" />
-        </Button>
-      </StackPanel>
+        <!-- Center: marquee-trimmed track metadata -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0" Spacing="2">
+          <TextBlock Text="{Binding CurrentTrack.Title, FallbackValue='Not Playing'}"
+                     FontSize="14"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource ZuneTextActiveBrush}"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding CurrentTrack.ArtistName, FallbackValue='Zune Player'}"
+                     FontSize="11"
+                     Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding ElapsedTimeText}"
+                     FontSize="9"
+                     Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+        </StackPanel>
+
+        <!-- Right: slim transport (previous, play/pause, next, volume flyout) -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2"
+                    VerticalAlignment="Center" Margin="0,0,6,0">
+          <Button Command="{Binding NowPlayingVM.ToggleShowlistCommand}" Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Showlist (upcoming queue)">
+            <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" Width="15" Height="15" />
+          </Button>
+
+          <Button Command="{Binding PreviousCommand}" Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Previous">
+            <Path Data="{x:Static design:ZuneGlyphs.SkipBack}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="16" Height="16" />
+          </Button>
+
+          <Button Command="{Binding PlayPauseCommand}" Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Play / Pause">
+            <Panel Width="22" Height="22">
+              <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsPlaying}" Width="22" Height="22" />
+              <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding IsPlaying}" Width="22" Height="22" />
+            </Panel>
+          </Button>
+
+          <Button Command="{Binding NextCommand}" Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Next">
+            <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="16" Height="16" />
+          </Button>
+
+          <!-- Volume flyout (minimal inline footprint; expands on demand) -->
+          <Button Padding="2" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Volume">
+            <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextSecondaryBrush}" Width="14" Height="12" VerticalAlignment="Center" />
+            <Button.Flyout>
+              <Flyout Placement="Top">
+                <Slider Width="120" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <!-- Bottom hairline seek line -->
+      <ProgressBar Grid.Row="1"
+                   Height="2"
+                   CornerRadius="0"
+                   VerticalAlignment="Bottom"
+                   Value="{Binding ProgressPercentage}"
+                   Maximum="1.0"
+                   Foreground="{DynamicResource ZuneAccentBrush}"
+                   Background="{DynamicResource ZuneInputBackgroundBrush}" />
     </Grid>
 
-    <!-- 2. Hairline Seek Scrubber -->
-    <ProgressBar Grid.Row="1" 
-                 Height="2" 
-                 CornerRadius="0"
-                 VerticalAlignment="Top"
-                 Value="{Binding ProgressPercentage}" 
-                 Maximum="1.0" 
-                 Foreground="{DynamicResource ZuneAccentBrush}" 
-                 Background="{DynamicResource ZuneInputBackgroundBrush}" />
-
-    <!-- 3. Player Content & Transport Strip -->
-    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="12,8,12,6" VerticalAlignment="Center">
-      <!-- Left: Mini Square Album Art & Rating Badge -->
-      <Border Grid.Column="0"
-              Width="44" Height="44"
-              Background="{DynamicResource ZuneCardBrush}"
-              BorderBrush="{DynamicResource ZuneBorderBrush}"
-              BorderThickness="1"
-              CornerRadius="0">
-        <Grid>
-          <TextBlock Text="♫" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
-          <!-- Mini Heart badge if favorite -->
-          <Path Data="{x:Static design:ZuneGlyphs.Heart}"
-                Stretch="Uniform"
-                IsVisible="{Binding IsFavorite}"
-                Width="12" Height="11"
-                Fill="{DynamicResource ZuneAccentBrush}"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Margin="0,0,2,2" />
-        </Grid>
-      </Border>
-
-      <!-- Center: Track Title & Artist Metadata -->
-      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,10,0" Spacing="2">
-        <TextBlock Text="{Binding CurrentTrack.Title, FallbackValue='Not Playing'}"
-                   Classes="body"
-                   FontWeight="SemiBold"
-                   TextTrimming="CharacterEllipsis"
-                   MaxWidth="170" />
-        <TextBlock Text="{Binding CurrentTrack.ArtistName, FallbackValue='Zune Player'}"
-                   Classes="caption"
-                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
-                   TextTrimming="CharacterEllipsis"
-                   MaxWidth="170" />
-        <TextBlock Text="{Binding ElapsedTimeText}"
-                   Classes="caption"
-                   Foreground="{DynamicResource ZuneTextDimmedBrush}"
-                   FontSize="8" />
-      </StackPanel>
-
-      <!-- Showlist Toggle + Compact Transport -->
-      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-        <!-- Showlist toggle (upcoming queue) -->
-        <Button Command="{Binding NowPlayingVM.ToggleShowlistCommand}" Padding="4" ToolTip.Tip="Showlist (upcoming queue)">
-          <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" Width="20" Height="20" />
-        </Button>
-
-        <!-- Previous -->
-        <Button Command="{Binding PreviousCommand}" Padding="4" ToolTip.Tip="Previous">
-          <Path Data="{x:Static design:ZuneGlyphs.SkipBack}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="20" Height="20" />
-        </Button>
-
-        <!-- Play / Pause -->
-        <Button Command="{Binding PlayPauseCommand}" Padding="4" ToolTip.Tip="Play / Pause">
-          <Panel Width="28" Height="28">
-            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsPlaying}" Width="28" Height="28" />
-            <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding IsPlaying}" Width="28" Height="28" />
-          </Panel>
-        </Button>
-
-        <!-- Next -->
-        <Button Command="{Binding NextCommand}" Padding="4" ToolTip.Tip="Next">
-          <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="20" Height="20" />
-        </Button>
-      </StackPanel>
-
-      <!-- Compact volume slider -->
-      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="6,0,0,0">
-        <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="14" Height="12" VerticalAlignment="Center" />
-        <Slider Width="60"
-                Value="{Binding Volume}"
-                Minimum="0"
-                Maximum="100"
-                VerticalAlignment="Center" />
-      </StackPanel>
-    </Grid>
-  </Grid>
+    <!-- Overlay window controls: restore-to-shell & close (thin, top-right) -->
+    <StackPanel Orientation="Horizontal" Spacing="0"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,1,2,0" Opacity="0.75">
+      <Button Classes="window-control" Command="{Binding ToggleCompactModeCommand}" ToolTip.Tip="Restore to Full Zune Window">
+        <Path Data="{x:Static design:ZuneGlyphs.Restore}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="11" Height="12" />
+      </Button>
+      <Button Classes="window-control window-close" Click="OnCloseClicked" ToolTip.Tip="Close">
+        <Path Data="{x:Static design:ZuneGlyphs.Close}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="11" Height="12" />
+      </Button>
+    </StackPanel>
+  </Panel>
 </UserControl>

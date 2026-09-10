@@ -217,10 +217,10 @@ public partial class MainWindow : Window
         {
             _preCompactWidth = Width;
             _preCompactHeight = Height;
-            MinWidth = 480;
-            MinHeight = 110;
-            Width = 480;
-            Height = 130;
+            MinWidth = 340;
+            MinHeight = 96;
+            Width = 340;
+            Height = 96;
             Topmost = (DataContext is MainShellViewModel vm) ? vm.SettingsVM.CompactModeAlwaysOnTop : true;
             CanResize = false;
         }
