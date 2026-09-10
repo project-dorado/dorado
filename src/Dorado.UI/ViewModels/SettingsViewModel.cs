@@ -105,6 +105,7 @@ public class SettingsViewModel : ViewModelBase
     private readonly IDeviceSyncService? _deviceSyncService;
     private readonly ISettingsStore? _settingsStore;
     private readonly PluginManager? _pluginManager;
+    private readonly ILocalizationService _localization;
     private bool _isRestoringSettings = true;
     private bool _firstLaunchCompleted;
     private string _whatsNewSeenVersion = string.Empty;
@@ -518,6 +519,29 @@ public class SettingsViewModel : ViewModelBase
         if (_playerCoordinator is IEqualizerControl equalizer)
         {
             equalizer.ApplyEqualizer(_equalizerEnabled, Dorado.Application.Services.EqualizerPresets.GetGains(_equalizerPreset), 0);
+        }
+    }
+
+    // ==========================================
+    // LOCALIZATION (Phase 17)
+    // ==========================================
+    public ILocalizationService Localization => _localization;
+
+    public IReadOnlyList<string> AvailableLanguages => _localization.AvailableLocales;
+
+    public string SelectedLanguage
+    {
+        get => _localization.CurrentLocale;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value) || value == _localization.CurrentLocale)
+            {
+                return;
+            }
+
+            _localization.SetLocale(value);
+            OnPropertyChanged();
+            SaveCurrentSettings();
         }
     }
 
@@ -1200,7 +1224,8 @@ public class SettingsViewModel : ViewModelBase
         IPlayerCoordinator? playerCoordinator = null,
         IDeviceSyncService? deviceSyncService = null,
         ISettingsStore? settingsStore = null,
-        PluginManager? pluginManager = null)
+        PluginManager? pluginManager = null,
+        ILocalizationService? localization = null)
     {
         _soundService = soundService;
         _folderPicker = folderPicker;
@@ -1209,6 +1234,12 @@ public class SettingsViewModel : ViewModelBase
         _deviceSyncService = deviceSyncService;
         _settingsStore = settingsStore;
         _pluginManager = pluginManager;
+        _localization = localization ?? Dorado.Application.Services.LocalizationService.Default;
+        _localization.LocaleChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(Localization));
+            OnPropertyChanged(nameof(SelectedLanguage));
+        };
 
         if (_pluginManager is not null)
         {
@@ -1321,6 +1352,9 @@ public class SettingsViewModel : ViewModelBase
             _equalizerPreset = string.IsNullOrWhiteSpace(settings.EqualizerPreset) ? Dorado.Application.Services.EqualizerPresets.Flat : settings.EqualizerPreset;
             OnPropertyChanged(nameof(EqualizerPreset));
             ApplyEqualizer();
+            _localization.SetLocale(settings.Language);
+            OnPropertyChanged(nameof(Localization));
+            OnPropertyChanged(nameof(SelectedLanguage));
             CompactModeAlwaysOnTop = settings.CompactModeAlwaysOnTop;
 
             _selectedRipFormat = settings.SelectedRipFormat;
@@ -1473,6 +1507,7 @@ public class SettingsViewModel : ViewModelBase
             VolumeLevelingEnabled = VolumeLevelingEnabled,
             EqualizerEnabled = EqualizerEnabled,
             EqualizerPreset = EqualizerPreset,
+            Language = _localization.CurrentLocale,
             CompactModeAlwaysOnTop = CompactModeAlwaysOnTop,
             SelectedRipFormat = SelectedRipFormat,
             SelectedRipBitrate = SelectedRipBitrate,

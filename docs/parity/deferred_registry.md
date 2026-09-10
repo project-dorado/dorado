@@ -5,7 +5,7 @@ Each is a possible future work item; none blocks the Zune 4.8 experience Dorado 
 
 | Item | Origin | Rationale for deferral |
 |---|---|---|
-| **i18n — all 26 Zune locales** | Zune shipped localized UIs (ZuneShellResources `.UIX` per locale) | Text is baked into AXAML; a resource-dictionary localization pass is mechanical but touches every view. English-only is acceptable for the current audience. |
+| **i18n — remaining 24 Zune locales + full string extraction** | Zune shipped localized UIs (ZuneShellResources `.UIX` per locale) | Phase 17 shipped the localization service + catalog (`en`/`fr`) and a live language selector. Extracting every remaining view string and translating the other 24 Zune locales is mechanical but touches every view; deferred as incremental follow-up. |
 | **UPnP media sharing (ZuneNSS / `ZuneShareEXE` parity)** | Native component map: network sharing services | Zune's social sharing servers are dead; a local UPnP/DLNA renderer/server has no Zune-visible counterpart to validate against. |
 | **Explorer / taskbar shell integration (`ZuneShellExt_Dll`, `ZuneTaskbar_Dll`, `ZuneLauncherEXE`)** | Native component map | Windows-only, shell-level (context menus, taskbar previews). Cross-platform app; value is cosmetic. |
 | **MTPZ firmware update / restore / rollback (`ZuneWmduDLL` parity)** | Device lifecycle | Hardware N-A: no physical Zune device is available to develop/test against; the device-sync seam (`IDeviceTransport`) is the correct place to land this later. |

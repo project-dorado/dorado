@@ -66,6 +66,7 @@ public class AppSettings
     public bool DeletePhotosAfterReverseSync { get; set; }
 
     // General
+    public string Language { get; set; } = "en";
     public bool ShowRatings { get; set; } = true;
     public List<string> FirstConnectCompletedSerials { get; set; } = new();
     public string FirstConnectDeviceName { get; set; } = string.Empty;

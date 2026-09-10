@@ -579,7 +579,8 @@ public class MainShellViewModel : ViewModelBase
         ISyncEngine? syncEngine = null,
         ISyncGroupService? syncGroupService = null,
         PluginManager? pluginManager = null,
-        IDynamicMixService? dynamicMixService = null)
+        IDynamicMixService? dynamicMixService = null,
+        ILocalizationService? localization = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -594,7 +595,7 @@ public class MainShellViewModel : ViewModelBase
         CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
-        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager);
+        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization);
 
         // Onboarding (FIRSTLAUNCH + WHATSNEW parity): wizard on first run, What's New on version change.
         var startupSettings = settingsStore?.Load();

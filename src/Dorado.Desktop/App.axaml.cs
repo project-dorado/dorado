@@ -98,6 +98,7 @@ public partial class App : Avalonia.Application
         services.AddSingleton<IVideoPlaybackEngine, VideoPlaybackEngine>();
         services.AddSingleton<ISyncEngine, SyncEngine>();
         services.AddSingleton<ISyncGroupService, SyncGroupService>();
+        services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<IAudioFeatureStore, SqliteAudioFeatureStore>();
         services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
         services.AddSingleton<IDynamicMixService, DynamicMixService>();

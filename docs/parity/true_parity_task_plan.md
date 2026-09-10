@@ -83,4 +83,4 @@ refresh · milestone commit.
 | **15 — MTP transport** | `MtpTransport` implementing `IDeviceTransport` (libusb; reuse product IDs `063E/0710/0715/0723`) + in-memory virtual MTP target for contract tests. Hardware stays N-A. | Planned |
 | **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅; A–Z type-ahead deferred (needs a list-control scroll-into-view refactor). | 🟡 EQ+FTS5 done |
 | **16b — Fidelity medium** | Quickplay hub hero maps (clean-room recreation), drag-inertia pivot strip, Iris art-frame animation. | Planned |
-| **17 — i18n first pass** | Localization service + string extraction, `en` + 1 locale, language setting; keep remaining 24 deferred. | Planned |
+| **17 — i18n first pass** | `ILocalizationService` + catalog, `en` + `fr`, language selector in Settings → General, persisted. Remaining string extraction/locales incremental (see deferred registry). | ✅ Done |

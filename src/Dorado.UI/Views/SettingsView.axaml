@@ -14,10 +14,10 @@
     <!-- ======================================================== -->
     <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="28" Margin="0,0,0,12">
       <Button Command="{Binding SelectTopLevelPivotCommand}" CommandParameter="Software">
-        <TextBlock Text="SOFTWARE" Classes="subpivot" Classes.active="{Binding IsSoftwarePivotActive}" />
+        <TextBlock Text="{Binding Localization[pivot.software]}" Classes="subpivot" Classes.active="{Binding IsSoftwarePivotActive}" />
       </Button>
       <Button Command="{Binding SelectTopLevelPivotCommand}" CommandParameter="Device">
-        <TextBlock Text="DEVICE" Classes="subpivot" Classes.active="{Binding IsDevicePivotActive}" />
+        <TextBlock Text="{Binding Localization[pivot.device]}" Classes="subpivot" Classes.active="{Binding IsDevicePivotActive}" />
       </Button>
     </StackPanel>
 
@@ -31,43 +31,43 @@
                 Margin="0,0,0,24"
                 IsVisible="{Binding IsSoftwarePivotActive}">
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Collection">
-        <TextBlock Text="collection" Classes="subpivot" Classes.active="{Binding IsCollectionSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.collection]}" Classes="subpivot" Classes.active="{Binding IsCollectionSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Playback">
-        <TextBlock Text="playback" Classes="subpivot" Classes.active="{Binding IsPlaybackSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.playback]}" Classes="subpivot" Classes.active="{Binding IsPlaybackSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Podcasts">
-        <TextBlock Text="podcasts" Classes="subpivot" Classes.active="{Binding IsPodcastsSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.podcasts]}" Classes="subpivot" Classes.active="{Binding IsPodcastsSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="FileTypes">
-        <TextBlock Text="file types" Classes="subpivot" Classes.active="{Binding IsFileTypesSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.filetypes]}" Classes="subpivot" Classes.active="{Binding IsFileTypesSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Privacy">
-        <TextBlock Text="privacy" Classes="subpivot" Classes.active="{Binding IsPrivacySubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.privacy]}" Classes="subpivot" Classes.active="{Binding IsPrivacySubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Photos">
-        <TextBlock Text="photos" Classes="subpivot" Classes.active="{Binding IsPhotosSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.photos]}" Classes="subpivot" Classes.active="{Binding IsPhotosSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Rip">
-        <TextBlock Text="rip" Classes="subpivot" Classes.active="{Binding IsRipSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.rip]}" Classes="subpivot" Classes.active="{Binding IsRipSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Burn">
-        <TextBlock Text="burn" Classes="subpivot" Classes.active="{Binding IsBurnSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.burn]}" Classes="subpivot" Classes.active="{Binding IsBurnSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Metadata">
-        <TextBlock Text="metadata" Classes="subpivot" Classes.active="{Binding IsMetadataSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.metadata]}" Classes="subpivot" Classes.active="{Binding IsMetadataSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Display">
-        <TextBlock Text="display" Classes="subpivot" Classes.active="{Binding IsDisplaySubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.display]}" Classes="subpivot" Classes.active="{Binding IsDisplaySubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="General">
-        <TextBlock Text="general" Classes="subpivot" Classes.active="{Binding IsGeneralSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.general]}" Classes="subpivot" Classes.active="{Binding IsGeneralSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="About">
-        <TextBlock Text="about" Classes="subpivot" Classes.active="{Binding IsAboutSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.about]}" Classes="subpivot" Classes.active="{Binding IsAboutSubPivotActive}" />
       </Button>
       <Button Command="{Binding SelectSoftwarePivotCommand}" CommandParameter="Plugins">
-        <TextBlock Text="plugins" Classes="subpivot" Classes.active="{Binding IsPluginsSubPivotActive}" />
+        <TextBlock Text="{Binding Localization[sub.plugins]}" Classes="subpivot" Classes.active="{Binding IsPluginsSubPivotActive}" />
       </Button>
     </StackPanel>
 
@@ -611,6 +611,18 @@
             <TextBlock Text="GENERAL" Classes="section-header" />
             <TextBlock Text="Application-wide preferences. Zune 4.8 grouped these in the 'general' software page."
                        Classes="caption" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <StackPanel Spacing="10">
+            <TextBlock Text="{Binding Localization[general.language]}" Classes="section-header" />
+            <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                      SelectedItem="{Binding SelectedLanguage}"
+                      HorizontalAlignment="Left"
+                      Width="200"
+                      Padding="10,6"
+                      BorderBrush="{DynamicResource ZuneBorderBrush}"
+                      Background="{DynamicResource ZuneCardBrush}"
+                      Foreground="{DynamicResource ZuneTextActiveBrush}" />
           </StackPanel>
 
           <StackPanel Spacing="10">
