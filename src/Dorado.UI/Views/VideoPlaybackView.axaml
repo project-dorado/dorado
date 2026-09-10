@@ -20,7 +20,7 @@
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock Grid.Column="0" Text="{Binding VideoTitle}" Classes="hero" FontSize="22" Foreground="{DynamicResource ZuneTextActiveBrush}" />
         <Button Grid.Column="1" Command="{Binding CloseCommand}" Background="Transparent" BorderThickness="0" Padding="6">
-          <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="12" Height="12" VerticalAlignment="Center" />
         </Button>
       </Grid>
 

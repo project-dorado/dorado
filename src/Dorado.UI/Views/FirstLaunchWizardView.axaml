@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="620" d:DesignHeight="460"
              x:Class="Dorado.UI.Views.FirstLaunchWizardView"
              x:DataType="vm:FirstLaunchWizardViewModel"
@@ -63,21 +64,21 @@
           <TextBlock Text="SKIP" Classes="caption" FontWeight="SemiBold" />
         </Button>
         <Button Classes="zune-action" Command="{Binding NextCommand}" IsVisible="{Binding IsWelcomeStep}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <TextBlock Text="GET STARTED" Classes="caption" FontWeight="SemiBold" />
-            <TextBlock Text="→" Classes="caption" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="GET STARTED" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Path Data="{x:Static design:ZuneGlyphs.ArrowRight}" Stretch="Uniform" Width="10" Height="10" Stroke="{DynamicResource ZuneTextActiveBrush}" StrokeThickness="1.5" VerticalAlignment="Center" />
           </StackPanel>
         </Button>
         <Button Classes="zune-action" Command="{Binding NextCommand}" IsVisible="{Binding IsChooseFolderStep}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <TextBlock Text="SCAN THIS FOLDER" Classes="caption" FontWeight="SemiBold" />
-            <TextBlock Text="→" Classes="caption" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="SCAN THIS FOLDER" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Path Data="{x:Static design:ZuneGlyphs.ArrowRight}" Stretch="Uniform" Width="10" Height="10" Stroke="{DynamicResource ZuneTextActiveBrush}" StrokeThickness="1.5" VerticalAlignment="Center" />
           </StackPanel>
         </Button>
         <Button Classes="zune-action" Command="{Binding FinishCommand}" IsVisible="{Binding IsDoneStep}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <TextBlock Text="▶" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
-            <TextBlock Text="START LISTENING" Classes="caption" FontWeight="SemiBold" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="10" Height="10" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+            <TextBlock Text="START LISTENING" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
           </StackPanel>
         </Button>
       </StackPanel>

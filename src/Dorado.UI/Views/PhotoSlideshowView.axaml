@@ -34,7 +34,7 @@
           <TextBlock Text="{Binding PositionText}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
         </StackPanel>
         <Button Grid.Column="1" Command="{Binding CloseCommand}" Background="Transparent" BorderThickness="0" Padding="6">
-          <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+          <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextActiveBrush}" StrokeThickness="1.5" Width="12" Height="12" VerticalAlignment="Center" />
         </Button>
       </Grid>
     </Border>

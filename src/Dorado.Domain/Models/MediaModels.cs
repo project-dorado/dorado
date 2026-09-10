@@ -17,6 +17,9 @@ public class Track
     public string Genre { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
     public HeartRating Rating { get; set; } = HeartRating.None;
+    public bool IsFavorite => Rating == HeartRating.Favorite;
+    public bool IsDisliked => Rating == HeartRating.Dislike;
+    public bool IsNeutral => Rating == HeartRating.None;
     public int PlayCount { get; set; }
     public DateTime? LastPlayedAtUtc { get; set; }
     public string? ArtworkUri { get; set; }

@@ -13,6 +13,7 @@ using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 using Dorado.Infrastructure.Audio;
 using Dorado.Plugins.Host;
+using Dorado.UI.Navigation;
 
 namespace Dorado.UI.ViewModels;
 
@@ -44,11 +45,15 @@ public class MainShellViewModel : ViewModelBase
     private bool _isNavigatingBack;
     private ViewModelBase _currentView = null!;
 
+    public PageStack NavigationStack { get; } = new();
+    public bool HasDisc => CDVM != null && (CDVM.DiscTracks.Count > 0 || IsDiscActive);
+
     private bool _isCompactMode;
     private string? _selectedBackgroundArt = "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG";
 
     private int _equalizerFrame = 1;
     private readonly DispatcherTimer? _equalizerTimer;
+    private readonly DispatcherTimer? _positionTimer;
     private DispatcherTimer? _nowPlayingIdleTimer;
     private DateTime _lastUserInputAt = DateTime.UtcNow;
     private bool _isNowPlayingButtonHovered;
@@ -305,10 +310,11 @@ public class MainShellViewModel : ViewModelBase
         => !IsQuickplayActive && !IsNowPlayingActive && !IsSettingsActive && !IsCompactMode;
 
     /// <summary>
-    /// The Zune 4.8 cropped-header title: the active pivot's name on landing pages,
-    /// or the current view's title on detail pages (Now Playing, Mixview, wizard overlays).
-    /// Rendered with negative left margin so the text bleeds off the viewport — the title is the
-    /// back affordance (Tier A1).
+    /// The Zune 4.8 cropped-header title: the current view's title on detail pages
+    /// (Now Playing, Mixview, wizard overlays). Landing pivots do NOT render this — the
+    /// header shows the ZUNE wordmark instead so the active pivot name is not duplicated
+    /// in the top-left. Rendered with negative left margin so the text bleeds off the
+    /// viewport — the title is the back affordance (Tier A1).
     /// </summary>
     public string CroppedHeaderTitle
     {
@@ -317,6 +323,11 @@ public class MainShellViewModel : ViewModelBase
             if (IsFirstLaunchWizardOpen && FirstLaunchWizardVM != null) return FirstLaunchWizardVM.StepTitle;
             if (IsFirstConnectWizardOpen && FirstConnectWizardVM != null) return FirstConnectWizardVM.StepTitle;
             if (IsWhatsNewOpen && WhatsNewVM != null) return WhatsNewVM.Title;
+
+            if (IsCollectionActive && CollectionVM.SelectedArtist != null)
+            {
+                return CollectionVM.SelectedArtist.Name.ToUpperInvariant();
+            }
 
             return ActivePivot switch
             {
@@ -338,14 +349,16 @@ public class MainShellViewModel : ViewModelBase
     /// also true on landing pages that have history (e.g., Quickplay after leaving Now Playing).
     /// </summary>
     public bool IsCroppedHeaderBack => CanGoBack || IsNowPlayingActive || IsMixviewActive
-        || IsFirstLaunchWizardOpen || IsFirstConnectWizardOpen || IsWhatsNewOpen;
+        || IsFirstLaunchWizardOpen || IsFirstConnectWizardOpen || IsWhatsNewOpen
+        || (IsCollectionActive && CollectionVM.SelectedArtist != null);
 
     /// <summary>
-    /// Detail pages (Now Playing / Mixview / wizards) get the back glyph + the view title; landing pivots
-    /// get just the title (since there's no view to back out of).
+    /// Detail pages (Now Playing / Mixview / wizards / artist drilldown) get the back glyph + the view title;
+    /// landing pivots get just the title (since there's no view to back out of).
     /// </summary>
     public bool IsCroppedHeaderDetail => IsNowPlayingActive || IsMixviewActive
-        || IsFirstLaunchWizardOpen || IsFirstConnectWizardOpen || IsWhatsNewOpen;
+        || IsFirstLaunchWizardOpen || IsFirstConnectWizardOpen || IsWhatsNewOpen
+        || (IsCollectionActive && CollectionVM.SelectedArtist != null);
 
     public string QuickDockDeviceName => DeviceVM.HasDevice ? DeviceVM.DeviceName.ToUpperInvariant() : "NO DEVICE";
     public string QuickDockDeviceStatus => DeviceVM.HasDevice ? (DeviceVM.IsSyncing ? "SYNCING..." : "CONNECTED") : "CONNECT USB";
@@ -365,6 +378,11 @@ public class MainShellViewModel : ViewModelBase
                 if (!_isNavigatingBack && previous != value)
                 {
                     _navigationHistory.Push(previous);
+                    NavigationStack.Push(new PageStackEntry(
+                        value,
+                        GetPivotTitle(value),
+                        CollectionVM.ActiveMediaGroup,
+                        CollectionVM.ActiveSubPivot));
                     OnPropertyChanged(nameof(CanGoBack));
                 }
 
@@ -376,6 +394,7 @@ public class MainShellViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsSocialActive));
                 OnPropertyChanged(nameof(IsDiscActive));
                 OnPropertyChanged(nameof(IsMixviewActive));
+                OnPropertyChanged(nameof(HasDisc));
                 OnPropertyChanged(nameof(IsQuickDockVisible));
                 OnPropertyChanged(nameof(IsHeaderSearchVisible));
                 OnPropertyChanged(nameof(CroppedHeaderTitle));
@@ -505,7 +524,8 @@ public class MainShellViewModel : ViewModelBase
     public ICommand OpenCDCommand { get; } = null!;
     public ICommand AcceptSuggestionCommand { get; } = null!;
     public ICommand GoBackCommand { get; } = null!;
-    public bool CanGoBack => _navigationHistory.Count > 0;
+    public bool CanGoBack => _navigationHistory.Count > 0
+        || (IsCollectionActive && CollectionVM.SelectedArtist != null);
 
     private FirstLaunchWizardViewModel? _firstLaunchWizardVM;
     public FirstLaunchWizardViewModel? FirstLaunchWizardVM
@@ -786,10 +806,34 @@ public class MainShellViewModel : ViewModelBase
         });
 
         CDVM = new CDViewModel(libraryService, playerCoordinator, _soundEffectService);
+        CDVM.DiscTracks.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDisc));
+
         OpenCDCommand = new RelayCommand(() =>
         {
             ActivePivot = NavigationPivot.Disc;
         });
+
+        NavigationStack.Push(new PageStackEntry(NavigationPivot.Quickplay, "QUICKPLAY"));
+
+        CollectionVM.DetailStateChanged += (_, detail) =>
+        {
+            if (!_isNavigatingBack && IsCollectionActive)
+            {
+                var title = CollectionVM.SelectedArtist != null
+                    ? CollectionVM.SelectedArtist.Name.ToUpperInvariant()
+                    : "COLLECTION";
+                NavigationStack.Push(new PageStackEntry(
+                    NavigationPivot.Collection,
+                    title,
+                    CollectionVM.ActiveMediaGroup,
+                    CollectionVM.ActiveSubPivot,
+                    detail));
+            }
+            OnPropertyChanged(nameof(CroppedHeaderTitle));
+            OnPropertyChanged(nameof(IsCroppedHeaderBack));
+            OnPropertyChanged(nameof(IsCroppedHeaderDetail));
+            OnPropertyChanged(nameof(CanGoBack));
+        };
 
         AcceptSuggestionCommand = new RelayCommand<string>(suggestion =>
         {
@@ -876,12 +920,14 @@ public class MainShellViewModel : ViewModelBase
                 : NavigationPivot.Social;
         });
 
-        SeekCommand = new AsyncRelayCommand<double>(async progress =>
+        // Synchronous so a drag can seek repeatedly; AsyncRelayCommand would drop
+        // concurrent invocations and the scrubber would only move once per drag.
+        SeekCommand = new RelayCommand<double>(progress =>
         {
             if (Duration.TotalSeconds > 0)
             {
-                var target = TimeSpan.FromSeconds(progress * Duration.TotalSeconds);
-                await _playerCoordinator.SeekAsync(target);
+                var target = TimeSpan.FromSeconds(Math.Clamp(progress, 0.0, 1.0) * Duration.TotalSeconds);
+                _ = _playerCoordinator.SeekAsync(target);
             }
         });
 
@@ -1035,16 +1081,51 @@ public class MainShellViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Pops the most recent pivot off the navigation history (global back behavior, PAGESTACK parity).
+    /// Pops the most recent pivot or collection drilldown off the navigation history (PAGESTACK parity).
     /// </summary>
     public void GoBack()
     {
+        if (FirstLaunchWizardVM != null)
+        {
+            FirstLaunchWizardVM = null;
+            return;
+        }
+        if (FirstConnectWizardVM != null)
+        {
+            FirstConnectWizardVM = null;
+            return;
+        }
+        if (WhatsNewVM != null)
+        {
+            WhatsNewVM = null;
+            return;
+        }
+
+        if (IsCollectionActive && CollectionVM.SelectedArtist != null)
+        {
+            CollectionVM.SelectedArtist = null;
+            if (NavigationStack.CanNavigateBack)
+            {
+                NavigationStack.Pop();
+            }
+            OnPropertyChanged(nameof(CanGoBack));
+            OnPropertyChanged(nameof(CroppedHeaderTitle));
+            OnPropertyChanged(nameof(IsCroppedHeaderBack));
+            OnPropertyChanged(nameof(IsCroppedHeaderDetail));
+            return;
+        }
+
         if (_navigationHistory.Count == 0)
         {
             return;
         }
 
         var previous = _navigationHistory.Pop();
+        if (NavigationStack.CanNavigateBack)
+        {
+            NavigationStack.Pop();
+        }
+
         _isNavigatingBack = true;
         try
         {
@@ -1056,7 +1137,23 @@ public class MainShellViewModel : ViewModelBase
         }
 
         OnPropertyChanged(nameof(CanGoBack));
+        OnPropertyChanged(nameof(CroppedHeaderTitle));
+        OnPropertyChanged(nameof(IsCroppedHeaderBack));
+        OnPropertyChanged(nameof(IsCroppedHeaderDetail));
     }
+
+    private static string GetPivotTitle(NavigationPivot pivot) => pivot switch
+    {
+        NavigationPivot.Quickplay => "QUICKPLAY",
+        NavigationPivot.Collection => "COLLECTION",
+        NavigationPivot.NowPlaying => "NOW PLAYING",
+        NavigationPivot.Device => "DEVICE",
+        NavigationPivot.Settings => "SETTINGS",
+        NavigationPivot.Social => "SOCIAL",
+        NavigationPivot.Disc => "DISC",
+        NavigationPivot.Mixview => "MIXVIEW",
+        _ => string.Empty
+    };
 
     private void MaybeShowWhatsNew(ISettingsStore? settingsStore)
     {

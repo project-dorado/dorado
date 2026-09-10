@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="560"
              x:Class="Dorado.UI.Views.SmartPlaylistEditorView"
              x:DataType="vm:SmartPlaylistEditorViewModel"
@@ -54,7 +55,7 @@
                   <ComboBox Grid.Column="1" SelectedIndex="{Binding OperatorIndex}" ItemsSource="{Binding AvailableOperators}" CornerRadius="0" Margin="0,0,8,0" />
                   <TextBox Grid.Column="2" Text="{Binding Value}" Watermark="value" CornerRadius="0" />
                   <Button Grid.Column="3" Command="{Binding RemoveCommand}" Background="Transparent" Padding="6,2" ToolTip.Tip="Remove rule">
-                    <TextBlock Text="✕" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="10" Height="10" VerticalAlignment="Center" />
                   </Button>
                 </Grid>
               </Border>

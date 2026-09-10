@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
              x:Class="Dorado.UI.Views.PlaylistsView"
              TextInput="OnTypeAheadText"
@@ -146,9 +147,9 @@
         <!-- Action Strip -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,16,0,16">
           <Button Classes="zune-action" Command="{Binding PlayPlaylistCommand}">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <TextBlock Text="▶" Classes="caption" />
-              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="10" Height="10" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
 
@@ -191,7 +192,7 @@
                             Background="Transparent"
                             Padding="6,2"
                             ToolTip.Tip="Remove from playlist">
-                      <TextBlock Text="✕" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                      <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="9" Height="9" VerticalAlignment="Center" />
                     </Button>
                   </Grid>
                 </Border>
@@ -219,9 +220,9 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,16,0,16">
           <Button Classes="zune-action" Command="{Binding PlaySmartPlaylistCommand}">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <TextBlock Text="▶" Classes="caption" />
-              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="10" Height="10" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
 

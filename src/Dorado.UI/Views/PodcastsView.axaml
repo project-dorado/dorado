@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.PodcastsView"
              TextInput="OnTypeAheadText"
@@ -130,8 +131,8 @@
                               Margin="16,0,0,0"
                               VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                          <TextBlock Text="▶" Foreground="{DynamicResource ZuneAccentBrush}" FontSize="11" />
-                          <TextBlock Text="PLAY" FontSize="10" FontWeight="SemiBold" />
+                          <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="9" Height="9" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+                          <TextBlock Text="PLAY" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </StackPanel>
                       </Button>
                     </Grid>

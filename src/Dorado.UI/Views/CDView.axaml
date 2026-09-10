@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.CDView"
              x:DataType="vm:CDViewModel">
@@ -47,8 +48,7 @@
                   CornerRadius="0"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center">
-            <TextBlock Text="♫" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+            <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" Stretch="Uniform" Width="36" Height="36" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{DynamicResource ZuneTextDimmedBrush}" />
           </Border>
           <Ellipse Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Opacity="0.35">
             <Ellipse.Fill>

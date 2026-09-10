@@ -88,7 +88,7 @@
     <Grid IsVisible="{Binding IsZoomOpen}" Background="#F0000000">
       <Grid RowDefinitions="Auto,*" Margin="24">
         <Button Grid.Row="0" Command="{Binding CloseZoomCommand}" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Padding="6">
-          <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="12" Height="12" VerticalAlignment="Center" />
         </Button>
         <Image Grid.Row="1"
                Source="{Binding ZoomedPhoto.FilePath, Converter={x:Static conv:ArtworkSourceConverter.Large}}"

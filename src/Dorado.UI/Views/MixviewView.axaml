@@ -23,7 +23,7 @@
               Classes="zune-action" 
               Padding="8,6">
         <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock Text="←" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" />
+          <Path Data="{x:Static design:ZuneGlyphs.ArrowBack}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" Width="14" Height="14" VerticalAlignment="Center" />
           <TextBlock Text="{Binding HistoryBreadcrumbText}" Classes="caption" FontWeight="Bold" />
         </StackPanel>
       </Button>
@@ -200,7 +200,7 @@
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="INFO" Classes="section-header" Foreground="{DynamicResource ZuneAccentBrush}" />
           <Button Grid.Column="1" Command="{Binding CloseInfoCardCommand}" Background="Transparent" BorderThickness="0" Padding="4,0">
-            <TextBlock Text="✕" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+            <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="10" Height="10" VerticalAlignment="Center" />
           </Button>
         </Grid>
         <ScrollViewer MaxHeight="220">

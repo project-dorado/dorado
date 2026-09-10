@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Dorado.UI.ViewModels;
 
 namespace Dorado.UI.Views;
 
@@ -15,6 +16,7 @@ public partial class MainShellView : UserControl
     private double _pivotLastX;
     private double _pivotVelocity;
     private long _pivotLastTicks;
+    private bool _isSeeking;
 
     public MainShellView()
     {

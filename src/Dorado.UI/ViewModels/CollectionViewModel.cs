@@ -7,6 +7,14 @@ using Dorado.Domain.Models;
 
 namespace Dorado.UI.ViewModels;
 
+public enum CollectionMediaGroup
+{
+    Music,
+    Videos,
+    Pictures,
+    Podcasts
+}
+
 public enum CollectionSubPivot
 {
     Artists,
@@ -62,13 +70,64 @@ public class CollectionViewModel : ViewModelBase
     public ObservableCollection<string> Genres { get; } = new();
     public ObservableCollection<Track> SelectedGenreSongs { get; } = new();
 
+    private CollectionMediaGroup _activeMediaGroup = CollectionMediaGroup.Music;
+    public CollectionMediaGroup ActiveMediaGroup
+    {
+        get => _activeMediaGroup;
+        set
+        {
+            if (SetProperty(ref _activeMediaGroup, value))
+            {
+                OnPropertyChanged(nameof(IsMusicActive));
+                OnPropertyChanged(nameof(IsVideosMediaActive));
+                OnPropertyChanged(nameof(IsPicturesMediaActive));
+                OnPropertyChanged(nameof(IsPodcastsMediaActive));
+                OnPropertyChanged(nameof(IsArtistsActive));
+                OnPropertyChanged(nameof(IsAlbumsActive));
+                OnPropertyChanged(nameof(IsSongsActive));
+                OnPropertyChanged(nameof(IsGenresActive));
+                OnPropertyChanged(nameof(IsPlaylistsActive));
+                OnPropertyChanged(nameof(IsVideosActive));
+                OnPropertyChanged(nameof(IsPicturesActive));
+                OnPropertyChanged(nameof(IsPodcastsActive));
+            }
+        }
+    }
+
+    public bool IsMusicActive => _activeMediaGroup == CollectionMediaGroup.Music;
+    public bool IsVideosMediaActive => _activeMediaGroup == CollectionMediaGroup.Videos;
+    public bool IsPicturesMediaActive => _activeMediaGroup == CollectionMediaGroup.Pictures;
+    public bool IsPodcastsMediaActive => _activeMediaGroup == CollectionMediaGroup.Podcasts;
+
     public CollectionSubPivot ActiveSubPivot
     {
         get => _activeSubPivot;
         set
         {
+            if (value is CollectionSubPivot.Videos)
+            {
+                _activeMediaGroup = CollectionMediaGroup.Videos;
+            }
+            else if (value is CollectionSubPivot.Pictures)
+            {
+                _activeMediaGroup = CollectionMediaGroup.Pictures;
+            }
+            else if (value is CollectionSubPivot.Podcasts)
+            {
+                _activeMediaGroup = CollectionMediaGroup.Podcasts;
+            }
+            else
+            {
+                _activeMediaGroup = CollectionMediaGroup.Music;
+            }
+
             if (SetProperty(ref _activeSubPivot, value))
             {
+                OnPropertyChanged(nameof(ActiveMediaGroup));
+                OnPropertyChanged(nameof(IsMusicActive));
+                OnPropertyChanged(nameof(IsVideosMediaActive));
+                OnPropertyChanged(nameof(IsPicturesMediaActive));
+                OnPropertyChanged(nameof(IsPodcastsMediaActive));
                 OnPropertyChanged(nameof(IsArtistsActive));
                 OnPropertyChanged(nameof(IsAlbumsActive));
                 OnPropertyChanged(nameof(IsSongsActive));
@@ -81,14 +140,16 @@ public class CollectionViewModel : ViewModelBase
         }
     }
 
-    public bool IsArtistsActive => _activeSubPivot == CollectionSubPivot.Artists;
-    public bool IsAlbumsActive => _activeSubPivot == CollectionSubPivot.Albums;
-    public bool IsSongsActive => _activeSubPivot == CollectionSubPivot.Songs;
-    public bool IsGenresActive => _activeSubPivot == CollectionSubPivot.Genres;
-    public bool IsPodcastsActive => _activeSubPivot == CollectionSubPivot.Podcasts;
-    public bool IsPlaylistsActive => _activeSubPivot == CollectionSubPivot.Playlists;
-    public bool IsVideosActive => _activeSubPivot == CollectionSubPivot.Videos;
-    public bool IsPicturesActive => _activeSubPivot == CollectionSubPivot.Pictures;
+    public bool IsArtistsActive => IsMusicActive && _activeSubPivot == CollectionSubPivot.Artists;
+    public bool IsAlbumsActive => IsMusicActive && _activeSubPivot == CollectionSubPivot.Albums;
+    public bool IsSongsActive => IsMusicActive && _activeSubPivot == CollectionSubPivot.Songs;
+    public bool IsGenresActive => IsMusicActive && _activeSubPivot == CollectionSubPivot.Genres;
+    public bool IsPlaylistsActive => IsMusicActive && _activeSubPivot == CollectionSubPivot.Playlists;
+    public bool IsPodcastsActive => _activeMediaGroup == CollectionMediaGroup.Podcasts || _activeSubPivot == CollectionSubPivot.Podcasts;
+    public bool IsVideosActive => _activeMediaGroup == CollectionMediaGroup.Videos || _activeSubPivot == CollectionSubPivot.Videos;
+    public bool IsPicturesActive => _activeMediaGroup == CollectionMediaGroup.Pictures || _activeSubPivot == CollectionSubPivot.Pictures;
+
+    public event EventHandler<object?>? DetailStateChanged;
 
     public Artist? SelectedArtist
     {
@@ -98,6 +159,7 @@ public class CollectionViewModel : ViewModelBase
             if (SetProperty(ref _selectedArtist, value))
             {
                 UpdateSelectedArtistAlbums();
+                DetailStateChanged?.Invoke(this, value);
             }
         }
     }
@@ -114,6 +176,12 @@ public class CollectionViewModel : ViewModelBase
         }
     }
 
+    public static readonly string[] Alphabet = { "#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+    public IReadOnlyList<string> AlphabetLetters => Alphabet;
+
+    public event EventHandler<string>? JumpRequested;
+    public ICommand JumpToLetterCommand { get; }
+    public ICommand SelectMediaGroupCommand { get; }
     public ICommand SelectSubPivotCommand { get; }
     public ICommand SelectArtistCommand { get; }
     public ICommand SelectGenreCommand { get; }
@@ -125,6 +193,7 @@ public class CollectionViewModel : ViewModelBase
     public ICommand EnqueueTrackCommand { get; }
     public ICommand ToggleFavoriteCommand { get; }
     public ICommand ToggleDislikeCommand { get; }
+    public ICommand CycleRatingCommand { get; }
     public ICommand OpenEditMetadataCommand { get; }
     public ICommand CloseEditMetadataCommand { get; }
     public ICommand PinAlbumCommand { get; }
@@ -229,7 +298,35 @@ public class CollectionViewModel : ViewModelBase
         });
         CloseEditMetadataCommand = new RelayCommand(() => ActiveEditMetadataVM = null);
 
+        SelectMediaGroupCommand = new RelayCommand<CollectionMediaGroup>(group =>
+        {
+            ActiveMediaGroup = group;
+            switch (group)
+            {
+                case CollectionMediaGroup.Music:
+                    if (ActiveSubPivot is CollectionSubPivot.Videos or CollectionSubPivot.Pictures or CollectionSubPivot.Podcasts)
+                    {
+                        ActiveSubPivot = CollectionSubPivot.Artists;
+                    }
+                    break;
+                case CollectionMediaGroup.Videos:
+                    ActiveSubPivot = CollectionSubPivot.Videos;
+                    break;
+                case CollectionMediaGroup.Pictures:
+                    ActiveSubPivot = CollectionSubPivot.Pictures;
+                    break;
+                case CollectionMediaGroup.Podcasts:
+                    ActiveSubPivot = CollectionSubPivot.Podcasts;
+                    break;
+            }
+        });
         SelectSubPivotCommand = new RelayCommand<CollectionSubPivot>(pivot => ActiveSubPivot = pivot);
+        JumpToLetterCommand = new RelayCommand<string>(letter =>
+        {
+            if (string.IsNullOrWhiteSpace(letter)) return;
+            JumpToLetter(letter);
+            JumpRequested?.Invoke(this, letter);
+        });
         SelectArtistCommand = new RelayCommand<Artist>(artist => SelectedArtist = artist);
         SelectGenreCommand = new RelayCommand<string>(genre => SelectedGenre = genre);
         PlaySongCommand = new AsyncRelayCommand<Track>(OnPlaySongAsync);
@@ -246,6 +343,7 @@ public class CollectionViewModel : ViewModelBase
         });
         ToggleFavoriteCommand = new AsyncRelayCommand<Track>(OnToggleFavoriteAsync);
         ToggleDislikeCommand = new AsyncRelayCommand<Track>(OnToggleDislikeAsync);
+        CycleRatingCommand = new AsyncRelayCommand<Track>(OnCycleRatingAsync);
 
         PinAlbumCommand = new AsyncRelayCommand<Album>(async album =>
         {
@@ -604,6 +702,31 @@ public class CollectionViewModel : ViewModelBase
         track.Rating = newRating;
         await _playerCoordinator.SetRatingAsync(track.Id, newRating);
         await _libraryService.SetTrackRatingAsync(track.Id, newRating);
+    }
+
+    private async Task OnCycleRatingAsync(Track? track)
+    {
+        if (track == null) return;
+        var next = track.Rating switch
+        {
+            HeartRating.None => HeartRating.Favorite,
+            HeartRating.Favorite => HeartRating.Dislike,
+            HeartRating.Dislike => HeartRating.None,
+            _ => HeartRating.Favorite
+        };
+        track.Rating = next;
+        var idx = Songs.IndexOf(track);
+        if (idx >= 0)
+        {
+            Songs[idx] = track;
+        }
+        var gIdx = SelectedGenreSongs.IndexOf(track);
+        if (gIdx >= 0)
+        {
+            SelectedGenreSongs[gIdx] = track;
+        }
+        await _playerCoordinator.SetRatingAsync(track.Id, next);
+        await _libraryService.SetTrackRatingAsync(track.Id, next);
     }
 
     private async Task OnStartSmartDjFromTrackAsync(Track? track)

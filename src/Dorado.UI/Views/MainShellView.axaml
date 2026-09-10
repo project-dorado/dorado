@@ -73,15 +73,17 @@
           <!-- Zune 4.8 cropped-title back affordance (bleeds off the left edge; click → GoBack) -->
           <Panel Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center"
                  Margin="-32,0,0,0" IsHitTestVisible="True"
+                 IsVisible="{Binding IsCroppedHeaderDetail}"
                  PointerPressed="OnCroppedHeaderPointerPressed"
                  Cursor="Hand">
-            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-              <TextBlock Text="&#x2190;"
-                         IsVisible="{Binding IsCroppedHeaderBack}"
-                         FontFamily="{StaticResource ZunePivotFontFamily}"
-                         FontSize="18"
-                         Foreground="{DynamicResource ZuneAccentBrush}"
-                         VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Data="{x:Static design:ZuneGlyphs.ArrowBack}"
+                    IsVisible="{Binding IsCroppedHeaderBack}"
+                    Stretch="Uniform"
+                    Stroke="{DynamicResource ZuneAccentBrush}"
+                    StrokeThickness="2"
+                    Width="18" Height="18"
+                    VerticalAlignment="Center" />
               <TextBlock Text="{Binding CroppedHeaderTitle}"
                          Classes="hero"
                          FontSize="34"
@@ -166,7 +168,7 @@
               <Button Command="{Binding SelectPivotCommand}" CommandParameter="{x:Static vm:NavigationPivot.Device}">
                 <TextBlock Text="DEVICE" Classes="pivot-header" Classes.active="{Binding IsDeviceActive}" />
               </Button>
-              <Button Command="{Binding SelectPivotCommand}" CommandParameter="{x:Static vm:NavigationPivot.Disc}">
+              <Button Command="{Binding SelectPivotCommand}" CommandParameter="{x:Static vm:NavigationPivot.Disc}" IsVisible="{Binding HasDisc}">
                 <TextBlock Text="DISC" Classes="pivot-header" Classes.active="{Binding IsDiscActive}" />
               </Button>
               <Button Command="{Binding SelectPivotCommand}" CommandParameter="{x:Static vm:NavigationPivot.Social}">
@@ -228,7 +230,7 @@
                         BorderThickness="0" 
                         Padding="4,2,6,2" 
                         VerticalAlignment="Center">
-                  <TextBlock Text="✕" FontSize="10" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Cross}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextDimmedBrush}" StrokeThickness="1.5" Width="10" Height="10" VerticalAlignment="Center" />
                 </Button>
               </Grid>
             </Border>
@@ -389,7 +391,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
               <!-- Sharp Square Artwork Box -->
               <Border Width="46" Height="46" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0" BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="1">
-                <TextBlock Text="♫" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" Stretch="Uniform" Width="18" Height="18" Fill="{DynamicResource ZuneTextDimmedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
 
               <StackPanel VerticalAlignment="Center" Spacing="3">
@@ -480,7 +482,7 @@
 
               <!-- Fullscreen Now Playing trigger -->
               <Button Command="{Binding ToggleNowPlayingCommand}" Padding="4" ToolTip.Tip="Full screen Now Playing">
-                <TextBlock Text="⤢" FontSize="16" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                <Path Data="{x:Static design:ZuneGlyphs.FullscreenExpand}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.5" Width="14" Height="14" VerticalAlignment="Center" />
               </Button>
             </StackPanel>
           </Grid>

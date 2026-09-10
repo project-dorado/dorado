@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Timers;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Events;
@@ -19,6 +20,32 @@ public enum NowPlayingMode
     ArtistCanvas,
     MosaicWall,
     Video
+}
+
+public sealed class VisualizerBandItem : ViewModelBase
+{
+    private double _value = 4.0;
+    private double _peak = 4.0;
+
+    public double Value
+    {
+        get => _value;
+        set => SetProperty(ref _value, value);
+    }
+
+    public double Peak
+    {
+        get => _peak;
+        set
+        {
+            if (SetProperty(ref _peak, value))
+            {
+                OnPropertyChanged(nameof(PeakMargin));
+            }
+        }
+    }
+
+    public Thickness PeakMargin => new(0, 0, 0, Math.Max(0.0, Peak - 1.0));
 }
 
 public class NowPlayingViewModel : ViewModelBase

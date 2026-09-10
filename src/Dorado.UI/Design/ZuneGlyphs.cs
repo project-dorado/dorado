@@ -114,6 +114,34 @@ public static class ZuneGlyphs
     public static Geometry Device { get; } = StreamGeometry.Parse(
         "M5,2 H19 V22 H5 Z M10,19 H14");
 
+    /// <summary>Fullscreen expand / pop-out toggle (two opposite-pointing corner arrows). Draw with Stroke.</summary>
+    public static Geometry FullscreenExpand { get; } = StreamGeometry.Parse(
+        "M15,3 H21 V9 M21,3 L13,11 M9,21 H3 V15 M3,21 L11,13");
+
+    /// <summary>Clean-room forward navigation arrow. Draw with Stroke.</summary>
+    public static Geometry ArrowRight { get; } = StreamGeometry.Parse(
+        "M4,12 H20 M13,5 L20,12 L13,19");
+
+    /// <summary>Clean-room geometric bullet diamond. Draw with Fill.</summary>
+    public static Geometry Diamond { get; } = StreamGeometry.Parse(
+        "M12,2 L21,12 L12,22 L3,12 Z");
+
+    /// <summary>Clean-room musical note placeholder. Draw with Fill.</summary>
+    public static Geometry MusicNote { get; } = StreamGeometry.Parse(
+        "M12,3 V14.5 A3.5,3.5 0 1 1 8.5,11 A3.5,3.5 0 0 1 12,11.5 V5 H18 V3 Z");
+
+    /// <summary>Clean-room subtle clear / cross glyph. Draw with Stroke.</summary>
+    public static Geometry Cross { get; } = StreamGeometry.Parse(
+        "M6,6 L18,18 M18,6 L6,18");
+
+    /// <summary>Clean-room queue lines / dynamic mix list icon. Draw with Stroke.</summary>
+    public static Geometry QueueLines { get; } = StreamGeometry.Parse(
+        "M4,7 H20 M4,12 H20 M4,17 H20");
+
+    /// <summary>Clean-room 2x2 grid / mosaic wall toggle. Draw with Fill.</summary>
+    public static Geometry GridMosaic { get; } = StreamGeometry.Parse(
+        "M4,4 H10 V10 H4 Z M14,4 H20 V10 H14 Z M4,14 H10 V20 H4 Z M14,14 H20 V20 H14 Z");
+
     /// <summary>
     /// The Now Playing equalizer mark, drawn procedurally so the device's
     /// <c>ICON.NOWPLAYING.FRAME01..10.PNG</c> animation set is not bundled.
@@ -165,4 +193,8 @@ public static class ZuneGlyphs
             "C22,12.28 18.6,15.36 13.45,20.04 L12,21.35 Z " +
             "M12.9,5.4 L8.7,12.1 L11.9,12.1 L10.6,19.6 L16.4,9.4 L13.2,9.4 Z");
     }
+
+    /// <summary>Clean-room pushpin vector glyph for Quickplay pins deck.</summary>
+    public static Geometry Pin => StreamGeometry.Parse("M14,4 L15,5 L15,10 L18,13 L18,15 L13,15 L13,21 L12,22 L11,21 L11,15 L6,15 L6,13 L9,10 L9,5 L10,4 Z");
 }
+
