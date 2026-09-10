@@ -7,12 +7,17 @@ public class UserStatsService : IUserStatsService
 {
     private readonly IMediaLibraryService _libraryService;
     private readonly IReviewService? _reviewService;
+    private readonly ICloudSocialService? _cloudSocial;
     private readonly List<PlayHistoryEntry> _sessionPlays = new();
 
-    public UserStatsService(IMediaLibraryService libraryService, IReviewService? reviewService = null)
+    public UserStatsService(
+        IMediaLibraryService libraryService,
+        IReviewService? reviewService = null,
+        ICloudSocialService? cloudSocial = null)
     {
         _libraryService = libraryService;
         _reviewService = reviewService;
+        _cloudSocial = cloudSocial;
     }
 
     public async Task<ZuneProfile> GetProfileAsync()
@@ -28,7 +33,7 @@ public class UserStatsService : IUserStatsService
             MemberSinceUtc = new DateTime(2006, 11, 14), // Zune launch date!
             TotalTracksPlayed = allPlays.Count,
             TotalListeningTime = TimeSpan.FromSeconds(totalSecs),
-            AvatarUri = "avares://Dorado.UI/Assets/Zune/Branding/ZUNEUSER.PNG"
+            AvatarUri = string.Empty
         };
     }
 
@@ -87,7 +92,7 @@ public class UserStatsService : IUserStatsService
         };
     }
 
-    public Task RecordTrackPlayedAsync(Track track)
+    public async Task RecordTrackPlayedAsync(Track track)
     {
         _sessionPlays.Add(new PlayHistoryEntry
         {
@@ -99,6 +104,19 @@ public class UserStatsService : IUserStatsService
             DurationPlayed = track.Duration,
             Completed = true
         });
-        return Task.CompletedTask;
+
+        // Mirror the listen to the cloud so the live Zune Card reflects play
+        // history across devices. Never let a cloud failure break playback.
+        if (_cloudSocial is { IsEnabled: true })
+        {
+            try
+            {
+                await _cloudSocial.RecordListenAsync(track.ArtistName, track.Title, track.AlbumTitle).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Offline / token expired: the local history is authoritative.
+            }
+        }
     }
 }

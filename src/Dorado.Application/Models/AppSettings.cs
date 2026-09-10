@@ -42,6 +42,29 @@ public class AppSettings
     public bool LrcLibEnabled { get; set; } = true;
     public string FanartTvApiKey { get; set; } = string.Empty;
 
+    // Dorado Cloud — community cloud services (catalog, artwork CDN, identity,
+    // OTA updates, social). When enabled and reachable, the cloud becomes the
+    // authoritative source for catalog/artwork; the direct MusicBrainz/Cover Art
+    // Archive clients remain as the offline fallback.
+    public bool CloudEnabled { get; set; }
+    public string CloudBaseUrl { get; set; } = string.Empty;
+    /// <summary>Social handle whose live Zune Card is shown on the card page.</summary>
+    public string CloudHandle { get; set; } = string.Empty;
+    /// <summary>Bearer token issued by the OIDC flow; persisted after PKCE sign-in.</summary>
+    public string CloudAccessToken { get; set; } = string.Empty;
+    public DateTime? CloudAccessTokenExpiresAtUtc { get; set; }
+    /// <summary>When true (default), the cloud response wins on a conflict; the inner service is only consulted on cloud failure.</summary>
+    public bool CloudPreferCloud { get; set; } = true;
+
+    // Emulator (XNA .ccgame / .zcp execution via the dorado-emu CLI IPC bridge)
+    public bool EmulatorEnabled { get; set; } = true;
+    public string EmulatorCliPath { get; set; } = "dorado";
+
+    // LAN sync (phone ↔ desktop over the sync.* JSON-RPC TCP protocol)
+    public bool LanSyncEnabled { get; set; }
+    public int LanSyncPort { get; set; } = 8787;
+    public string LanSyncPairingCode { get; set; } = string.Empty;
+
     // Device
     public int SpaceReservationPercent { get; set; } = 10;
     public string MusicSyncRule { get; set; } = "All Music (Automatic Sync)";

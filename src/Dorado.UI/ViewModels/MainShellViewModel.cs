@@ -45,7 +45,7 @@ public class MainShellViewModel : ViewModelBase
     private ViewModelBase _currentView = null!;
 
     private bool _isCompactMode;
-    private string? _selectedBackgroundArt = "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-10.JPG";
+    private string? _selectedBackgroundArt = "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG";
 
     private int _equalizerFrame = 1;
     private readonly DispatcherTimer? _equalizerTimer;
@@ -54,7 +54,7 @@ public class MainShellViewModel : ViewModelBase
     private bool _isNowPlayingButtonHovered;
     private bool _isNowPlayingButtonPressed;
     private bool _isNowPlayingPlaying;
-    private string _nowPlayingIconSource = "avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.ENTER.PNG";
+
 
     // In-shell modal dialog state (Phase 19a).
     private TaskCompletionSource<bool>? _dialogCompletion;
@@ -116,11 +116,14 @@ public class MainShellViewModel : ViewModelBase
 
     public bool HasBackgroundArt => !string.IsNullOrEmpty(SelectedBackgroundArt);
 
-    public string NowPlayingIconSource
-    {
-        get => _nowPlayingIconSource;
-        private set => SetProperty(ref _nowPlayingIconSource, value);
-    }
+    /// <summary>
+    /// Now Playing equalizer mark state (Vector 4). The view builds the geometry
+    /// from these via <c>EqualizerGeometryConverter</c>, so the ViewModel never
+    /// touches Avalonia geometry (and stays platform-free for tests).
+    /// </summary>
+    public int NowPlayingIconFrame => _equalizerFrame;
+
+    public bool NowPlayingIconPlaying => _isNowPlayingPlaying;
 
     /// <summary>Tier A3: 0..1 idle progress in Now Playing (1 = fully idle, controls faded).</summary>
     public double NowPlayingIdleProgress => _nowPlayingIdleProgress;
@@ -156,31 +159,15 @@ public class MainShellViewModel : ViewModelBase
         RefreshNowPlayingIcon();
     }
 
-    /// <summary>Compute the right Now Playing icon asset for the current (hover/pressed/playing/frame) state.</summary>
+    /// <summary>
+    /// Notifies the view that the Now Playing equalizer mark changed. The
+    /// geometry itself is built by the view from <see cref="NowPlayingIconFrame"/>
+    /// and <see cref="NowPlayingIconPlaying"/>.
+    /// </summary>
     private void RefreshNowPlayingIcon()
     {
-        string? variant = _isNowPlayingButtonPressed ? "PRESSED"
-                       : _isNowPlayingButtonHovered ? "HOVER"
-                       : null;
-
-        if (!_isNowPlayingPlaying)
-        {
-            NowPlayingIconSource = variant switch
-            {
-                "PRESSED" => "avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.ENTER.PRESSED.PNG",
-                "HOVER"   => "avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.ENTER.HOVER.PNG",
-                _         => "avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.ENTER.PNG",
-            };
-            return;
-        }
-
-        // Playing: cycle through 10 frames, with the hover/pressed variant.
-        NowPlayingIconSource = variant switch
-        {
-            "PRESSED" => $"avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.PRESSED.FRAME{_equalizerFrame:D2}.PNG",
-            "HOVER"   => $"avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.HOVER.FRAME{_equalizerFrame:D2}.PNG",
-            _         => $"avares://Dorado.UI/Assets/Zune/Transport/ICON.NOWPLAYING.FRAME{_equalizerFrame:D2}.PNG",
-        };
+        OnPropertyChanged(nameof(NowPlayingIconFrame));
+        OnPropertyChanged(nameof(NowPlayingIconPlaying));
     }
 
     private string _headerSearchQuery = string.Empty;
@@ -734,7 +721,9 @@ public class MainShellViewModel : ViewModelBase
         IDynamicMixService? dynamicMixService = null,
         ILocalizationService? localization = null,
         IDialogService? dialogService = null,
-        IReviewService? reviewService = null)
+        IReviewService? reviewService = null,
+        ICloudSocialService? cloudSocialService = null,
+        ICloudSignInService? cloudSignInService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -749,7 +738,7 @@ public class MainShellViewModel : ViewModelBase
         CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService, dialogService, reviewService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
-        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization, dialogService);
+        SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization, dialogService, cloudSignInService);
 
         // Onboarding (FIRSTLAUNCH + WHATSNEW parity): wizard on first run, What's New on version change.
         var startupSettings = settingsStore?.Load();
@@ -775,7 +764,10 @@ public class MainShellViewModel : ViewModelBase
         {
             MaybeShowWhatsNew(settingsStore);
         }
-        ZuneCardVM = new ZuneCardViewModel(_userStatsService);
+        ZuneCardVM = new ZuneCardViewModel(
+            _userStatsService,
+            cloudSocialService,
+            () => settingsStore?.Load().CloudHandle ?? string.Empty);
 
         var mixService = new MixviewCoordinator(libraryService);
         MixviewVM = new MixviewViewModel(mixService, playerCoordinator, smartDJService, libraryService);

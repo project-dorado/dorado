@@ -5,16 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Dorado.Application;
 using Dorado.Application.Interfaces;
+using Dorado.Application.Models;
 using Dorado.Application.Services;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 using Dorado.Infrastructure.Audio;
 using Dorado.Infrastructure.Devices;
+using Dorado.Infrastructure.Emulator;
 using Dorado.Infrastructure.External;
 using Dorado.Infrastructure.Persistence;
-using Dorado.Infrastructure.Video;using Dorado.UI.Services;
+using Dorado.Infrastructure.Video;
+using Dorado.UI.Services;
 using Dorado.Plugins.Host;
 using Dorado.UI.ViewModels;
+using DoradoCloud.Client;
 
 namespace Dorado.Desktop;
 
@@ -40,6 +44,19 @@ public partial class App : Avalonia.Application
         var pluginManager = _serviceProvider.GetRequiredService<PluginManager>();
         _serviceProvider.GetRequiredService<PluginEventBridge>().Attach();
         _ = pluginManager.StartEnabledAsync();
+
+        // LAN sync: start the phone sync socket only when the user opted in.
+        try
+        {
+            if (_serviceProvider.GetRequiredService<ISettingsStore>().Load().LanSyncEnabled)
+            {
+                _serviceProvider.GetRequiredService<SyncTcpServer>().Start();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"LAN sync server failed to start: {ex.Message}");
+        }
 
         // Populate AppInfo for the About page: runtime + commit identifier.
         AppInfo.RuntimeIdentifier =
@@ -77,6 +94,8 @@ public partial class App : Avalonia.Application
         // 2. Application Core Services
         services.AddSingleton<IAudioOutputEngine, BassAudioOutputEngine>();
         services.AddSingleton<IReplayGainService, TagLibReplayGainService>();
+        // Real transcoding for device sync (FFmpeg on PATH); no-ops when absent.
+        services.AddSingleton<ITranscodeService, FfmpegTranscodeService>();
         services.AddSingleton<IPlayerCoordinator>(sp => new PlaybackQueueCoordinator(
             sp.GetRequiredService<IAudioOutputEngine>(),
             sp.GetRequiredService<IReplayGainService>()));
@@ -84,13 +103,113 @@ public partial class App : Avalonia.Application
         services.AddSingleton<IDeviceSyncService, ZuneDeviceSyncService>();
         services.AddSingleton<ISmartDJService, SmartDJEngine>();
         services.AddSingleton<ISoundEffectService, SoundEffectService>();
-        services.AddSingleton<IUserStatsService, UserStatsService>();
+        services.AddSingleton<ICloudSocialService>(sp =>
+            new CloudSocialService(() => sp.GetRequiredService<ISettingsStore>().Load()));
+        services.AddSingleton<IUserStatsService>(sp => new UserStatsService(
+            sp.GetRequiredService<IMediaLibraryService>(),
+            sp.GetRequiredService<IReviewService>(),
+            sp.GetRequiredService<ICloudSocialService>()));
         services.AddSingleton<IPodcastFeedClient, PodcastFeedClient>();
-        services.AddSingleton<IPodcastService, PodcastService>();
+        services.AddSingleton<ICloudDirectoryService>(sp =>
+            new CloudDirectoryService(() => sp.GetRequiredService<ISettingsStore>().Load()));
+        services.AddSingleton<ICloudUpdateService>(sp =>
+            new CloudUpdateService(() => sp.GetRequiredService<ISettingsStore>().Load()));
+        // OIDC Authorization Code + PKCE sign-in (browser + loopback callback).
+        services.AddSingleton<IOAuthPkceService, OAuthPkceService>();
+        services.AddSingleton<ICloudSignInService>(sp => new CloudSignInService(
+            sp.GetRequiredService<ISettingsStore>(),
+            sp.GetRequiredService<IOAuthPkceService>()));
+        services.AddSingleton<IPodcastService>(sp => new PodcastService(
+            sp.GetRequiredService<IPlayerCoordinator>(),
+            sp.GetRequiredService<IPodcastFeedClient>(),
+            sp.GetRequiredService<ICloudDirectoryService>()));
         services.AddSingleton<IFolderPickerService, AvaloniaFolderPickerService>();
         services.AddSingleton<ISettingsStore, JsonSettingsStore>();
         services.AddSingleton<IArtworkCacheService, ArtworkCacheService>();
-        services.AddSingleton<IExternalMetadataService, ExternalMetadataService>();
+        services.AddSingleton<ExternalMetadataService>();
+        // Dorado Cloud client — always registered (cheap), but only consulted by
+        // CloudBackedMetadataService when settings.CloudEnabled is true and the
+        // configured base URL is non-empty.
+        services.AddSingleton(sp =>
+        {
+            var settingsStore = sp.GetRequiredService<ISettingsStore>();
+            var settings = settingsStore.Load();
+            var baseUrl = string.IsNullOrWhiteSpace(settings.CloudBaseUrl)
+                ? new Uri("https://cloud.invalid/")
+                : new Uri(settings.CloudBaseUrl);
+            var http = new HttpClient { BaseAddress = baseUrl, Timeout = TimeSpan.FromSeconds(15) };
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("Dorado/1.0 (+https://github.com/project-dorado/dorado)");
+            if (!string.IsNullOrWhiteSpace(settings.CloudAccessToken))
+            {
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.CloudAccessToken);
+            }
+            return new DoradoCloudClient(http);
+        });
+        services.AddSingleton<IExternalMetadataService>(sp => new CloudBackedMetadataService(
+            sp.GetRequiredService<ExternalMetadataService>(),
+            sp.GetRequiredService<DoradoCloudClient>(),
+            () => sp.GetRequiredService<ISettingsStore>().Load()));
+
+        // Emulator bridge: lazily spawns `dorado --ipc` on first use and drives
+        // it over JSON-RPC. The emulator CLI is a separate repo/process; no
+        // process starts unless a caller actually resolves this service.
+        services.AddSingleton<IEmulatorBridge>(sp =>
+        {
+            var settings = sp.GetRequiredService<ISettingsStore>().Load();
+            var options = new EmulatorProcessOptions
+            {
+                EntryPointPath = string.IsNullOrWhiteSpace(settings.EmulatorCliPath) ? "dorado" : settings.EmulatorCliPath,
+            };
+            return new JsonRpcEmulatorBridge(new EmulatorProcessTransport(options));
+        });
+
+        // LAN sync endpoint: the desktop is the server for the phone sync
+        // protocol (sync.hello/pair/manifest/pull/push). The TCP listener only
+        // starts when settings.LanSyncEnabled is true.
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<ISettingsStore>().Load();
+            var library = sp.GetRequiredService<IMediaLibraryService>();
+            var videos = sp.GetRequiredService<IVideoLibraryService>();
+            var photos = sp.GetRequiredService<IPhotoLibraryService>();
+            var podcasts = sp.GetRequiredService<IPodcastService>();
+
+            async Task<SyncInput> BuildInputAsync(CancellationToken cancellationToken)
+            {
+                var tracks = await library.GetAllTracksAsync();
+                var videoItems = await videos.GetAllVideosAsync();
+                var photoItems = await photos.GetAllPhotosAsync();
+                var episodes = Array.Empty<PodcastEpisode>();
+                try
+                {
+                    var series = await podcasts.GetAllPodcastsAsync();
+                    episodes = series.SelectMany(s => s.Episodes).ToArray();
+                }
+                catch
+                {
+                    // podcast store optional
+                }
+
+                return new SyncInput
+                {
+                    Tracks = tracks,
+                    Videos = videoItems,
+                    Photos = photoItems,
+                    PodcastEpisodes = episodes,
+                };
+            }
+
+            return new SyncEndpointHost(
+                sp.GetRequiredService<ISyncEngine>(),
+                BuildInputAsync,
+                pairingCode: string.IsNullOrWhiteSpace(settings.LanSyncPairingCode) ? null : settings.LanSyncPairingCode);
+        });
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<ISettingsStore>().Load();
+            return new SyncTcpServer(sp.GetRequiredService<SyncEndpointHost>(), port: settings.LanSyncPort);
+        });
         services.AddSingleton<IArtistEnrichmentService, ArtistEnrichmentCoordinator>();
         services.AddSingleton<ISmartPlaylistService, SmartPlaylistService>();
         services.AddSingleton<IVideoLibraryService, VideoLibraryService>();

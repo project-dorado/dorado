@@ -45,15 +45,15 @@ public class NowPlayingViewModel : ViewModelBase
 
     private readonly string[] _themeBackdrops = new[]
     {
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-10.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-15.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-20.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-25.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-30.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-35.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-40.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-45.JPG",
-        "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-47.JPG"
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-02.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-03.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-04.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-05.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-06.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-07.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-08.PNG",
+        "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-09.PNG"
     };
 
     private List<string> _activeBackdrops;

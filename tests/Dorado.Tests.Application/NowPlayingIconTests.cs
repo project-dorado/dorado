@@ -6,50 +6,44 @@ using Xunit;
 
 namespace Dorado.Tests.Application;
 
+/// <summary>
+/// The Now Playing mark is drawn procedurally (Vector 4) from the ViewModel's
+/// frame/playing state; these tests assert that state and the equalizer
+/// geometry generator, not any Microsoft PNG asset.
+/// </summary>
 public class NowPlayingIconTests
 {
-    [AvaloniaFact]
-    public void Default_IconIsEnterStatic()
+    [Fact]
+    public void Default_IsIdleEqualizerState()
     {
-        var vm = new MainShellViewModel(
-            new PlaybackQueueCoordinator(),
-            new FakeMediaLibraryService(),
-            new FakeDeviceSyncService(),
-            new SmartDJEngine());
+        var vm = NewShell();
 
-        Assert.EndsWith("ICON.NOWPLAYING.ENTER.PNG", vm.NowPlayingIconSource);
+        Assert.False(vm.NowPlayingIconPlaying);
+        Assert.InRange(vm.NowPlayingIconFrame, 1, 10);
     }
 
-    [AvaloniaFact]
-    public void Hover_SwitchesToHoverVariant()
+    [Fact]
+    public void Hover_DoesNotChangeEqualizerState()
     {
-        var vm = new MainShellViewModel(
-            new PlaybackQueueCoordinator(),
-            new FakeMediaLibraryService(),
-            new FakeDeviceSyncService(),
-            new SmartDJEngine());
+        var vm = NewShell();
+        var before = (vm.NowPlayingIconFrame, vm.NowPlayingIconPlaying);
 
         vm.NotifyNowPlayingButtonHover(true);
-        Assert.EndsWith("ICON.NOWPLAYING.ENTER.HOVER.PNG", vm.NowPlayingIconSource);
-
         vm.NotifyNowPlayingButtonHover(false);
-        Assert.EndsWith("ICON.NOWPLAYING.ENTER.PNG", vm.NowPlayingIconSource);
+
+        Assert.Equal(before, (vm.NowPlayingIconFrame, vm.NowPlayingIconPlaying));
     }
 
     [AvaloniaFact]
-    public void Pressed_OverridesHoverVariant()
+    public void EqualizerGeometry_BuildsForIdleAndPlaying()
     {
-        var vm = new MainShellViewModel(
-            new PlaybackQueueCoordinator(),
-            new FakeMediaLibraryService(),
-            new FakeDeviceSyncService(),
-            new SmartDJEngine());
-
-        vm.NotifyNowPlayingButtonHover(true);
-        vm.NotifyNowPlayingButtonPressed(true);
-        Assert.EndsWith("ICON.NOWPLAYING.ENTER.PRESSED.PNG", vm.NowPlayingIconSource);
-
-        vm.NotifyNowPlayingButtonPressed(false);
-        Assert.EndsWith("ICON.NOWPLAYING.ENTER.HOVER.PNG", vm.NowPlayingIconSource);
+        Assert.NotNull(Dorado.UI.Design.ZuneGlyphs.Equalizer(1, playing: false));
+        Assert.NotNull(Dorado.UI.Design.ZuneGlyphs.Equalizer(5, playing: true));
     }
+
+    private static MainShellViewModel NewShell() => new(
+        new PlaybackQueueCoordinator(),
+        new FakeMediaLibraryService(),
+        new FakeDeviceSyncService(),
+        new SmartDJEngine());
 }

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
@@ -51,7 +52,7 @@
                   <Grid RowDefinitions="*,Auto,Auto">
                     <Border Grid.Row="0" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
                       <Grid>
-                        <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/VIDEOOVERLAY.PNG" Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8" />
+                        <Path Data="{x:Static design:ZuneGlyphs.PlayCircle}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8" />
                         <TextBlock Text="▶" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneAccentBrush}" />
                       </Grid>
                     </Border>
@@ -66,7 +67,7 @@
 
         <!-- Empty State -->
         <StackPanel IsVisible="{Binding !HasVideos}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/VIDEOS.EMPTY.PNG" Width="64" Height="48" HorizontalAlignment="Center" Opacity="0.6" />
+          <Path Data="{x:Static design:ZuneGlyphs.PhotoFrame}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="64" Height="48" HorizontalAlignment="Center" Opacity="0.6" />
           <TextBlock Text="no videos yet" Classes="hero" HorizontalAlignment="Center" />
           <TextBlock Text="Scan a folder above — MP4, MKV, MOV, AVI, WMV and WebM are supported."
                      Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" HorizontalAlignment="Center" />

@@ -3,7 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:interfaces="clr-namespace:Dorado.Application.Interfaces;assembly=Dorado.Application"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="Dorado.UI.Views.ZuneCardView"
              x:DataType="vm:ZuneCardViewModel">
@@ -26,7 +28,7 @@
                   BorderThickness="2" 
                   CornerRadius="0" 
                   Margin="0,0,20,0">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Social/PROFILE.DEFAULT.TILE.PNG" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Path Data="{x:Static design:ZuneGlyphs.ProfileTile}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
           </Border>
 
           <!-- User Zune Tag & Bio -->
@@ -109,11 +111,13 @@
                   <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="0" Padding="0,10">
                     <Grid ColumnDefinitions="36,*">
                       <!-- Badge Seal Icon -->
-                      <Image Grid.Column="0" 
-                             Source="avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG" 
-                             Width="26" Height="25" 
-                             VerticalAlignment="Center" 
-                             HorizontalAlignment="Left" />
+                      <Path Grid.Column="0"
+                            Data="{x:Static design:ZuneGlyphs.Seal}"
+                            Stretch="Uniform"
+                            Fill="{DynamicResource ZuneAccentBrush}"
+                            Width="26" Height="25"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
                       
                       <StackPanel Grid.Column="1" Spacing="2">
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -135,6 +139,40 @@
         </Border>
 
       </Grid>
+
+      <!-- Live cloud Zune Card (shown when the cloud is enabled and a handle is set) -->
+      <Border IsVisible="{Binding HasLiveCard}"
+              Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+              BorderBrush="{DynamicResource ZuneAccentBrush}"
+              BorderThickness="1"
+              CornerRadius="0"
+              Padding="24">
+        <StackPanel Spacing="16">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="LIVE ZUNE CARD" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            <TextBlock Grid.Column="1" Text="{Binding LiveHandle, StringFormat='@{0}'}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Spacing="24">
+            <TextBlock Text="{Binding LiveFollowersText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            <TextBlock Text="{Binding LiveFollowingText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            <TextBlock Text="{Binding LiveActivitiesText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+          </StackPanel>
+
+          <ItemsControl ItemsSource="{Binding LiveRecent}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="interfaces:ZuneCardActivity">
+                <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="0" Padding="0,8">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <TextBlock Grid.Column="0" Text="{Binding Kind}" Classes="caption" FontWeight="SemiBold" Foreground="{DynamicResource ZuneAccentBrush}" Width="90" />
+                    <TextBlock Grid.Column="1" Text="{Binding PayloadJson}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

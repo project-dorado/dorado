@@ -30,11 +30,14 @@ public class SoundEffectService : ISoundEffectService
         }
     }
 
-    public void PlaySyncComplete() => PlaySound("COMPLETEDSYNCBURNCD.WAV");
-    public void PlayDownloadComplete() => PlaySound("DOWNLOAD.WAV");
-    public void PlayRipComplete() => PlaySound("COMPLETEDRIPREVERSESYNC.WAV");
-    public void PlayBurnComplete() => PlaySound("COMPLETEDSYNCBURNCD.WAV");
-    public void PlayNotification() => PlaySound("INBOX.WAV");
+    // Clean-room synthesized chimes (see tools/gen_sounds.py); the legacy
+    // Microsoft COMPLETEDSYNCBURNCD/DOWNLOAD/COMPLETEDRIPREVERSESYNC/INBOX assets
+    // are no longer bundled.
+    public void PlaySyncComplete() => PlaySound("DORADO-CHIME-SYNC.WAV");
+    public void PlayDownloadComplete() => PlaySound("DORADO-CHIME-DOWNLOAD.WAV");
+    public void PlayRipComplete() => PlaySound("DORADO-CHIME-RIP.WAV");
+    public void PlayBurnComplete() => PlaySound("DORADO-CHIME-SYNC.WAV");
+    public void PlayNotification() => PlaySound("DORADO-CHIME-INBOX.WAV");
 
     private void PlaySound(string filename)
     {

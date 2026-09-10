@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Dorado.Domain\Dorado.Domain.csproj" />
     <ProjectReference Include="..\Dorado.Application\Dorado.Application.csproj" />
+    <ProjectReference Include="..\Dorado.Plugins.Protocol\Dorado.Plugins.Protocol.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

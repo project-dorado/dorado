@@ -8,14 +8,31 @@ public class PodcastService : IPodcastService
 {
     private readonly IPlayerCoordinator _playerCoordinator;
     private readonly IPodcastFeedClient? _feedClient;
+    private readonly ICloudDirectoryService? _directory;
     private readonly List<PodcastSeries> _podcasts = new();
     private readonly HttpClient _httpClient = new();
 
-    public PodcastService(IPlayerCoordinator playerCoordinator, IPodcastFeedClient? feedClient = null)
+    public PodcastService(
+        IPlayerCoordinator playerCoordinator,
+        IPodcastFeedClient? feedClient = null,
+        ICloudDirectoryService? directory = null)
     {
         _playerCoordinator = playerCoordinator;
         _feedClient = feedClient;
+        _directory = directory;
         SeedDefaultPodcasts();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PodcastDirectoryEntry>> SearchDirectoryAsync(
+        string query, int limit = 20, CancellationToken cancellationToken = default)
+    {
+        if (_directory is null || !_directory.IsEnabled || string.IsNullOrWhiteSpace(query))
+        {
+            return Array.Empty<PodcastDirectoryEntry>();
+        }
+
+        return await _directory.SearchPodcastsAsync(query, limit, cancellationToken).ConfigureAwait(false);
     }
 
     private void SeedDefaultPodcasts()

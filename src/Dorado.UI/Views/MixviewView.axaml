@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.MixviewView"
@@ -74,7 +75,7 @@
                     Padding="8,4" 
                     ToolTip.Tip="Play Tracks">
               <StackPanel Orientation="Horizontal" Spacing="4">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.PLAY.DEFAULT.PNG" Width="14" Height="14" />
+                <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="14" Height="14" />
                 <TextBlock Text="PLAY" Classes="caption" FontWeight="Bold" />
               </StackPanel>
             </Button>
@@ -85,7 +86,7 @@
                     Padding="8,4" 
                     ToolTip.Tip="Generate Smart DJ Mix">
               <StackPanel Orientation="Horizontal" Spacing="4">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.MIX.DEFAULT.PNG" Width="14" Height="14" />
+                <Path Data="{x:Static design:ZuneGlyphs.Mix}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="14" Height="14" />
                 <TextBlock Text="MIX" Classes="caption" FontWeight="Bold" />
               </StackPanel>
             </Button>
@@ -169,16 +170,16 @@
             <TextBlock Text="SMART DJ MIX" Classes="caption" FontWeight="Bold" />
           </Button>
           <Button Command="{Binding LikeNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Like it">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.LIKEIT.DEFAULT.PNG" Width="17" Height="15" />
+            <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="17" Height="15" />
           </Button>
           <Button Command="{Binding HateNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Hate it">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.HATEIT.DEFAULT.PNG" Width="17" Height="15" />
+            <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="17" Height="15" />
           </Button>
           <Button Command="{Binding InfoNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Info">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.INFO.DEFAULT.PNG" Width="15" Height="15" />
+            <Path Data="{x:Static design:ZuneGlyphs.Info}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="15" Height="15" />
           </Button>
           <Button Command="{Binding AddNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Add to queue">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.ADD.DEFAULT.PNG" Width="15" Height="15" />
+            <Path Data="{x:Static design:ZuneGlyphs.Add}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="15" Height="15" />
           </Button>
         </StackPanel>
       </Grid>

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
@@ -34,7 +35,7 @@
         </Button>
         <Button Grid.Row="4" Classes="zune-action" Command="{Binding StartSlideshowCommand}" Margin="0,8,0,0">
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PLAY.PNG" Width="16" Height="16" />
+            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="16" Height="16" />
             <TextBlock Text="START SLIDESHOW" Classes="caption" FontWeight="SemiBold" />
           </StackPanel>
         </Button>

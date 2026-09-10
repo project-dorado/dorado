@@ -107,6 +107,10 @@ public class SettingsViewModel : ViewModelBase
     private readonly PluginManager? _pluginManager;
     private readonly ILocalizationService _localization;
     private readonly IDialogService? _dialogService;
+    private readonly ICloudSignInService? _cloudSignIn;
+    private bool _cloudEnabled;
+    private string _cloudBaseUrl = string.Empty;
+    private string _cloudHandle = string.Empty;
     private bool _isRestoringSettings = true;
     private bool _firstLaunchCompleted;
     private string _whatsNewSeenVersion = string.Empty;
@@ -354,15 +358,15 @@ public class SettingsViewModel : ViewModelBase
     public ObservableCollection<BackgroundThemeOption> BackgroundThemes { get; } = new()
     {
         new("Classic Minimal (Matte Black)", null),
-        new("Vector Ribbon 10", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-10.JPG"),
-        new("Abstract Aurora 15", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-15.JPG"),
-        new("Geometric Mesh 20", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-20.JPG"),
-        new("Cosmic Gradient 25", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-25.JPG"),
-        new("Circuit Flow 30", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-30.JPG"),
-        new("Prism Waves 35", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-35.JPG"),
-        new("Retro Horizon 40", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-40.JPG"),
-        new("Radiant Bloom 45", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-45.JPG"),
-        new("Neon Drift 47", "avares://Dorado.UI/Assets/Zune/Backgrounds/USERBACKGROUND-ART-536X196-47.JPG")
+        new("Vector Ribbon 10", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG"),
+        new("Abstract Aurora 15", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-02.PNG"),
+        new("Geometric Mesh 20", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-03.PNG"),
+        new("Cosmic Gradient 25", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-04.PNG"),
+        new("Circuit Flow 30", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-05.PNG"),
+        new("Prism Waves 35", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-06.PNG"),
+        new("Retro Horizon 40", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-07.PNG"),
+        new("Radiant Bloom 45", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-08.PNG"),
+        new("Neon Drift 47", "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-09.PNG")
     };
 
     private AccentColorOption _selectedAccent;
@@ -999,6 +1003,103 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    // ---- Dorado Cloud (community services) ------------------------------
+
+    /// <summary>Whether the Dorado Cloud services are enabled for this client.</summary>
+    public bool CloudEnabled
+    {
+        get => _cloudEnabled;
+        set
+        {
+            if (SetProperty(ref _cloudEnabled, value))
+            {
+                OnPropertyChanged(nameof(CloudStatusText));
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    /// <summary>Base URL of the cloud instance (official or self-hosted).</summary>
+    public string CloudBaseUrl
+    {
+        get => _cloudBaseUrl;
+        set
+        {
+            if (SetProperty(ref _cloudBaseUrl, value?.Trim() ?? string.Empty))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    /// <summary>Social handle whose live Zune Card is shown.</summary>
+    public string CloudHandle
+    {
+        get => _cloudHandle;
+        set
+        {
+            if (SetProperty(ref _cloudHandle, value?.Trim() ?? string.Empty))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private bool _isCloudBusy;
+    public bool IsCloudBusy
+    {
+        get => _isCloudBusy;
+        private set => SetProperty(ref _isCloudBusy, value);
+    }
+
+    private string _cloudStatus = string.Empty;
+    public string CloudStatusText
+    {
+        get => _cloudStatus;
+        private set => SetProperty(ref _cloudStatus, value);
+    }
+
+    public bool IsCloudSignedIn => !string.IsNullOrEmpty(_settingsStore?.Load().CloudAccessToken);
+
+    public ICommand CloudSignInCommand { get; } = null!;
+    public ICommand CloudSignOutCommand { get; } = null!;
+
+    private async Task OnCloudSignInAsync()
+    {
+        if (_cloudSignIn is null)
+        {
+            return;
+        }
+
+        IsCloudBusy = true;
+        try
+        {
+            var ok = await _cloudSignIn.SignInAsync();
+            RefreshCloudStatus(ok ? "signed in" : "sign-in cancelled");
+            if (ok)
+            {
+                CloudEnabled = true;
+            }
+        }
+        finally
+        {
+            IsCloudBusy = false;
+        }
+    }
+
+    private void OnCloudSignOut()
+    {
+        _cloudSignIn?.SignOut();
+        RefreshCloudStatus("signed out");
+    }
+
+    private void RefreshCloudStatus(string? overrideText = null)
+    {
+        OnPropertyChanged(nameof(IsCloudSignedIn));
+        CloudStatusText = overrideText
+            ?? (!CloudEnabled ? "cloud disabled" : IsCloudSignedIn ? "signed in" : "not signed in");
+    }
+
     // ==========================================
     // COLLECTION SETTINGS
     // ==========================================
@@ -1253,7 +1354,8 @@ public class SettingsViewModel : ViewModelBase
         ISettingsStore? settingsStore = null,
         PluginManager? pluginManager = null,
         ILocalizationService? localization = null,
-        IDialogService? dialogService = null)
+        IDialogService? dialogService = null,
+        ICloudSignInService? cloudSignIn = null)
     {
         _soundService = soundService;
         _folderPicker = folderPicker;
@@ -1263,6 +1365,7 @@ public class SettingsViewModel : ViewModelBase
         _settingsStore = settingsStore;
         _pluginManager = pluginManager;
         _dialogService = dialogService;
+        _cloudSignIn = cloudSignIn;
         _localization = localization ?? Dorado.Application.Services.LocalizationService.Default;
         _localization.LocaleChanged += (_, _) =>
         {
@@ -1333,6 +1436,8 @@ public class SettingsViewModel : ViewModelBase
             }
         });
         TestSoundCommand = new RelayCommand(() => _soundService?.PlaySyncComplete());
+        CloudSignInCommand = new AsyncRelayCommand(OnCloudSignInAsync);
+        CloudSignOutCommand = new RelayCommand(OnCloudSignOut);
 
         LoadPersistedSettings();
         _isRestoringSettings = false;
@@ -1415,6 +1520,14 @@ public class SettingsViewModel : ViewModelBase
             OnPropertyChanged(nameof(LrcLibEnabled));
             _fanartTvApiKey = settings.FanartTvApiKey;
             OnPropertyChanged(nameof(FanartTvApiKey));
+
+            _cloudEnabled = settings.CloudEnabled;
+            OnPropertyChanged(nameof(CloudEnabled));
+            _cloudBaseUrl = settings.CloudBaseUrl;
+            OnPropertyChanged(nameof(CloudBaseUrl));
+            _cloudHandle = settings.CloudHandle;
+            OnPropertyChanged(nameof(CloudHandle));
+            RefreshCloudStatus();
 
             _startupView = settings.StartupView;
             OnPropertyChanged(nameof(StartupView));
@@ -1526,6 +1639,10 @@ public class SettingsViewModel : ViewModelBase
             return;
         }
 
+        // Fields with no SettingsViewModel property (cloud token, LAN sync,
+        // emulator path) are owned by their services; preserve them across saves.
+        var existing = _settingsStore.Load();
+
         _settingsStore.Save(new AppSettings
         {
             MusicFolderPath = MusicFolderPath,
@@ -1581,6 +1698,19 @@ public class SettingsViewModel : ViewModelBase
             ShowRatings = ShowRatings,
             FirstConnectCompletedSerials = FirstConnectCompletedSerials,
             FirstConnectDeviceName = FirstConnectDeviceName,
+
+            // Cloud settings edited here...
+            CloudEnabled = CloudEnabled,
+            CloudBaseUrl = CloudBaseUrl,
+            CloudHandle = CloudHandle,
+            // ...and fields owned by the sign-in/sync/emulator services.
+            CloudAccessToken = existing.CloudAccessToken,
+            CloudAccessTokenExpiresAtUtc = existing.CloudAccessTokenExpiresAtUtc,
+            LanSyncEnabled = existing.LanSyncEnabled,
+            LanSyncPort = existing.LanSyncPort,
+            LanSyncPairingCode = existing.LanSyncPairingCode,
+            EmulatorEnabled = existing.EmulatorEnabled,
+            EmulatorCliPath = existing.EmulatorCliPath,
         });
     }
 

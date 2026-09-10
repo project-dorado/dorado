@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="660"
              x:Class="Dorado.UI.Views.PhotoSlideshowView"
@@ -42,16 +43,16 @@
     <Border VerticalAlignment="Bottom" Background="#B3000000" Padding="16,10">
       <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
         <Button Command="{Binding BackCommand}" Background="Transparent" BorderThickness="0" Padding="4">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.BACK.PNG" Width="24" Height="24" />
+          <Path Data="{x:Static design:ZuneGlyphs.ArrowBack}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextActiveBrush}" StrokeThickness="1.6" Width="24" Height="24" />
         </Button>
         <Button Command="{Binding PlayPauseCommand}" Background="Transparent" BorderThickness="0" Padding="4">
           <Panel>
-            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PLAY.PNG" Width="24" Height="24" IsVisible="{Binding !IsPlaying}" />
-            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PAUSE.PNG" Width="24" Height="24" IsVisible="{Binding IsPlaying}" />
+            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="24" Height="24" IsVisible="{Binding !IsPlaying}" />
+            <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="24" Height="24" IsVisible="{Binding IsPlaying}" />
           </Panel>
         </Button>
         <Button Command="{Binding NextCommand}" Background="Transparent" BorderThickness="0" Padding="4">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.NEXT.PNG" Width="24" Height="24" />
+          <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="24" Height="24" />
         </Button>
       </StackPanel>
     </Border>

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
               xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
               xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
               xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
@@ -119,7 +120,7 @@
         <ProgressBar Value="{Binding SyncProgress}" Maximum="1.0" Height="4" CornerRadius="0"
                      Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" IsVisible="{Binding HasSyncToast}">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Sync/SYNC.ACTIVELYSYNCING.PNG" Width="20" Height="20" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.Sync}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="1.6" Width="20" Height="20" VerticalAlignment="Center" />
           <TextBlock Text="{Binding SyncToastInstruction}" Classes="caption" FontSize="9" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
         </StackPanel>
       </StackPanel>
@@ -194,7 +195,7 @@
 
     <!-- State 2: No Device Connected -->
     <StackPanel IsVisible="{Binding !HasDevice}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
-      <Image Source="avares://Dorado.UI/Assets/Zune/Branding/ZUNEHDDEVICES.PNG" Width="64" Height="74" HorizontalAlignment="Center" Margin="0,0,0,8" />
+      <Path Data="{x:Static design:ZuneGlyphs.Device}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.4" Width="64" Height="74" HorizontalAlignment="Center" Margin="0,0,0,8" />
       <TextBlock Text="connect a zune" Classes="hero" HorizontalAlignment="Center" />
       <TextBlock Text="Attach your Zune 30, Zune 4/8/16, Zune 80/120, or Zune HD via USB cable." 
                  Classes="body" 

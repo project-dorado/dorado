@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
@@ -399,6 +400,40 @@
                      CornerRadius="0"
                      FontSize="12" />
           </StackPanel>
+
+          <StackPanel Spacing="10">
+            <TextBlock Text="DORADO CLOUD" Classes="section-header" />
+            <TextBlock Text="Community services for catalog, artwork, podcasts, updates and the live Zune Card. Self-hostable; the key-free local providers remain the fallback when disabled."
+                       Classes="caption" TextWrapping="Wrap" />
+            <CheckBox IsChecked="{Binding CloudEnabled}"
+                      Content="Enable Dorado Cloud services"
+                      CornerRadius="0"
+                      Foreground="{DynamicResource ZuneTextActiveBrush}" />
+            <TextBox Text="{Binding CloudBaseUrl}"
+                     Watermark="https://cloud.example.org"
+                     CornerRadius="0"
+                     Width="440"
+                     HorizontalAlignment="Left" />
+            <TextBox Text="{Binding CloudHandle}"
+                     Watermark="social handle (for the live Zune Card)"
+                     CornerRadius="0"
+                     Width="440"
+                     HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Button Classes="zune-action"
+                      Command="{Binding CloudSignInCommand}"
+                      IsEnabled="{Binding !IsCloudBusy}"
+                      Content="SIGN IN" />
+              <Button Classes="zune-action"
+                      Command="{Binding CloudSignOutCommand}"
+                      IsEnabled="{Binding IsCloudSignedIn}"
+                      Content="SIGN OUT" />
+              <TextBlock Text="{Binding CloudStatusText}"
+                         Classes="caption"
+                         VerticalAlignment="Center"
+                         Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            </StackPanel>
+          </StackPanel>
         </StackPanel>
 
         <!-- SUB-PANEL: DISPLAY -->
@@ -678,8 +713,7 @@
         <StackPanel Spacing="24" IsVisible="{Binding IsAboutSubPivotActive}">
           <StackPanel Orientation="Horizontal" Spacing="20">
             <!-- Authentic Zune brand mark -->
-            <Image Source="avares://Dorado.UI/Assets/Zune/Branding/ZUNECOLORLOGO.PNG"
-                   Width="80" Height="80"
+            <Path Data="{x:Static design:ZuneGlyphs.BrandMark}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="80" Height="80"
                    VerticalAlignment="Top" />
 
             <StackPanel Spacing="6" VerticalAlignment="Center">

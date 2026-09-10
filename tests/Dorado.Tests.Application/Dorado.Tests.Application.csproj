@@ -30,6 +30,8 @@
     <ProjectReference Include="..\..\src\Dorado.Infrastructure.Persistence\Dorado.Infrastructure.Persistence.csproj" />
     <ProjectReference Include="..\..\src\Dorado.Infrastructure.Audio\Dorado.Infrastructure.Audio.csproj" />
     <ProjectReference Include="..\..\src\Dorado.Plugins.Host\Dorado.Plugins.Host.csproj" />
+    <ProjectReference Include="..\..\src\Dorado.Infrastructure.Emulator\Dorado.Infrastructure.Emulator.csproj" />
+    <ProjectReference Include="..\..\src\Dorado.Infrastructure.Devices\Dorado.Infrastructure.Devices.csproj" />
     <ProjectReference Include="..\..\src\Dorado.Plugins.LastFm\Dorado.Plugins.LastFm.csproj" />
     <ProjectReference Include="..\..\src\Dorado.Plugins.Discord\Dorado.Plugins.Discord.csproj" />
     <ProjectReference Include="..\..\src\Dorado.UI\Dorado.UI.csproj" />

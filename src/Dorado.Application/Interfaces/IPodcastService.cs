@@ -10,4 +10,12 @@ public interface IPodcastService
     Task UnsubscribeAsync(Guid seriesId);
     Task MarkEpisodePlayedAsync(Guid episodeId, bool isPlayed = true);
     Task PlayEpisodeAsync(PodcastEpisode episode);
+
+    /// <summary>
+    /// Discovery search across the Dorado Cloud Directory (Podcast Index).
+    /// Returns an empty list when the cloud is disabled or unreachable — the
+    /// subscribe-by-URL path remains fully local.
+    /// </summary>
+    Task<IReadOnlyList<PodcastDirectoryEntry>> SearchDirectoryAsync(
+        string query, int limit = 20, CancellationToken cancellationToken = default);
 }

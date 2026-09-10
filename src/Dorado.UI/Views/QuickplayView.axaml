@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
@@ -24,7 +25,7 @@
       <StackPanel Spacing="20">
         <!-- Smart DJ Header -->
         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,4">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Branding/QUICKMIXICON.PNG" Width="16" Height="18" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.Mix}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="16" Height="18" VerticalAlignment="Center" />
           <TextBlock Text="smart dj" Classes="hero" VerticalAlignment="Center" />
         </StackPanel>
         <TextBlock Text="Dynamic, continuous mixes crafted from your music collection, weighted by your favorites." 
@@ -52,7 +53,7 @@
                   Command="{Binding PlayFavoritesMixCommand}"
                   HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG" Width="17" Height="15" VerticalAlignment="Center" />
+              <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Width="17" Height="15" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
               <TextBlock Text="START FAVORITES MIX" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
             </StackPanel>
           </Button>

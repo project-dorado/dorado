@@ -15,11 +15,13 @@ namespace Dorado.Application.Services;
 public class SyncEngine : ISyncEngine
 {
     private readonly Func<string, IDeviceTransport>? _transportFactory;
+    private readonly ITranscodeService? _transcode;
     private readonly Dictionary<string, IDeviceTransport> _transports = new(StringComparer.OrdinalIgnoreCase);
 
-    public SyncEngine(Func<string, IDeviceTransport>? transportFactory = null)
+    public SyncEngine(Func<string, IDeviceTransport>? transportFactory = null, ITranscodeService? transcode = null)
     {
         _transportFactory = transportFactory;
+        _transcode = transcode;
     }
 
     public IDeviceTransport GetTransport(string deviceSerialNumber, string deviceName, long capacityBytes)
@@ -275,7 +277,7 @@ public class SyncEngine : ISyncEngine
             switch (item.Action)
             {
                 case TransferAction.Add:
-                    transport.CopyToDevice(item);
+                    await CopyToDeviceAsync(item, transport).ConfigureAwait(false);
                     break;
                 case TransferAction.Remove:
                     if (transport.TryGetItem(item.EntityId, out var existing))
@@ -292,4 +294,48 @@ public class SyncEngine : ISyncEngine
 
         progress?.Report(1.0);
     }
+
+    /// <summary>
+    /// Copies an ADD item, transcoding first when its container is not
+    /// device-playable (see <see cref="MediaFormats.TranscodeTargetFor"/>). The
+    /// transcoded file is temporary and removed after the copy.
+    /// </summary>
+    private async Task CopyToDeviceAsync(TransferItem item, IDeviceTransport transport)
+    {
+        if (_transcode is { IsAvailable: true } && !string.IsNullOrWhiteSpace(item.SourcePath))
+        {
+            var extension = System.IO.Path.GetExtension(item.SourcePath).TrimStart('.');
+            var target = MediaFormats.TranscodeTargetFor(extension);
+            if (target is not null)
+            {
+                var tempDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dorado-transcode");
+                var result = await _transcode.TranscodeAsync(item.SourcePath, target, tempDirectory).ConfigureAwait(false);
+                if (result is { Success: true, OutputPath: not null })
+                {
+                    try
+                    {
+                        transport.CopyToDevice(CloneWithSource(item, result.OutputPath));
+                        return;
+                    }
+                    finally
+                    {
+                        try { System.IO.File.Delete(result.OutputPath); } catch { /* best effort */ }
+                    }
+                }
+            }
+        }
+
+        transport.CopyToDevice(item);
+    }
+
+    private static TransferItem CloneWithSource(TransferItem item, string sourcePath) => new()
+    {
+        Action = item.Action,
+        Category = item.Category,
+        EntityId = item.EntityId,
+        Title = item.Title,
+        SourcePath = sourcePath,
+        SizeBytes = item.SizeBytes,
+        Detail = item.Detail,
+    };
 }

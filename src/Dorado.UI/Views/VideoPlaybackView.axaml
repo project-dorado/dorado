@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="540"
@@ -35,8 +36,7 @@
                      VerticalAlignment="Center"
                      Padding="40"
                      IsVisible="{Binding !IsVideoAvailable}" />
-          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/VIDEOOVERLAY.PNG"
-                 Width="72" Height="72"
+          <Path Data="{x:Static design:ZuneGlyphs.PlayCircle}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="72" Height="72"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
                  IsVisible="{Binding !IsPlaying}" Opacity="0.7" />
         </Panel>

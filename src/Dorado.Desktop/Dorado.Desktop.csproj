@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dorado.UI\Dorado.UI.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.Emulator\Dorado.Infrastructure.Emulator.csproj" />
     <ProjectReference Include="..\Dorado.Infrastructure.Video\Dorado.Infrastructure.Video.csproj" />
   </ItemGroup>
 

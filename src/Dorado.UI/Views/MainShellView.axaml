@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              xmlns:animations="clr-namespace:Dorado.UI.Animations;assembly=Dorado.UI"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
@@ -95,7 +96,7 @@
           <!-- Zune Brand Wordmark (hidden when the cropped-header title is in detail mode) -->
           <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
                       IsVisible="{Binding !IsCroppedHeaderDetail}">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Branding/ZUNECOLORLOGO.PNG" Width="18" Height="19" VerticalAlignment="Center" />
+            <Path Data="{x:Static design:ZuneGlyphs.BrandMark}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="18" Height="19" VerticalAlignment="Center" />
             <TextBlock Text="ZUNE"
                        FontFamily="{StaticResource ZunePivotFontFamily}"
                        FontSize="12"
@@ -115,7 +116,7 @@
                     ToolTip.Tip="Zune Card Profile &amp; Badges">
               <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                 <Border Width="18" Height="18" BorderBrush="{DynamicResource ZuneAccentBrush}" BorderThickness="1" CornerRadius="0">
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Social/PROFILE.DEFAULT.TILE.PNG" Width="16" Height="16" />
+                  <Path Data="{x:Static design:ZuneGlyphs.ProfileTile}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" Width="16" Height="16" />
                 </Border>
                 <TextBlock Text="ZUNECARD" 
                            FontFamily="{StaticResource ZunePivotFontFamily}" 
@@ -129,16 +130,16 @@
 
             <!-- Compact Mini Player Mode Button -->
             <Button Classes="window-control" Command="{Binding ToggleCompactModeCommand}" ToolTip.Tip="Compact Mini Player Mode">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.COMPACTMODE.PNG" Width="14" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.CompactMode}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="14" Height="15" />
             </Button>
             <Button Classes="window-control" Click="OnMinimizeClicked" ToolTip.Tip="Minimize">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.MINIMIZE.PNG" Width="14" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.Minimize}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="14" Height="15" />
             </Button>
             <Button Classes="window-control" Click="OnMaximizeClicked" ToolTip.Tip="Maximize / Restore">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.MAXIMIZE.PNG" Width="14" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.Maximize}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="14" Height="15" />
             </Button>
             <Button Classes="window-control window-close" Click="OnCloseClicked" ToolTip.Tip="Close">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.CLOSE.PNG" Width="14" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.Close}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="14" Height="15" />
             </Button>
           </StackPanel>
         </Grid>
@@ -196,7 +197,7 @@
                     Padding="2"
                     VerticalAlignment="Center"
                     ToolTip.Tip="Back">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.BACK.PNG" Width="24" Height="24" IsVisible="{Binding CanGoBack}" />
+              <Path Data="{x:Static design:ZuneGlyphs.ArrowBack}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextActiveBrush}" StrokeThickness="1.6" Width="24" Height="24" IsVisible="{Binding CanGoBack}" />
             </Button>
 
             <!-- Header Search Box with Autocomplete (hidden on quickplay/now playing/settings, ShowSearch parity) -->
@@ -272,7 +273,14 @@
                       Background="{DynamicResource ZuneCardBrush}"
                       CornerRadius="0">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <Image Source="{Binding NowPlayingIconSource}" Width="18" Height="17" VerticalAlignment="Center" />
+                  <Path Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="18" Height="17" VerticalAlignment="Center">
+                    <Path.Data>
+                      <MultiBinding Converter="{x:Static design:EqualizerGeometryConverter.Instance}">
+                        <Binding Path="NowPlayingIconFrame" />
+                        <Binding Path="NowPlayingIconPlaying" />
+                      </MultiBinding>
+                    </Path.Data>
+                  </Path>
                   <TextBlock Text="NOW PLAYING"
                              Classes="caption"
                              FontWeight="SemiBold"
@@ -318,8 +326,7 @@
                     CornerRadius="0"
                     ToolTip.Tip="{Binding QuickDockDeviceTooltip}">
               <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Branding/ZUNEHDDEVICES.PNG" 
-                       Width="18" Height="18" 
+                <Path Data="{x:Static design:ZuneGlyphs.Device}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.4" Width="18" Height="18" 
                        Opacity="{Binding QuickDockDeviceOpacity}" 
                        VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center" Spacing="1">
@@ -403,16 +410,16 @@
                 <!-- Favorite Heart Button -->
                 <Button Command="{Binding ToggleFavoriteCommand}" Padding="4" ToolTip.Tip="Love this song">
                   <Panel Width="17" Height="15">
-                    <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG" IsVisible="{Binding IsFavorite}" Width="17" Height="15" />
-                    <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.PNG" IsVisible="{Binding !IsFavorite}" Width="17" Height="15" />
+                    <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsFavorite}" />
+                    <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding !IsFavorite}" />
                   </Panel>
                 </Button>
 
                 <!-- Dislike Broken Heart Button -->
                 <Button Command="{Binding ToggleDislikeCommand}" Padding="4" ToolTip.Tip="Dislike and skip song">
                   <Panel Width="17" Height="15">
-                    <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.HATEIT.SELECTED.PNG" IsVisible="{Binding IsDisliked}" Width="17" Height="15" />
-                    <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.HATEIT.PNG" IsVisible="{Binding !IsDisliked}" Width="17" Height="15" />
+                    <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsDisliked}" />
+                    <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding !IsDisliked}" />
                   </Panel>
                 </Button>
               </StackPanel>
@@ -423,34 +430,34 @@
               <!-- Shuffle -->
               <Button Command="{Binding ToggleShuffleCommand}" Padding="6" ToolTip.Tip="Shuffle">
                 <Panel Width="23" Height="23">
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHUFFLE.ON.PNG" IsVisible="{Binding Shuffle}" Width="23" Height="23" />
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHUFFLE.OFF.PNG" IsVisible="{Binding !Shuffle}" Width="23" Height="23" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Shuffle}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" IsVisible="{Binding Shuffle}" Width="23" Height="23" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Shuffle}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="2" IsVisible="{Binding !Shuffle}" Width="23" Height="23" />
                 </Panel>
               </Button>
 
               <!-- Previous -->
               <Button Command="{Binding PreviousCommand}" Padding="6" ToolTip.Tip="Previous">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.BACK.PNG" Width="25" Height="25" />
+                <Path Data="{x:Static design:ZuneGlyphs.SkipBack}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="25" Height="25" />
               </Button>
 
               <!-- Play / Pause Circle Accent Button -->
               <Button Command="{Binding PlayPauseCommand}" Padding="4" ToolTip.Tip="Play / Pause">
                 <Panel Width="35" Height="35">
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PLAY.PNG" IsVisible="{Binding !IsPlaying}" Width="35" Height="35" />
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PAUSE.PNG" IsVisible="{Binding IsPlaying}" Width="35" Height="35" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsPlaying}" Width="35" Height="35" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding IsPlaying}" Width="35" Height="35" />
                 </Panel>
               </Button>
 
               <!-- Next -->
               <Button Command="{Binding NextCommand}" Padding="6" ToolTip.Tip="Next">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.FORWARD.PNG" Width="25" Height="25" />
+                <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="25" Height="25" />
               </Button>
 
               <!-- Repeat -->
               <Button Command="{Binding ToggleRepeatCommand}" Padding="6" ToolTip.Tip="Repeat">
                 <Panel Width="23" Height="23">
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.REPEAT.ON.PNG" IsVisible="{Binding Repeat}" Width="23" Height="23" />
-                  <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.REPEAT.OFF.PNG" IsVisible="{Binding !Repeat}" Width="23" Height="23" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Repeat}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" IsVisible="{Binding Repeat}" Width="23" Height="23" />
+                  <Path Data="{x:Static design:ZuneGlyphs.Repeat}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="2" IsVisible="{Binding !Repeat}" Width="23" Height="23" />
                 </Panel>
               </Button>
             </StackPanel>
@@ -463,7 +470,7 @@
 
               <!-- Volume Control -->
               <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="10,0,0,0">
-                <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.MUTE.OFF.PNG" Width="19" Height="16" VerticalAlignment="Center" />
+                <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="19" Height="16" VerticalAlignment="Center" />
                 <Slider Width="70"
                         Value="{Binding Volume}" 
                         Minimum="0" 
@@ -497,7 +504,7 @@
           <TranslateTransform Y="{Binding DeviceVM.HasSyncToast, Converter={x:Static conv:SyncToastSlideConverter.Instance}}" />
         </Border.RenderTransform>
         <StackPanel Orientation="Horizontal" Spacing="12">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Sync/SYNC.ACTIVELYSYNCING.PNG" Width="24" Height="24" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.Sync}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="1.6" Width="24" Height="24" VerticalAlignment="Center" />
           <StackPanel Spacing="4" VerticalAlignment="Center">
             <TextBlock Text="{Binding DeviceVM.SyncToastText}" Classes="caption" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource ZuneAccentBrush}" />
             <ProgressBar Minimum="0" Maximum="1" Value="{Binding DeviceVM.SyncProgress}" Height="3" CornerRadius="0" Foreground="{DynamicResource ZuneAccentBrush}" Width="240" />

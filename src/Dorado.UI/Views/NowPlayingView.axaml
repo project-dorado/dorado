@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
@@ -209,42 +210,42 @@
           <!-- Favorite -->
           <Button Command="{Binding ToggleFavoriteCommand}" Padding="4" ToolTip.Tip="Love this song">
             <Panel Width="17" Height="15">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG" IsVisible="{Binding IsFavorite}" Width="17" Height="15" />
-              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.PNG" IsVisible="{Binding !IsFavorite}" Width="17" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsFavorite}" />
+              <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding !IsFavorite}" />
             </Panel>
           </Button>
 
           <!-- Previous -->
           <Button Command="{Binding PreviousCommand}" Padding="4" ToolTip.Tip="Previous">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.BACK.PNG" Width="25" Height="25" />
+            <Path Data="{x:Static design:ZuneGlyphs.SkipBack}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="25" Height="25" />
           </Button>
 
           <!-- Play / Pause -->
           <Button Command="{Binding PlayPauseCommand}" Padding="4" ToolTip.Tip="Play / Pause">
             <Panel Width="35" Height="35">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PLAY.PNG" IsVisible="{Binding !IsPlaying}" Width="35" Height="35" />
-              <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PAUSE.PNG" IsVisible="{Binding IsPlaying}" Width="35" Height="35" />
+              <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsPlaying}" Width="35" Height="35" />
+              <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding IsPlaying}" Width="35" Height="35" />
             </Panel>
           </Button>
 
           <!-- Next -->
           <Button Command="{Binding NextCommand}" Padding="4" ToolTip.Tip="Next">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.FORWARD.PNG" Width="25" Height="25" />
+            <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="25" Height="25" />
           </Button>
 
           <!-- Dislike -->
           <Button Command="{Binding ToggleDislikeCommand}" Padding="4" ToolTip.Tip="Dislike and skip song">
             <Panel Width="17" Height="15">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.HATEIT.SELECTED.PNG" IsVisible="{Binding IsDisliked}" Width="17" Height="15" />
-              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.HATEIT.PNG" IsVisible="{Binding !IsDisliked}" Width="17" Height="15" />
+              <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsDisliked}" />
+              <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding !IsDisliked}" />
             </Panel>
           </Button>
 
           <!-- Showlist Toggle Button -->
           <Button Command="{Binding ToggleShowlistCommand}" Padding="4" ToolTip.Tip="Showlist (Upcoming Queue)">
             <Panel Width="20" Height="20">
-              <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHOWLIST.ON.PNG" IsVisible="{Binding IsShowlistOpen}" Width="20" Height="20" />
-              <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHOWLIST.OFF.PNG" IsVisible="{Binding !IsShowlistOpen}" Width="20" Height="20" />
+              <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" IsVisible="{Binding IsShowlistOpen}" Width="20" Height="20" />
+              <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="2" IsVisible="{Binding !IsShowlistOpen}" Width="20" Height="20" />
             </Panel>
           </Button>
 
@@ -307,7 +308,7 @@
       <!-- Mixview Constellation Discovery -->
       <Button Command="{Binding LaunchMixviewCommand}" Classes="zune-action">
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.MIX.DEFAULT.PNG" Width="13" Height="13" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.Mix}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" Width="13" Height="13" VerticalAlignment="Center" />
           <TextBlock Text="MIXVIEW" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
         </StackPanel>
       </Button>
@@ -315,7 +316,7 @@
       <!-- Showlist Queue Toggle -->
       <Button Command="{Binding ToggleShowlistCommand}" Classes="zune-action">
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHOWLIST.ON.PNG" Width="13" Height="13" VerticalAlignment="Center" />
+          <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" Width="13" Height="13" VerticalAlignment="Center" />
           <TextBlock Text="SHOWLIST" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
         </StackPanel>
       </Button>

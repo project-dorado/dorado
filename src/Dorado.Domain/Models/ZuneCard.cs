@@ -7,7 +7,8 @@ public class ZuneProfile
     public DateTime MemberSinceUtc { get; set; } = DateTime.UtcNow.AddMonths(-6);
     public int TotalTracksPlayed { get; set; }
     public TimeSpan TotalListeningTime { get; set; }
-    public string AvatarUri { get; set; } = "avares://Dorado.UI/Assets/Zune/Branding/ZUNEUSER.PNG";
+    /// <summary>Optional custom avatar; empty means the view draws its own placeholder.</summary>
+    public string AvatarUri { get; set; } = string.Empty;
 }
 
 public class TopArtistStat
@@ -36,7 +37,6 @@ public class ZuneBadge
     public BadgeTier Tier { get; set; }
     public int Progress { get; set; }
     public int NextThreshold { get; set; }
-    public string IconUri { get; set; } = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG";
 
     public string TierText => Tier == BadgeTier.None ? "LOCKED" : Tier.ToString().ToUpperInvariant();
     public string ProgressText => $"{Math.Min(Progress, NextThreshold)} / {NextThreshold}";

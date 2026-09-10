@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="130"
              x:Class="Dorado.UI.Views.CompactMiniPlayerView"
              x:DataType="vm:MainShellViewModel"
@@ -26,10 +27,10 @@
       <!-- Window Action Controls: Restore & Close -->
       <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
         <Button Classes="window-control" Command="{Binding ToggleCompactModeCommand}" ToolTip.Tip="Restore to Full Zune Window">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.RESTORE.PNG" Width="13" Height="14" />
+          <Path Data="{x:Static design:ZuneGlyphs.Restore}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="13" Height="14" />
         </Button>
         <Button Classes="window-control window-close" Click="OnCloseClicked" ToolTip.Tip="Close">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.CLOSE.PNG" Width="13" Height="14" />
+          <Path Data="{x:Static design:ZuneGlyphs.Close}" Stretch="Uniform" Stroke="{DynamicResource ZuneTextSecondaryBrush}" StrokeThickness="1.6" Width="13" Height="14" />
         </Button>
       </StackPanel>
     </Grid>
@@ -56,12 +57,14 @@
         <Grid>
           <TextBlock Text="♫" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
           <!-- Mini Heart badge if favorite -->
-          <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG"
-                 IsVisible="{Binding IsFavorite}"
-                 Width="12" Height="11"
-                 HorizontalAlignment="Right"
-                 VerticalAlignment="Bottom"
-                 Margin="0,0,2,2" />
+          <Path Data="{x:Static design:ZuneGlyphs.Heart}"
+                Stretch="Uniform"
+                IsVisible="{Binding IsFavorite}"
+                Width="12" Height="11"
+                Fill="{DynamicResource ZuneAccentBrush}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,2,2" />
         </Grid>
       </Border>
 
@@ -87,31 +90,31 @@
       <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
         <!-- Showlist toggle (upcoming queue) -->
         <Button Command="{Binding NowPlayingVM.ToggleShowlistCommand}" Padding="4" ToolTip.Tip="Showlist (upcoming queue)">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHOWLIST.ON.PNG" Width="20" Height="20" />
+          <Path Data="{x:Static design:ZuneGlyphs.ShowList}" Stretch="Uniform" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="2" Width="20" Height="20" />
         </Button>
 
         <!-- Previous -->
         <Button Command="{Binding PreviousCommand}" Padding="4" ToolTip.Tip="Previous">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.BACK.PNG" Width="20" Height="20" />
+          <Path Data="{x:Static design:ZuneGlyphs.SkipBack}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="20" Height="20" />
         </Button>
 
         <!-- Play / Pause -->
         <Button Command="{Binding PlayPauseCommand}" Padding="4" ToolTip.Tip="Play / Pause">
           <Panel Width="28" Height="28">
-            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PLAY.PNG" IsVisible="{Binding !IsPlaying}" Width="28" Height="28" />
-            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PAUSE.PNG" IsVisible="{Binding IsPlaying}" Width="28" Height="28" />
+            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding !IsPlaying}" Width="28" Height="28" />
+            <Path Data="{x:Static design:ZuneGlyphs.Pause}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" IsVisible="{Binding IsPlaying}" Width="28" Height="28" />
           </Panel>
         </Button>
 
         <!-- Next -->
         <Button Command="{Binding NextCommand}" Padding="4" ToolTip.Tip="Next">
-          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.FORWARD.PNG" Width="20" Height="20" />
+          <Path Data="{x:Static design:ZuneGlyphs.SkipForward}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="20" Height="20" />
         </Button>
       </StackPanel>
 
       <!-- Compact volume slider -->
       <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="6,0,0,0">
-        <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.MUTE.OFF.PNG" Width="14" Height="12" VerticalAlignment="Center" />
+        <Path Data="{x:Static design:ZuneGlyphs.Speaker}" Stretch="Uniform" Fill="{DynamicResource ZuneTextActiveBrush}" Width="14" Height="12" VerticalAlignment="Center" />
         <Slider Width="60"
                 Value="{Binding Volume}"
                 Minimum="0"

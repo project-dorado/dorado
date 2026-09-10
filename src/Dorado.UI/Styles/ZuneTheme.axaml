@@ -76,13 +76,23 @@
     <!-- Non-negotiable Zune Metro Invariant: Zero Corner Radius -->
     <CornerRadius x:Key="ZuneCornerRadius">0</CornerRadius>
 
-    <!-- Authentic Segoe Zune Font Families -->
-    <FontFamily x:Key="ZuneFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe Z Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
-    <FontFamily x:Key="ZunePivotFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe ZUC Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
-    <FontFamily x:Key="ZuneSubPivotFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe ZLC Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
+    <!--
+      Zegoe stand-in. Zegoe UI is a Microsoft asset and is never bundled; the
+      OFL Selawik (identical Segoe metrics) ships in Assets/Selawik and is the
+      primary face, with Inter and the system stack as fallbacks.
+    -->
+    <FontFamily x:Key="ZuneFontFamily">avares://Dorado.UI/Assets/Selawik#Selawik, Inter, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="ZunePivotFontFamily">avares://Dorado.UI/Assets/Selawik#Selawik, Inter, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="ZuneSubPivotFontFamily">avares://Dorado.UI/Assets/Selawik#Selawik, Inter, Segoe UI, sans-serif</FontFamily>
+
+    <!--
+      Clean-room rating glyphs live in Dorado.UI.Design.ZuneGlyphs and are
+      referenced via {x:Static}; the device's RATING.*.PNG set was a Microsoft
+      asset.
+    -->
   </Styles.Resources>
 
-  <!-- Typography Hierarchy Classes (Authentic Segoe Zune / Selawik / Inter) -->
+  <!-- Typography Hierarchy Classes (OFL Selawik, Segoe-metric; Inter fallback) -->
   <Style Selector="TextBlock.hero">
     <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
     <Setter Property="FontSize" Value="54" />

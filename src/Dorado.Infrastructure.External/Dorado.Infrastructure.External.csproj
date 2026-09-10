@@ -3,6 +3,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Dorado.Domain\Dorado.Domain.csproj" />
     <ProjectReference Include="..\Dorado.Application\Dorado.Application.csproj" />
+    <!--
+      DoradoCloud.Client is the typed client for the community cloud services.
+      The closure is intentionally small: this project depends only on the
+      contract POCOs in DoradoCloud.Shared (no EF/OpenIddict/ASP.NET pull-in),
+      plus Microsoft.Extensions.Http for the typed HttpClient.
+    -->
+    <ProjectReference Include="..\..\..\dorado-cloud\clients\DoradoCloud.Client\DoradoCloud.Client.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

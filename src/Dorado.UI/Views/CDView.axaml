@@ -31,10 +31,15 @@
       <Grid ColumnDefinitions="Auto,*,Auto">
         <!-- Authentic CDLand disc + shine + glow stack (CDLANDSHINE always; CDRIPBURNGLOW during active session). -->
         <Grid Grid.Column="0" Width="120" Height="120" Margin="0,0,24,0" VerticalAlignment="Center">
-          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDARTSHADOW.PNG"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center" />
+          <!-- Clean-room disc stack (Vector 4): gradients replace CDARTSHADOW/CDLANDSHINE/CDRIPBURNGLOW. -->
+          <Ellipse Width="116" Height="116" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+            <Ellipse.Fill>
+              <RadialGradientBrush>
+                <GradientStop Offset="0" Color="#00000000" />
+                <GradientStop Offset="1" Color="#99000000" />
+              </RadialGradientBrush>
+            </Ellipse.Fill>
+          </Ellipse>
           <Border Width="100" Height="100"
                   Background="#202020"
                   BorderBrush="{DynamicResource ZuneSubtleBorderBrush}"
@@ -45,17 +50,25 @@
             <TextBlock Text="♫" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Foreground="{DynamicResource ZuneTextDimmedBrush}" />
           </Border>
-          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDLANDSHINE.PNG"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 IsHitTestVisible="False" />
-          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDRIPBURNGLOW.PNG"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 IsHitTestVisible="False"
-                 IsVisible="{Binding IsRipping, Mode=OneWay}" />
+          <Ellipse Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Opacity="0.35">
+            <Ellipse.Fill>
+              <RadialGradientBrush GradientOrigin="0.35,0.3" Center="0.5,0.5" RadiusX="0.6" RadiusY="0.6">
+                <GradientStop Offset="0" Color="#B0FFFFFF" />
+                <GradientStop Offset="0.5" Color="#20FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+              </RadialGradientBrush>
+            </Ellipse.Fill>
+          </Ellipse>
+          <Ellipse Width="120" Height="120" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                   IsVisible="{Binding IsRipping, Mode=OneWay}">
+            <Ellipse.Fill>
+              <RadialGradientBrush>
+                <GradientStop Offset="0" Color="#00FFFFFF" />
+                <GradientStop Offset="0.75" Color="#00FFFFFF" />
+                <GradientStop Offset="1" Color="#AAFA2A55" />
+              </RadialGradientBrush>
+            </Ellipse.Fill>
+          </Ellipse>
         </Grid>
 
         <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
