@@ -6,6 +6,8 @@
              xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
+             xmlns:controls="clr-namespace:Dorado.UI.Controls;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.CollectionView"
              TextInput="OnTypeAheadText"
@@ -15,32 +17,42 @@
     <Grid RowDefinitions="Auto,*" Margin="40,6,40,16">
       <!-- Sub-pivot Navigation Bar & Search Box -->
       <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,20">
-        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="28">
-          <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Artists}">
-            <TextBlock Text="artists" Classes="subpivot" Classes.active="{Binding IsArtistsActive}" />
-          </Button>
-          <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Albums}">
-          <TextBlock Text="albums" Classes="subpivot" Classes.active="{Binding IsAlbumsActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Songs}">
-          <TextBlock Text="songs" Classes="subpivot" Classes.active="{Binding IsSongsActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Genres}">
-          <TextBlock Text="genres" Classes="subpivot" Classes.active="{Binding IsGenresActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Podcasts}">
-          <TextBlock Text="podcasts" Classes="subpivot" Classes.active="{Binding IsPodcastsActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Playlists}">
-          <TextBlock Text="playlists" Classes="subpivot" Classes.active="{Binding IsPlaylistsActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Videos}">
-          <TextBlock Text="videos" Classes="subpivot" Classes.active="{Binding IsVideosActive}" />
-        </Button>
-        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Pictures}">
-          <TextBlock Text="pictures" Classes="subpivot" Classes.active="{Binding IsPicturesActive}" />
-        </Button>
-      </StackPanel>
+        <StackPanel Grid.Column="0" Spacing="6">
+          <!-- Tier 1: Collection Media Groups (music, videos, pictures, podcasts) -->
+          <StackPanel Orientation="Horizontal" Spacing="28">
+            <Button Command="{Binding SelectMediaGroupCommand}" CommandParameter="{x:Static vm:CollectionMediaGroup.Music}">
+              <TextBlock Text="music" Classes="subpivot" Classes.active="{Binding IsMusicActive}" />
+            </Button>
+            <Button Command="{Binding SelectMediaGroupCommand}" CommandParameter="{x:Static vm:CollectionMediaGroup.Videos}">
+              <TextBlock Text="videos" Classes="subpivot" Classes.active="{Binding IsVideosActive}" />
+            </Button>
+            <Button Command="{Binding SelectMediaGroupCommand}" CommandParameter="{x:Static vm:CollectionMediaGroup.Pictures}">
+              <TextBlock Text="pictures" Classes="subpivot" Classes.active="{Binding IsPicturesActive}" />
+            </Button>
+            <Button Command="{Binding SelectMediaGroupCommand}" CommandParameter="{x:Static vm:CollectionMediaGroup.Podcasts}">
+              <TextBlock Text="podcasts" Classes="subpivot" Classes.active="{Binding IsPodcastsActive}" />
+            </Button>
+          </StackPanel>
+
+          <!-- Tier 2: Music Sub-Pivots (artists, albums, songs, genres, playlists) -->
+          <StackPanel Orientation="Horizontal" Spacing="24" IsVisible="{Binding IsMusicActive}">
+            <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Artists}">
+              <TextBlock Text="artists" Classes="subpivot-secondary" Classes.active="{Binding IsArtistsActive}" />
+            </Button>
+            <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Albums}">
+              <TextBlock Text="albums" Classes="subpivot-secondary" Classes.active="{Binding IsAlbumsActive}" />
+            </Button>
+            <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Songs}">
+              <TextBlock Text="songs" Classes="subpivot-secondary" Classes.active="{Binding IsSongsActive}" />
+            </Button>
+            <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Genres}">
+              <TextBlock Text="genres" Classes="subpivot-secondary" Classes.active="{Binding IsGenresActive}" />
+            </Button>
+            <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Playlists}">
+              <TextBlock Text="playlists" Classes="subpivot-secondary" Classes.active="{Binding IsPlaylistsActive}" />
+            </Button>
+          </StackPanel>
+        </StackPanel>
 
       <!-- Minimal Search Box -->
       <TextBox Grid.Column="2" 
@@ -65,8 +77,15 @@
                 BorderBrush="{DynamicResource ZuneBorderBrush}" 
                 BorderThickness="0,0,1,0" 
                 Padding="0,0,16,0">
-          <ScrollViewer>
-            <ItemsControl x:Name="ArtistsList" ItemsSource="{Binding Artists}">
+          <Grid RowDefinitions="Auto,*">
+            <!-- A-Z Alphabet Jump Strip (JUMPLIST / JUMPINLIST parity) -->
+            <controls:ZuneJumpListControl Grid.Row="0"
+                                          Letters="{Binding AlphabetLetters}"
+                                          JumpCommand="{Binding JumpToLetterCommand}"
+                                          Margin="0,0,0,8" />
+
+            <ScrollViewer Grid.Row="1">
+              <ItemsControl x:Name="ArtistsList" ItemsSource="{Binding Artists}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="models:Artist">
                   <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).SelectArtistCommand}"
@@ -81,8 +100,9 @@
                   </Button>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
+              </ItemsControl>
+            </ScrollViewer>
+          </Grid>
         </Border>
 
         <!-- Right Column: Selected Artist Discography -->
@@ -98,7 +118,7 @@
                         Command="{Binding PlayArtistCommand}" 
                         CommandParameter="{Binding SelectedArtist}">
                   <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="▶" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                    <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="10" Height="10" Fill="#FFFFFF" VerticalAlignment="Center" />
                     <TextBlock Text="PLAY ARTIST" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -107,7 +127,7 @@
                         CommandParameter="{Binding SelectedArtist}"
                         VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="🔀" Foreground="{DynamicResource ZuneAccentBrush}" FontSize="11" VerticalAlignment="Center" />
+                    <Path Data="{x:Static design:ZuneGlyphs.Shuffle}" Stretch="Uniform" Width="11" Height="11" Stroke="{DynamicResource ZuneAccentBrush}" StrokeThickness="1.5" VerticalAlignment="Center" />
                     <TextBlock Text="START SMART DJ" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -157,7 +177,7 @@
                           </Border.ContextMenu>
                           <Grid>
                             <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            <TextBlock Text="♫" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
+                            <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" Stretch="Uniform" Width="36" Height="36" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
                           </Grid>
                         </Border>
                         <TextBlock Text="{Binding Title}" Classes="album-title" TextWrapping="Wrap" />
@@ -169,7 +189,7 @@
                                 HorizontalAlignment="Stretch"
                                 Margin="0,4,0,0">
                           <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                            <TextBlock Text="▶" Foreground="{DynamicResource ZuneAccentBrush}" />
+                            <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="9" Height="9" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
                             <TextBlock Text="PLAY ALBUM" FontSize="10" FontWeight="SemiBold" />
                           </StackPanel>
                         </Button>
@@ -200,7 +220,7 @@
                                           Padding="2"
                                           HorizontalAlignment="Right"
                                           VerticalAlignment="Center">
-                                    <TextBlock Text="♥" FontSize="13" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                                    <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Width="12" Height="11" Fill="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
                                   </Button>
                                 </Grid>
                               </Border>
@@ -218,14 +238,19 @@
       </Grid>
 
       <!-- 2. ALBUMS SUB-PIVOT: Interactive Grid -->
-      <Grid IsVisible="{Binding IsAlbumsActive}" RowDefinitions="Auto,*">
-        <TextBlock Grid.Row="0"
+      <Grid IsVisible="{Binding IsAlbumsActive}" RowDefinitions="Auto,Auto,*">
+        <!-- A-Z Alphabet Jump Strip (JUMPLIST / JUMPINLIST parity) -->
+        <controls:ZuneJumpListControl Grid.Row="0"
+                                      Letters="{Binding AlphabetLetters}"
+                                      JumpCommand="{Binding JumpToLetterCommand}"
+                                      Margin="0,0,0,8" />
+        <TextBlock Grid.Row="1"
                    Text="{Binding FindAlbumInfoStatusText}"
                    Classes="caption"
                    Foreground="{DynamicResource ZuneTextSecondaryBrush}"
                    Margin="0,0,0,12"
                    IsVisible="{Binding HasFindAlbumInfoStatus}" />
-        <ScrollViewer Grid.Row="1">
+        <ScrollViewer Grid.Row="2">
         <ItemsControl x:Name="AlbumsList" ItemsSource="{Binding Albums}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
@@ -275,7 +300,7 @@
                     <Border Grid.Row="0" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
                       <Grid>
                         <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <TextBlock Text="♫" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
+                        <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" Stretch="Uniform" Width="36" Height="36" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
                       </Grid>
                     </Border>
                     <TextBlock Grid.Row="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,10,0,2" />
@@ -290,9 +315,14 @@
       </Grid>
 
       <!-- 3. SONGS SUB-PIVOT: Exhaustive Data Table -->
-      <Grid IsVisible="{Binding IsSongsActive}" RowDefinitions="Auto,*">
+      <Grid IsVisible="{Binding IsSongsActive}" RowDefinitions="Auto,Auto,*">
+        <!-- A-Z Alphabet Jump Strip (JUMPLIST / JUMPINLIST parity) -->
+        <controls:ZuneJumpListControl Grid.Row="0"
+                                      Letters="{Binding AlphabetLetters}"
+                                      JumpCommand="{Binding JumpToLetterCommand}"
+                                      Margin="0,0,0,8" />
         <!-- Table Header -->
-        <Border Grid.Row="0" 
+        <Border Grid.Row="1" 
                 Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
                 BorderBrush="{DynamicResource ZuneBorderBrush}" 
                 BorderThickness="0,0,0,1" 
@@ -310,7 +340,7 @@
         </Border>
 
         <!-- Song Rows -->
-        <ScrollViewer Grid.Row="1">
+        <ScrollViewer Grid.Row="2">
           <ItemsControl x:Name="SongsList" ItemsSource="{Binding Songs}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="models:Track">
@@ -355,8 +385,19 @@
                       <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                       <TextBlock Grid.Column="2" Text="{Binding ArtistName}" Classes="caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                       <TextBlock Grid.Column="3" Text="{Binding AlbumTitle}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                      <TextBlock Grid.Column="4" Text="{Binding Duration, StringFormat={}{0:m\\:ss}}" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                      <TextBlock Grid.Column="5" Text="♥" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                      <Button Grid.Column="5"
+                              Classes="window-control"
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).CycleRatingCommand}"
+                              CommandParameter="{Binding}"
+                              Padding="4"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center">
+                        <Panel Width="12" Height="11">
+                          <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsFavorite}" />
+                          <Path Data="{x:Static design:ZuneGlyphs.BrokenHeart}" Stretch="Uniform" Fill="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding IsDisliked}" />
+                          <Path Data="{x:Static design:ZuneGlyphs.Heart}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding IsNeutral}" />
+                        </Panel>
+                      </Button>
                     </Grid>
                   </Border>
                 </Button>
@@ -367,7 +408,13 @@
       </Grid>
 
       <!-- 4. GENRES SUB-PIVOT -->
-      <ScrollViewer IsVisible="{Binding IsGenresActive}">
+      <Grid IsVisible="{Binding IsGenresActive}" RowDefinitions="Auto,*">
+        <!-- A-Z Alphabet Jump Strip (JUMPLIST / JUMPINLIST parity) -->
+        <controls:ZuneJumpListControl Grid.Row="0"
+                                      Letters="{Binding AlphabetLetters}"
+                                      JumpCommand="{Binding JumpToLetterCommand}"
+                                      Margin="0,0,0,8" />
+        <ScrollViewer Grid.Row="1">
         <ItemsControl x:Name="GenresList" ItemsSource="{Binding Genres}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
@@ -390,7 +437,7 @@
                   <Grid RowDefinitions="*,Auto">
                     <TextBlock Grid.Row="0" Text="{Binding}" Classes="section-header" TextWrapping="Wrap" VerticalAlignment="Top" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6">
-                      <TextBlock Text="▶" FontSize="11" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+                      <Path Data="{x:Static design:ZuneGlyphs.Play}" Stretch="Uniform" Width="10" Height="10" Fill="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
                       <TextBlock Text="PLAY GENRE MIX" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
                   </Grid>
@@ -399,7 +446,8 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-      </ScrollViewer>
+        </ScrollViewer>
+      </Grid>
 
       <!-- 5. PODCASTS SUB-PIVOT -->
       <ContentControl IsVisible="{Binding IsPodcastsActive}" Content="{Binding PodcastsVM}" />

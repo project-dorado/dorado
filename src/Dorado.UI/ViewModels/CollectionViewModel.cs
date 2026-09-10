@@ -521,6 +521,33 @@ public class CollectionViewModel : ViewModelBase
         }
     }
 
+    public void JumpToLetter(string letter)
+    {
+        if (string.IsNullOrWhiteSpace(letter)) return;
+
+        switch (ActiveSubPivot)
+        {
+            case CollectionSubPivot.Artists:
+            {
+                var index = Views.TypeAheadSearch.FindIndex(Artists, letter, a => a.Name);
+                if (index >= 0)
+                {
+                    SelectedArtist = Artists[index];
+                }
+                break;
+            }
+            case CollectionSubPivot.Genres:
+            {
+                var index = Views.TypeAheadSearch.FindIndex(Genres, letter, g => g);
+                if (index >= 0)
+                {
+                    SelectedGenre = Genres[index];
+                }
+                break;
+            }
+        }
+    }
+
     public void FilterQuery(string query)
     {
         _searchQuery = query;

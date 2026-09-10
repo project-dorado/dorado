@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="240" d:DesignHeight="24"
+             x:Class="Dorado.UI.Controls.ZuneJumpListControl">
+
+  <!-- Zune 4.8 A-Z Jump-List (JUMPLIST / JUMPINLIST parity): a compact alphabet strip that
+       instantly anchors the active list to the selected letter. Borderless, zero radius. -->
+  <ItemsControl ItemsSource="{Binding $parent[UserControl].Letters}"
+                HorizontalAlignment="Left">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <WrapPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="x:String">
+        <Button Command="{Binding $parent[UserControl].JumpCommand}"
+                CommandParameter="{Binding}"
+                MinWidth="14"
+                Padding="3,1"
+                Margin="1,0"
+                Background="Transparent"
+                BorderThickness="0"
+                CornerRadius="0"
+                Cursor="Hand"
+                ToolTip.Tip="{Binding}">
+          <TextBlock Text="{Binding}"
+                     Classes="caption"
+                     FontSize="10"
+                     HorizontalAlignment="Center"
+                     Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+        </Button>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

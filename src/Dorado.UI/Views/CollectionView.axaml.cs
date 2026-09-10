@@ -22,6 +22,62 @@ public partial class CollectionView : UserControl
     public CollectionView()
     {
         InitializeComponent();
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        if (DataContext is CollectionViewModel vm)
+        {
+            vm.JumpRequested -= OnJumpRequested;
+            vm.JumpRequested += OnJumpRequested;
+        }
+    }
+
+    private void OnJumpRequested(object? sender, string letter)
+    {
+        JumpToLetter(letter);
+    }
+
+    public void JumpToLetter(string letter)
+    {
+        if (string.IsNullOrEmpty(letter) || DataContext is not CollectionViewModel vm)
+        {
+            return;
+        }
+
+        switch (vm.ActiveSubPivot)
+        {
+            case CollectionSubPivot.Artists:
+            {
+                var index = TypeAheadSearch.FindIndex(vm.Artists, letter, a => a.Name);
+                if (index >= 0)
+                {
+                    vm.SelectedArtist = vm.Artists[index];
+                    ArtistsList.ContainerFromIndex(index)?.BringIntoView();
+                }
+                break;
+            }
+
+            case CollectionSubPivot.Albums:
+                BringIntoView(vm.Albums, AlbumsList, letter, a => a.Title);
+                break;
+
+            case CollectionSubPivot.Songs:
+                BringIntoView(vm.Songs, SongsList, letter, s => s.Title);
+                break;
+
+            case CollectionSubPivot.Genres:
+            {
+                var index = TypeAheadSearch.FindIndex(vm.Genres, letter, g => g);
+                if (index >= 0)
+                {
+                    vm.SelectedGenre = vm.Genres[index];
+                    GenresList.ContainerFromIndex(index)?.BringIntoView();
+                }
+                break;
+            }
+        }
     }
 
     /// <summary>
