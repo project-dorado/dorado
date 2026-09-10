@@ -34,6 +34,8 @@ public class AppSettings
     // Metadata / Online Enrichment
     public bool AutoFetchMetadata { get; set; } = true;
     public bool AutoDownloadArtistArt { get; set; } = true;
+    public bool ArtistImageFallbackEnabled { get; set; } = true;
+    public string CommunityArtistImageBaseUrl { get; set; } = string.Empty;
     public bool WriteTagsToFile { get; set; } = true;
     public bool MusicBrainzEnabled { get; set; } = true;
     public bool LastFmEnabled { get; set; } = true;

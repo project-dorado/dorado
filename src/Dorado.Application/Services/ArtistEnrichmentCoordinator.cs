@@ -159,6 +159,23 @@ public sealed class ArtistEnrichmentCoordinator : IArtistEnrichmentService, IDis
                 }
             }
 
+            if (backdrops.Count == 0
+                && settings.ArtistImageFallbackEnabled
+                && !string.IsNullOrWhiteSpace(settings.CommunityArtistImageBaseUrl))
+            {
+                var fallbackUrls = await _metadataService
+                    .FetchFallbackArtistBackgroundUrlsAsync(artistName, settings.CommunityArtistImageBaseUrl)
+                    .ConfigureAwait(false);
+                foreach (var url in fallbackUrls.Take(MaxBackdropDownloads))
+                {
+                    var localPath = await _artworkCache.GetOrDownloadAsync(url).ConfigureAwait(false);
+                    if (!string.IsNullOrEmpty(localPath))
+                    {
+                        backdrops.Add(localPath);
+                    }
+                }
+            }
+
             if (_libraryService != null)
             {
                 try

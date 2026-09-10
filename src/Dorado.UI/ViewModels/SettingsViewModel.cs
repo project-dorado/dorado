@@ -908,6 +908,32 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    private bool _artistImageFallbackEnabled = true;
+    public bool ArtistImageFallbackEnabled
+    {
+        get => _artistImageFallbackEnabled;
+        set
+        {
+            if (SetProperty(ref _artistImageFallbackEnabled, value))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private string _communityArtistImageBaseUrl = string.Empty;
+    public string CommunityArtistImageBaseUrl
+    {
+        get => _communityArtistImageBaseUrl;
+        set
+        {
+            if (SetProperty(ref _communityArtistImageBaseUrl, value))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
     private bool _writeTagsToFile = true;
     public bool WriteTagsToFile
     {
@@ -1378,6 +1404,8 @@ public class SettingsViewModel : ViewModelBase
 
             AutoFetchMetadata = settings.AutoFetchMetadata;
             AutoDownloadArtistArt = settings.AutoDownloadArtistArt;
+            ArtistImageFallbackEnabled = settings.ArtistImageFallbackEnabled;
+            CommunityArtistImageBaseUrl = settings.CommunityArtistImageBaseUrl;
             WriteTagsToFile = settings.WriteTagsToFile;
             _musicBrainzEnabled = settings.MusicBrainzEnabled;
             OnPropertyChanged(nameof(MusicBrainzEnabled));
@@ -1522,6 +1550,8 @@ public class SettingsViewModel : ViewModelBase
             ApplyVolumeLevelingToBurn = ApplyVolumeLevelingToBurn,
             AutoFetchMetadata = AutoFetchMetadata,
             AutoDownloadArtistArt = AutoDownloadArtistArt,
+            ArtistImageFallbackEnabled = ArtistImageFallbackEnabled,
+            CommunityArtistImageBaseUrl = CommunityArtistImageBaseUrl,
             WriteTagsToFile = WriteTagsToFile,
             MusicBrainzEnabled = MusicBrainzEnabled,
             LastFmEnabled = LastFmEnabled,

@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-238%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-242%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -25,7 +25,7 @@ Dorado is built on the purest tenets of the original Microsoft Zune Desktop soft
 - **Iconic Pivot Navigation:** Fluid deceleration panning across `QUICKPLAY`, `COLLECTION`, `DEVICE`, and `SETTINGS` — with pannable right-edge bleed at the authentic 734×500 minimum window size.
 - **Quickplay Hub:** Split layout featuring an interactive Smart DJ seed generator on the left, and an interactive sliding ribbon of `Pins`, `History`, and `New` on the right.
 - **Dynamic Now Playing Canvas:**
-  - *Dynamic Artist Canvas:* High-resolution artist photography with Ken-Burns drift, slow idle-screensaver Y-axis rotation, and bold typographic overlays that drift off-screen.
+  - *Dynamic Artist Canvas:* High-resolution artist photography with Ken-Burns drift, slow idle-screensaver Y-axis rotation, and bold typographic overlays that drift off-screen. Artwork comes from Fanart.tv, with a configurable **community-mirror fallback** (clean-room; no bundled assets).
   - *Album Art Mosaic Wall:* Continuous 2D/3D tapestry of album art tiles from your collection.
 - **Tri-State Heart Rating:** Favorite (❤️ / Heart), Disliked/Skip (💔 / Broken Heart), and Neutral. Hearts are **prioritized** in Smart DJ shuffles; broken hearts are **always excluded**.
 - **Signature Accent Colors:** Authentic Zune 4.8 magenta family — transport ON `#F10DA2`, accent hover `#FA6EC9`, accent pressed `#B9077B`. Plus Orange/Cyan/Lime/Purple user-selectable accents.
@@ -158,7 +158,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **238 unit tests** passing (XUnit + Avalonia headless harness)
+- **242 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -167,7 +167,6 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 Items that remain, in approximate priority order. **No gap is unplanned** — each is in the [`docs/parity/deferred_registry.md`](docs/parity/deferred_registry.md) with rationale.
 
 ### Medium-priority features (Tiers C / D)
-- **Tier C1 — Custom artist backgrounds** (`Mixview` / Now Playing): Fanart.tv already integrated; needs the catalog.zune.net-style artist-photo fallback community has restored via servers like `spidersandmoths/ZuneArtistImages` *(Phase 21)*
 - **Tier D2 — Hub hero artwork maps** on Quickplay (source assets absent after IP remediation; procedural clean-room equivalent) *(Phase 22)*
 
 ### Smaller polish

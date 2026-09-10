@@ -360,6 +360,22 @@
           </StackPanel>
 
           <StackPanel Spacing="10">
+            <TextBlock Text="ARTIST IMAGE FALLBACK" Classes="section-header" />
+            <TextBlock Text="When Fanart.tv has no artwork, try a community image mirror (clean-room; no assets are bundled)."
+                       Classes="caption" TextWrapping="Wrap" />
+            <CheckBox IsChecked="{Binding ArtistImageFallbackEnabled}"
+                      Content="Use a community artist-image fallback"
+                      CornerRadius="0"
+                      Foreground="{DynamicResource ZuneTextActiveBrush}" />
+            <TextBox Text="{Binding CommunityArtistImageBaseUrl}"
+                     Watermark="https://example.com/zune-artists"
+                     IsEnabled="{Binding ArtistImageFallbackEnabled}"
+                     CornerRadius="0"
+                     Width="440"
+                     HorizontalAlignment="Left" />
+          </StackPanel>
+
+          <StackPanel Spacing="10">
             <TextBlock Text="DATA PROVIDERS" Classes="section-header" />
             <CheckBox IsChecked="{Binding MusicBrainzEnabled}"
                       Content="MusicBrainz / Cover Art Archive (Track and Album Metadata)"

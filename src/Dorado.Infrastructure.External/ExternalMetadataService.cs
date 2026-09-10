@@ -21,6 +21,7 @@ public sealed class ExternalMetadataService : IExternalMetadataService
     private readonly CoverArtArchiveClient _coverArt;
     private readonly FanartTvClient _fanart;
     private readonly LrcLibClient _lrcLib;
+    private readonly CommunityArtistImageProvider _communityImages;
     private readonly ConcurrentDictionary<string, (DateTimeOffset ExpiresAtUtc, object? Value)> _cache = new();
 
     public ExternalMetadataService(HttpMessageHandler? innerHandler = null, TimeSpan? rateLimitInterval = null)
@@ -37,6 +38,7 @@ public sealed class ExternalMetadataService : IExternalMetadataService
         _coverArt = new CoverArtArchiveClient(CreateClient(shared, interval));
         _fanart = new FanartTvClient(CreateClient(shared, rateLimitInterval is null ? TimeSpan.FromMilliseconds(100) : interval));
         _lrcLib = new LrcLibClient(CreateClient(shared, rateLimitInterval is null ? TimeSpan.FromMilliseconds(50) : interval));
+        _communityImages = new CommunityArtistImageProvider(CreateClient(shared, rateLimitInterval is null ? TimeSpan.FromMilliseconds(100) : interval));
     }
 
     private static HttpClient CreateClient(HttpMessageHandler inner, TimeSpan minimumInterval)
@@ -123,6 +125,24 @@ public sealed class ExternalMetadataService : IExternalMetadataService
             }
         }
 
+        SetCached(cacheKey, urls);
+        return urls;
+    }
+
+    public async Task<IReadOnlyList<string>> FetchFallbackArtistBackgroundUrlsAsync(string artistName, string? communityBaseUrl, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(artistName) || string.IsNullOrWhiteSpace(communityBaseUrl))
+        {
+            return Array.Empty<string>();
+        }
+
+        var cacheKey = $"fallback-backgrounds:{artistName.Trim().ToLowerInvariant()}|{communityBaseUrl.Trim().ToLowerInvariant()}";
+        if (TryGetCached<string[]>(cacheKey, out var cached))
+        {
+            return cached ?? Array.Empty<string>();
+        }
+
+        var urls = (await _communityImages.GetBackgroundUrlsAsync(communityBaseUrl, artistName, cancellationToken).ConfigureAwait(false)).ToArray();
         SetCached(cacheKey, urls);
         return urls;
     }
