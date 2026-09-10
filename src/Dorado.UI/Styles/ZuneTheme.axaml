@@ -1,0 +1,282 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <!-- ============================================================
+         Zune Metro Palette — dark + light token sets
+         Authentic 4.8 values from decompiled Shell.cs (WindowColorFromRGB):
+           dark  #11090F / light #F3EFF1
+         Runtime: SettingsViewModel.ApplyTheme overwrites the brush colors
+         with the matching light (or dark) variant. Token NAMES stay stable.
+         ============================================================ -->
+
+    <!-- SURFACES -->
+    <Color x:Key="ZuneBackgroundColor">#11090F</Color>
+    <Color x:Key="ZuneSurfaceElevatedColor">#181818</Color>
+    <Color x:Key="ZuneCardColor">#202020</Color>
+    <Color x:Key="ZuneCardHoverColor">#282828</Color>
+    <Color x:Key="ZuneBorderColor">#252525</Color>
+    <Color x:Key="ZuneSubtleBorderColor">#2C2C2C</Color>
+    <Color x:Key="ZuneInputBackgroundColor">#1A1A1A</Color>
+
+    <!-- TEXT -->
+    <Color x:Key="ZuneTextActiveColor">#FFFFFF</Color>
+    <Color x:Key="ZuneTextHoverColor">#D0D0D0</Color>
+    <Color x:Key="ZuneTextSecondaryColor">#888888</Color>
+    <Color x:Key="ZuneTextDimmedColor">#555555</Color>
+    <Color x:Key="ZuneTextWatermarkColor">#1E1E1E</Color>
+
+    <!-- LIGHT-THEME VARIANT COLORS (applied by ApplyTheme("light")) -->
+    <Color x:Key="ZuneBackgroundColorLight">#F3EFF1</Color>
+    <Color x:Key="ZuneSurfaceElevatedColorLight">#FFFFFF</Color>
+    <Color x:Key="ZuneCardColorLight">#FFFFFF</Color>
+    <Color x:Key="ZuneCardHoverColorLight">#F1EAED</Color>
+    <Color x:Key="ZuneBorderColorLight">#D8CFD3</Color>
+    <Color x:Key="ZuneSubtleBorderColorLight">#E5DDE0</Color>
+    <Color x:Key="ZuneInputBackgroundColorLight">#FFFFFF</Color>
+    <Color x:Key="ZuneTextActiveColorLight">#1A1A1A</Color>
+    <Color x:Key="ZuneTextHoverColorLight">#2A2A2A</Color>
+    <Color x:Key="ZuneTextSecondaryColorLight">#6B5F66</Color>
+    <Color x:Key="ZuneTextDimmedColorLight">#A0939B</Color>
+    <Color x:Key="ZuneTextWatermarkColorLight">#E5DDE0</Color>
+
+    <!-- ACCENT (theme-independent — magenta family works on both) -->
+    <Color x:Key="ZuneAccentColor">#F10DA2</Color>
+    <Color x:Key="ZuneAccentHoverColor">#FA6EC9</Color>
+    <Color x:Key="ZuneAccentPressedColor">#B9077B</Color>
+
+    <!-- OPTIONAL ACCENT COLORS -->
+    <Color x:Key="ZunePinkColor">#F10DA2</Color>
+    <Color x:Key="ZuneOrangeColor">#EC6922</Color>
+    <Color x:Key="ZuneCyanColor">#1BA1E2</Color>
+    <Color x:Key="ZuneLimeColor">#339933</Color>
+    <Color x:Key="ZunePurpleColor">#A200FF</Color>
+
+    <!-- BRUSHES -->
+    <SolidColorBrush x:Key="ZuneBackgroundBrush" Color="{StaticResource ZuneBackgroundColor}" />
+    <SolidColorBrush x:Key="ZuneSurfaceElevatedBrush" Color="{StaticResource ZuneSurfaceElevatedColor}" />
+    <SolidColorBrush x:Key="ZuneCardBrush" Color="{StaticResource ZuneCardColor}" />
+    <SolidColorBrush x:Key="ZuneCardHoverBrush" Color="{StaticResource ZuneCardHoverColor}" />
+    <SolidColorBrush x:Key="ZuneBorderBrush" Color="{StaticResource ZuneBorderColor}" />
+    <SolidColorBrush x:Key="ZuneSubtleBorderBrush" Color="{StaticResource ZuneSubtleBorderColor}" />
+    <SolidColorBrush x:Key="ZuneInputBackgroundBrush" Color="{StaticResource ZuneInputBackgroundColor}" />
+    <SolidColorBrush x:Key="ZuneTextActiveBrush" Color="{StaticResource ZuneTextActiveColor}" />
+    <SolidColorBrush x:Key="ZuneTextHoverBrush" Color="{StaticResource ZuneTextHoverColor}" />
+    <SolidColorBrush x:Key="ZuneTextSecondaryBrush" Color="{StaticResource ZuneTextSecondaryColor}" />
+    <SolidColorBrush x:Key="ZuneTextDimmedBrush" Color="{StaticResource ZuneTextDimmedColor}" />
+    <SolidColorBrush x:Key="ZuneTextWatermarkBrush" Color="{StaticResource ZuneTextWatermarkColor}" />
+    <SolidColorBrush x:Key="ZuneAccentBrush" Color="{StaticResource ZuneAccentColor}" />
+    <SolidColorBrush x:Key="ZuneAccentHoverBrush" Color="{StaticResource ZuneAccentHoverColor}" />
+    <SolidColorBrush x:Key="ZuneAccentPressedBrush" Color="{StaticResource ZuneAccentPressedColor}" />
+    <SolidColorBrush x:Key="ZuneOrangeBrush" Color="{StaticResource ZuneOrangeColor}" />
+    <SolidColorBrush x:Key="ZuneCyanBrush" Color="{StaticResource ZuneCyanColor}" />
+    <SolidColorBrush x:Key="ZuneLimeBrush" Color="{StaticResource ZuneLimeColor}" />
+    <SolidColorBrush x:Key="ZunePurpleBrush" Color="{StaticResource ZunePurpleColor}" />
+
+    <!-- Non-negotiable Zune Metro Invariant: Zero Corner Radius -->
+    <CornerRadius x:Key="ZuneCornerRadius">0</CornerRadius>
+
+    <!-- Authentic Segoe Zune Font Families -->
+    <FontFamily x:Key="ZuneFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe Z Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
+    <FontFamily x:Key="ZunePivotFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe ZUC Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
+    <FontFamily x:Key="ZuneSubPivotFontFamily">avares://Dorado.UI/Assets/Zune/Fonts#Segoe ZLC Light, Segoe UI, Inter, Selawik, sans-serif</FontFamily>
+  </Styles.Resources>
+
+  <!-- Typography Hierarchy Classes (Authentic Segoe Zune / Selawik / Inter) -->
+  <Style Selector="TextBlock.hero">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="54" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.mega-title">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="38" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.pivot-header">
+    <Setter Property="FontFamily" Value="{StaticResource ZunePivotFontFamily}" />
+    <Setter Property="FontSize" Value="32" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextDimmedBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.pivot-header:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextHoverBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.pivot-header.active">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.subpivot">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneSubPivotFontFamily}" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextDimmedBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.subpivot:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextHoverBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.subpivot.active">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <!-- Compact utility pivot (header SETTINGS, mode toggles) -->
+  <Style Selector="TextBlock.mini-pivot">
+    <Setter Property="FontFamily" Value="{StaticResource ZunePivotFontFamily}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextSecondaryBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.mini-pivot:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextHoverBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.mini-pivot.active">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.section-header">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.album-title">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.body">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneFontFamily}" />
+    <Setter Property="FontSize" Value="9" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextSecondaryBrush}" />
+  </Style>
+
+  <!-- Button Overrides: Zero Corner Radius, Pure Content Before Chrome -->
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+    <Setter Property="Padding" Value="8,4" />
+  </Style>
+
+  <Style Selector="Button.zune-action">
+    <Setter Property="Background" Value="{StaticResource ZuneCardBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Padding" Value="14,8" />
+  </Style>
+
+  <Style Selector="Button.zune-action:pointerover">
+    <Setter Property="Background" Value="{StaticResource ZuneCardHoverBrush}" />
+  </Style>
+
+  <Style Selector="Button.zune-accent-btn">
+    <Setter Property="Background" Value="{StaticResource ZuneAccentBrush}" />
+    <Setter Property="Foreground" Value="#FFFFFF" />
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Padding" Value="16,8" />
+  </Style>
+
+  <Style Selector="Button.zune-accent-btn:pointerover">
+    <Setter Property="Background" Value="{StaticResource ZuneAccentHoverBrush}" />
+  </Style>
+
+  <!-- Window Controls -->
+  <Style Selector="Button.window-control">
+    <Setter Property="Width" Value="36" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextSecondaryBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Button.window-control:pointerover">
+    <Setter Property="Background" Value="#2A2A2A" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <Style Selector="Button.window-close:pointerover">
+    <Setter Property="Background" Value="#E81123" />
+    <Setter Property="Foreground" Value="#FFFFFF" />
+  </Style>
+
+  <!-- Global Invariants for Surfaces and Inputs -->
+  <Style Selector="Border">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+  </Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneBorderBrush}" />
+    <Setter Property="Background" Value="{StaticResource ZuneCardBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+    <Setter Property="CaretBrush" Value="{StaticResource ZuneAccentBrush}" />
+  </Style>
+
+  <Style Selector="TextBox:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneAccentBrush}" />
+  </Style>
+
+  <Style Selector="ProgressBar">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+  </Style>
+
+  <Style Selector="Slider">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneAccentBrush}" />
+  </Style>
+
+  <Style Selector="ContextMenu">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Background" Value="{StaticResource ZuneSurfaceElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="MenuItem">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+    <Setter Property="Padding" Value="12,6" />
+  </Style>
+
+  <Style Selector="MenuItem:pointerover">
+    <Setter Property="Background" Value="{StaticResource ZuneCardHoverBrush}" />
+  </Style>
+
+  <Style Selector="MenuFlyoutPresenter">
+    <Setter Property="CornerRadius" Value="{StaticResource ZuneCornerRadius}" />
+    <Setter Property="Background" Value="{StaticResource ZuneSurfaceElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+</Styles>

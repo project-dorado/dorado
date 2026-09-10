@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="420"
+             x:Class="Dorado.UI.Views.WhatsNewView"
+             x:DataType="vm:WhatsNewViewModel"
+             Width="500">
+  <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+          BorderBrush="{DynamicResource ZuneBorderBrush}"
+          BorderThickness="1"
+          CornerRadius="0"
+          Padding="32">
+    <StackPanel Spacing="18">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{Binding Title}" Classes="hero" FontSize="28" Foreground="{DynamicResource ZuneAccentBrush}" />
+        <TextBlock Text="{Binding VersionDisplay}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+      </StackPanel>
+
+      <ItemsControl ItemsSource="{Binding Highlights}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="◆" FontSize="9" VerticalAlignment="Top" Foreground="{DynamicResource ZuneAccentBrush}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding}" Classes="body" TextWrapping="Wrap" LineHeight="19" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Button Classes="zune-action" Command="{Binding ContinueCommand}" HorizontalAlignment="Right" Margin="0,8,0,0">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="CONTINUE" Classes="caption" FontWeight="SemiBold" />
+          <TextBlock Text="→" Classes="caption" />
+        </StackPanel>
+      </Button>
+    </StackPanel>
+  </Border>
+</UserControl>

@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['dorado-v*']
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish (self-contained)
-        run: dotnet publish src/NotZune.Desktop -r ${{ matrix.rid }} -c Release -o publish/${{ matrix.rid }} --self-contained true
+        run: dotnet publish src/Dorado.Desktop -r ${{ matrix.rid }} -c Release -o publish/${{ matrix.rid }} --self-contained true
 
       - name: Verify vendored BASS natives ship
         run: |
@@ -34,12 +34,12 @@ jobs:
       - name: Archive
         run: |
           cd publish
-          zip -r ../not-zune-${{ matrix.rid }}.zip ${{ matrix.rid }}
+          zip -r ../dorado-${{ matrix.rid }}.zip ${{ matrix.rid }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: not-zune-${{ matrix.rid }}
-          path: not-zune-${{ matrix.rid }}.zip
+          name: dorado-${{ matrix.rid }}
+          path: dorado-${{ matrix.rid }}.zip
 
   github-release:
     needs: publish
@@ -54,9 +54,9 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: not-zune-*.zip
+          files: dorado-*.zip
           body: |
-            ## Not-Zune
+            ## Dorado
 
             ### Platform notes
             - **Linux (x64/arm64):** video playback requires system VLC (`sudo apt install vlc`) — libVLC is loaded from the system at runtime.

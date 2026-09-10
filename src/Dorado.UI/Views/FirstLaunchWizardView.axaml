@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="620" d:DesignHeight="460"
+             x:Class="Dorado.UI.Views.FirstLaunchWizardView"
+             x:DataType="vm:FirstLaunchWizardViewModel"
+             Width="600">
+  <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+          BorderBrush="{DynamicResource ZuneBorderBrush}"
+          BorderThickness="1"
+          CornerRadius="0"
+          Padding="32">
+    <StackPanel Spacing="20">
+
+      <!-- Header -->
+      <StackPanel Spacing="6">
+        <Panel Height="44" Width="44" HorizontalAlignment="Left">
+          <Image Source="avares://Dorado.UI/Assets/dorado_32.png" Width="32" Height="32" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Panel>
+        <TextBlock Text="{Binding StepTitle}" Classes="hero" FontSize="30" />
+        <TextBlock Text="{Binding StepSubtitle}" Classes="body" TextWrapping="Wrap" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+      </StackPanel>
+
+      <!-- Step 1: Welcome -->
+      <StackPanel IsVisible="{Binding IsWelcomeStep}" Spacing="12">
+        <TextBlock Text="Real audio playback with gapless and crossfade. Smart playlists that grow with your library. Mixview constellations. Podcasts. The signature pink." Classes="body" TextWrapping="Wrap" LineHeight="20" />
+        <TextBlock Text="It takes about thirty seconds to set up." Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+      </StackPanel>
+
+      <!-- Step 2: Choose Folder -->
+      <StackPanel IsVisible="{Binding IsChooseFolderStep}" Spacing="10">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+          <TextBox Grid.Column="0"
+                   Text="{Binding FolderPath}"
+                   Watermark="path to your music folder (e.g. ~/Music)"
+                   CornerRadius="0" />
+          <Button Grid.Column="1" Classes="zune-action" Margin="8,0,0,0" Command="{Binding BrowseCommand}">
+            <TextBlock Text="BROWSE..." Classes="caption" FontWeight="SemiBold" />
+          </Button>
+        </Grid>
+        <TextBlock Text="{Binding ScanStatusText}" Classes="caption" Foreground="#FF5555" IsVisible="{Binding ScanStatusText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      </StackPanel>
+
+      <!-- Step 3: Scanning -->
+      <StackPanel IsVisible="{Binding IsScanningStep}" Spacing="10">
+        <ProgressBar Minimum="0" Maximum="1" Value="{Binding ScanProgress}" Height="4" CornerRadius="0" Foreground="{DynamicResource ZuneAccentBrush}" />
+        <TextBlock Text="{Binding ScanStatusText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+      </StackPanel>
+
+      <!-- Step 4: Done -->
+      <StackPanel IsVisible="{Binding IsDoneStep}" Spacing="10">
+        <TextBlock Classes="hero" FontSize="42" Foreground="{DynamicResource ZuneAccentBrush}">
+          <Run Text="{Binding DiscoveredCount, Mode=OneWay}" /><Run Text=" songs" />
+        </TextBlock>
+        <TextBlock Text="Your collection is indexed and ready to play. Explore QUICKPLAY for instant mixes, or COLLECTION to browse." Classes="body" TextWrapping="Wrap" />
+      </StackPanel>
+
+      <!-- Actions -->
+      <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,8,0,0">
+        <Button Classes="zune-action" Command="{Binding SkipCommand}" IsVisible="{Binding !IsDoneStep}">
+          <TextBlock Text="SKIP" Classes="caption" FontWeight="SemiBold" />
+        </Button>
+        <Button Classes="zune-action" Command="{Binding NextCommand}" IsVisible="{Binding IsWelcomeStep}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="GET STARTED" Classes="caption" FontWeight="SemiBold" />
+            <TextBlock Text="→" Classes="caption" />
+          </StackPanel>
+        </Button>
+        <Button Classes="zune-action" Command="{Binding NextCommand}" IsVisible="{Binding IsChooseFolderStep}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="SCAN THIS FOLDER" Classes="caption" FontWeight="SemiBold" />
+            <TextBlock Text="→" Classes="caption" />
+          </StackPanel>
+        </Button>
+        <Button Classes="zune-action" Command="{Binding FinishCommand}" IsVisible="{Binding IsDoneStep}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="▶" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+            <TextBlock Text="START LISTENING" Classes="caption" FontWeight="SemiBold" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

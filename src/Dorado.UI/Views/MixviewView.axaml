@@ -1,0 +1,212 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="Dorado.UI.Views.MixviewView"
+             x:DataType="vm:MixviewViewModel">
+
+  <Grid Background="#101010" ClipToBounds="True">
+
+    <!-- Top Left Breadcrumb / Back Navigation -->
+    <StackPanel Orientation="Horizontal" 
+                Spacing="12" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top" 
+                Margin="32,24,0,0" 
+                ZIndex="10">
+      <Button Command="{Binding GoBackCommand}" 
+              IsVisible="{Binding CanGoBack}" 
+              Classes="zune-action" 
+              Padding="8,6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="←" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" />
+          <TextBlock Text="{Binding HistoryBreadcrumbText}" Classes="caption" FontWeight="Bold" />
+        </StackPanel>
+      </Button>
+
+      <TextBlock Text="MIXVIEW CONSTELLATION" 
+                 Classes="caption" 
+                 FontWeight="Bold" 
+                 Foreground="{DynamicResource ZuneTextDimmedBrush}" 
+                 VerticalAlignment="Center" 
+                 LetterSpacing="2" />
+    </StackPanel>
+
+    <!-- Main Relational Canvas Area -->
+    <Canvas x:Name="MixCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+      <!-- ============================================== -->
+      <!-- CENTRAL SEED NODE                              -->
+      <!-- ============================================== -->
+      <Border x:Name="CenterNodeBorder" 
+              Width="180" 
+              Height="150" 
+              Background="{DynamicResource ZuneCardBrush}" 
+              BorderBrush="{DynamicResource ZuneAccentBrush}" 
+              BorderThickness="2" 
+              CornerRadius="0"
+              Padding="16">
+        <Grid RowDefinitions="*,Auto">
+          <StackPanel Grid.Row="0" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="{Binding CenterSeed.Subtitle}" 
+                       Classes="caption" 
+                       FontSize="9" 
+                       FontWeight="Bold" 
+                       Foreground="{DynamicResource ZuneAccentBrush}" 
+                       LetterSpacing="1" />
+            <TextBlock Text="{Binding CenterSeed.Title}" 
+                       Classes="hero" 
+                       FontSize="20" 
+                       FontWeight="Light" 
+                       TextWrapping="Wrap" 
+                       MaxLines="2" 
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+
+          <!-- Central Actions -->
+          <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalAlignment="Center">
+            <Button Command="{Binding PlayNodeCommand}" 
+                    CommandParameter="{Binding CenterSeed}" 
+                    Classes="zune-action" 
+                    Padding="8,4" 
+                    ToolTip.Tip="Play Tracks">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.PLAY.DEFAULT.PNG" Width="14" Height="14" />
+                <TextBlock Text="PLAY" Classes="caption" FontWeight="Bold" />
+              </StackPanel>
+            </Button>
+
+            <Button Command="{Binding SmartDJNodeCommand}" 
+                    CommandParameter="{Binding CenterSeed}" 
+                    Classes="zune-action" 
+                    Padding="8,4" 
+                    ToolTip.Tip="Generate Smart DJ Mix">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.MIX.DEFAULT.PNG" Width="14" Height="14" />
+                <TextBlock Text="MIX" Classes="caption" FontWeight="Bold" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ============================================== -->
+      <!-- ORBITING SATELLITES CONTAINER                  -->
+      <!-- ============================================== -->
+      <ItemsControl ItemsSource="{Binding Satellites}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <Canvas />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="models:MixNode">
+            <Button Command="{Binding $parent[UserControl].((vm:MixviewViewModel)DataContext).SelectNodeCommand}"
+                    CommandParameter="{Binding}"
+                    Padding="0"
+                    Canvas.Left="{Binding X}"
+                    Canvas.Top="{Binding Y}">
+              <Border Width="150" 
+                      Height="70" 
+                      Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                      BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                      BorderThickness="1" 
+                      CornerRadius="0" 
+                      Padding="12,8">
+                <Grid RowDefinitions="Auto,*">
+                  <TextBlock Grid.Row="0" 
+                             Text="{Binding Subtitle}" 
+                             Classes="caption" 
+                             FontSize="8" 
+                             FontWeight="Bold" 
+                             Foreground="{DynamicResource ZuneAccentBrush}" 
+                             TextTrimming="CharacterEllipsis" />
+                  <TextBlock Grid.Row="1" 
+                             Text="{Binding Title}" 
+                             Classes="body" 
+                             FontWeight="SemiBold" 
+                             VerticalAlignment="Center" 
+                             TextWrapping="Wrap" 
+                             MaxLines="2" 
+                             TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </Border>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+    </Canvas>
+
+    <!-- Bottom Inspector / Action Card -->
+    <Border VerticalAlignment="Bottom" 
+            HorizontalAlignment="Center" 
+            Margin="0,0,0,32" 
+            Background="#E6181818" 
+            BorderBrush="{DynamicResource ZuneBorderBrush}" 
+            BorderThickness="1" 
+            CornerRadius="0" 
+            Padding="24,12" 
+            MaxWidth="640">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+          <TextBlock Text="{Binding HoveredSubtitle}" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" FontSize="9" />
+          <TextBlock Text="{Binding HoveredTitle}" Classes="body" FontWeight="Light" FontSize="16" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Button Command="{Binding PlayNodeCommand}" 
+                  CommandParameter="{Binding HoveredNode}" 
+                  Classes="zune-action">
+            <TextBlock Text="PLAY" Classes="caption" FontWeight="Bold" />
+          </Button>
+          <Button Command="{Binding SmartDJNodeCommand}" 
+                  CommandParameter="{Binding HoveredNode}" 
+                  Classes="zune-action">
+            <TextBlock Text="SMART DJ MIX" Classes="caption" FontWeight="Bold" />
+          </Button>
+          <Button Command="{Binding LikeNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Like it">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.LIKEIT.DEFAULT.PNG" Width="17" Height="15" />
+          </Button>
+          <Button Command="{Binding HateNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Hate it">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.HATEIT.DEFAULT.PNG" Width="17" Height="15" />
+          </Button>
+          <Button Command="{Binding InfoNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Info">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.INFO.DEFAULT.PNG" Width="15" Height="15" />
+          </Button>
+          <Button Command="{Binding AddNodeCommand}" CommandParameter="{Binding HoveredNode}" Background="Transparent" BorderThickness="0" Padding="4" ToolTip.Tip="Add to queue">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Mixview/MIX.ADD.DEFAULT.PNG" Width="15" Height="15" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Info Card Overlay -->
+    <Border IsVisible="{Binding HasInfoCard}"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Right"
+            Margin="0,24,24,0"
+            Background="#F0181818"
+            BorderBrush="{DynamicResource ZuneAccentBrush}"
+            BorderThickness="1"
+            CornerRadius="0"
+            Padding="20"
+            MaxWidth="360">
+      <StackPanel Spacing="10" MaxWidth="320">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="INFO" Classes="section-header" Foreground="{DynamicResource ZuneAccentBrush}" />
+          <Button Grid.Column="1" Command="{Binding CloseInfoCardCommand}" Background="Transparent" BorderThickness="0" Padding="4,0">
+            <TextBlock Text="✕" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          </Button>
+        </Grid>
+        <ScrollViewer MaxHeight="220">
+          <TextBlock Text="{Binding InfoCardText}" Classes="body" TextWrapping="Wrap" LineHeight="18" Foreground="{DynamicResource ZuneTextHoverBrush}" />
+        </ScrollViewer>
+      </StackPanel>
+    </Border>
+
+  </Grid>
+</UserControl>

@@ -1,0 +1,19 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:Dorado.UI;assembly=Dorado.UI"
+             x:Class="Dorado.Desktop.App"
+             Name="Dorado"
+             RequestedThemeVariant="Dark">
+  <Application.DataTemplates>
+    <ui:ViewLocator />
+  </Application.DataTemplates>
+  <Application.Resources>
+    <!-- Fluent templated controls (slider thumb, checks, radios) follow the Zune accent.
+         Lives in Application.Resources (not styles) so the FluentTheme's own lookups resolve it. -->
+    <Color x:Key="SystemAccentColor">#F10DA2</Color>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://Dorado.UI/Styles/ZuneTheme.axaml" />
+  </Application.Styles>
+</Application>

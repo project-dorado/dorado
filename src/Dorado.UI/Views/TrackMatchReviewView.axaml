@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="760" d:DesignHeight="480"
+             x:Class="Dorado.UI.Views.TrackMatchReviewView"
+             x:DataType="vm:TrackMatchReviewViewModel"
+             Width="740">
+  <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+          BorderBrush="{DynamicResource ZuneBorderBrush}"
+          BorderThickness="1"
+          CornerRadius="0"
+          Padding="28">
+    <StackPanel Spacing="16">
+
+      <StackPanel Spacing="4">
+        <TextBlock Text="FIND ALBUM INFO — TRACK MATCHING" Classes="hero" FontSize="24" />
+        <TextBlock Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}">
+          <Run Text="{Binding ArtistName}" /><Run Text=" — " /><Run Text="{Binding AlbumTitle}" />
+        </TextBlock>
+      </StackPanel>
+
+      <TextBlock Text="MusicBrainz matched the following recordings. Uncheck any you do not want to apply."
+                 Classes="caption" TextWrapping="Wrap" />
+
+      <!-- Header Row -->
+      <Grid ColumnDefinitions="30,*,*,80,60" Margin="0,0,0,4">
+        <TextBlock Grid.Column="0" Text="" />
+        <TextBlock Grid.Column="1" Text="CURRENT TITLE" Classes="section-header" FontSize="10" />
+        <TextBlock Grid.Column="2" Text="MUSICBRAINZ MATCH" Classes="section-header" FontSize="10" />
+        <TextBlock Grid.Column="3" Text="LENGTH" Classes="section-header" FontSize="10" HorizontalAlignment="Right" />
+        <TextBlock Grid.Column="4" Text="CONF." Classes="section-header" FontSize="10" HorizontalAlignment="Right" />
+      </Grid>
+
+      <ScrollViewer MaxHeight="260">
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:TrackMatchRow">
+              <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" Padding="0,7">
+                <Grid ColumnDefinitions="30,*,*,80,60">
+                  <CheckBox Grid.Column="0" IsChecked="{Binding Accepted}" CornerRadius="0" />
+                  <TextBlock Grid.Column="1" Text="{Binding OriginalTrack.Title}" Classes="body" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Candidate.MatchedTitle}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="{DynamicResource ZuneAccentBrush}" />
+                  <TextBlock Grid.Column="3" Text="{Binding DurationText}" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                  <TextBlock Grid.Column="4" Text="{Binding ScoreText}" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <TextBlock Text="{Binding StatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+
+      <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+        <Button Classes="zune-action" Command="{Binding CancelCommand}" IsEnabled="{Binding !IsApplying}">
+          <TextBlock Text="CANCEL" Classes="caption" FontWeight="SemiBold" />
+        </Button>
+        <Button Classes="zune-action" Command="{Binding ApplyCommand}" IsEnabled="{Binding !IsApplying}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="✓" Classes="caption" />
+            <TextBlock Text="APPLY SELECTED" Classes="caption" FontWeight="SemiBold" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

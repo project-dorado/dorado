@@ -1,21 +1,21 @@
 ---
 name: zune-plugins-protocol
 description: >-
-  Use this skill when developing, testing, or integrating out-of-process plugins for Not-Zune,
+  Use this skill when developing, testing, or integrating out-of-process plugins for Dorado,
   including JSON-RPC messaging contracts, event handling (playback, scrobbling, rich presence),
   and packaging .znp extensions.
 ---
 
-# Not-Zune Plugin Architecture & Wire Protocol
+# Dorado Plugin Architecture & Wire Protocol
 
 This guide defines the out-of-process plugin architecture, JSON-RPC communication specification,
-event subscriptions, and packaging standards for Not-Zune.
+event subscriptions, and packaging standards for Dorado.
 
 ---
 
 ## 1. Process Isolation Architecture
 
-To ensure player stability, security, and cross-platform flexibility, Not-Zune executes all plugins
+To ensure player stability, security, and cross-platform flexibility, Dorado executes all plugins
 in **isolated out-of-process worker sandboxes**:
 
 - Plugins do **not** run inside the main player UI process. A crashed or hung plugin cannot crash or freeze audio playback.
@@ -30,14 +30,14 @@ Every plugin package includes a `plugin.json` descriptor:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/Heretek-AI/not-zune/main/plugin-schema.json",
-  "id": "com.notzune.discord",
+  "$schema": "https://raw.githubusercontent.com/project-dorado/dorado/main/plugin-schema.json",
+  "id": "com.dorado.discord",
   "name": "Discord Rich Presence",
   "version": "1.0.0",
-  "author": "Not-Zune Team",
+  "author": "Dorado Team",
   "description": "Displays current track, artist, album art, and play status on your Discord profile.",
   "sdkVersion": "1.0",
-  "entryPoint": "NotZune.Plugin.Discord.dll",
+  "entryPoint": "Dorado.Plugin.Discord.dll",
   "capabilities": [
     {
       "type": "event-listening",
@@ -136,4 +136,4 @@ Plugins can invoke methods on the host via standard JSON-RPC requests:
   - `plugin.json` (at root)
   - Compiled plugin binaries and dependent DLLs / native libraries
   - Optional assets (icons, licenses)
-- Installation: Drag-and-drop into Settings > Software > Plugins, or placing into the `~/.local/share/not-zune/plugins` (Linux) or `%LOCALAPPDATA%\NotZune\plugins` (Windows) folder.
+- Installation: Drag-and-drop into Settings > Software > Plugins, or placing into the `~/.local/share/dorado/plugins` (Linux) or `%LOCALAPPDATA%\Dorado\plugins` (Windows) folder.

@@ -1,0 +1,221 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="Dorado.UI.Views.QuickplayView"
+             x:DataType="vm:QuickplayViewModel">
+
+  <Grid ColumnDefinitions="360,*" Margin="40,10,40,20">
+    <!-- Left Wing: Smart DJ Mix Hub -->
+    <Border Grid.Column="0" 
+            Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+            BorderBrush="{DynamicResource ZuneBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="0" 
+            Padding="32" 
+            Margin="0,0,32,0">
+      <StackPanel Spacing="20">
+        <!-- Smart DJ Header -->
+        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,4">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Branding/QUICKMIXICON.PNG" Width="16" Height="18" VerticalAlignment="Center" />
+          <TextBlock Text="smart dj" Classes="hero" VerticalAlignment="Center" />
+        </StackPanel>
+        <TextBlock Text="Dynamic, continuous mixes crafted from your music collection, weighted by your favorites." 
+                   Classes="caption" 
+                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                   TextWrapping="Wrap" />
+
+        <!-- Seed Info Surface -->
+        <Border Background="{DynamicResource ZuneCardBrush}" 
+                BorderBrush="{DynamicResource ZuneBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="0" 
+                Padding="16" 
+                Margin="0,12,0,8">
+          <StackPanel Spacing="6">
+            <TextBlock Text="CURRENT MIX PROFILE" Classes="caption" FontWeight="SemiBold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            <TextBlock Text="{Binding SmartDjSeedText}" Classes="body" FontWeight="SemiBold" />
+          </StackPanel>
+        </Border>
+
+        <!-- Quick Mix Actions -->
+        <StackPanel Spacing="12">
+          <!-- Favorites Mix Button -->
+          <Button Classes="zune-accent-btn" 
+                  Command="{Binding PlayFavoritesMixCommand}"
+                  HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+              <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG" Width="17" Height="15" VerticalAlignment="Center" />
+              <TextBlock Text="START FAVORITES MIX" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+
+          <!-- Discovery Mix Button -->
+          <Button Classes="zune-action" 
+                  Command="{Binding PlayDiscoveryMixCommand}"
+                  HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+              <TextBlock Text="✦" FontSize="14" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+              <TextBlock Text="START DISCOVERY MIX" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+
+          <!-- Standard Smart DJ Mix Button -->
+          <Button Classes="zune-action" 
+                  Command="{Binding LaunchSmartDjCommand}"
+                  HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+              <TextBlock Text="▶" FontSize="13" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+              <TextBlock Text="STANDARD SMART DJ MIX" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- Right Wing: 3-Deck Panoramic Ribbon (PINS, HISTORY, NEW) -->
+    <Grid Grid.Column="1" RowDefinitions="Auto,*">
+      <!-- Deck Sub-pivots -->
+      <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="32" Margin="0,0,0,24">
+        <Button Command="{Binding SelectDeckCommand}" CommandParameter="{x:Static vm:QuickplayDeck.Pins}">
+          <TextBlock Text="pins" Classes="subpivot" Classes.active="{Binding IsPinsActive}" />
+        </Button>
+        <Button Command="{Binding SelectDeckCommand}" CommandParameter="{x:Static vm:QuickplayDeck.History}">
+          <TextBlock Text="history" Classes="subpivot" Classes.active="{Binding IsHistoryActive}" />
+        </Button>
+        <Button Command="{Binding SelectDeckCommand}" CommandParameter="{x:Static vm:QuickplayDeck.New}">
+          <TextBlock Text="new" Classes="subpivot" Classes.active="{Binding IsNewActive}" />
+        </Button>
+      </StackPanel>
+
+      <!-- Deck 1: PINS DECK -->
+      <ScrollViewer Grid.Row="1" IsVisible="{Binding IsPinsActive}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Pins}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="20" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:Album">
+              <Button Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).PlayAlbumCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="0">
+                <Button.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="Play Album" 
+                              Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).PlayAlbumCommand}" 
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="Unpin from Quickplay" 
+                              Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).UnpinAlbumCommand}" 
+                              CommandParameter="{Binding}" />
+                  </ContextMenu>
+                </Button.ContextMenu>
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                        BorderBrush="{DynamicResource ZuneBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0" 
+                        Width="200" 
+                        Height="280" 
+                        Padding="16">
+                  <Grid RowDefinitions="168,Auto,Auto">
+                    <!-- Album Cover with Pin Badge -->
+                    <Grid Grid.Row="0">
+                      <Border Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
+                        <TextBlock Text="♫" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                      </Border>
+                      <!-- Pin Badge -->
+                      <Border Background="{DynamicResource ZuneAccentBrush}" 
+                              HorizontalAlignment="Right" 
+                              VerticalAlignment="Top" 
+                              Width="24" Height="24"
+                              CornerRadius="0">
+                        <TextBlock Text="📌" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFFFFF" />
+                      </Border>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,12,0,2" />
+                    <TextBlock Grid.Row="2" Text="{Binding ArtistName}" Classes="caption" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <!-- Deck 2: HISTORY DECK -->
+      <ScrollViewer Grid.Row="1" IsVisible="{Binding IsHistoryActive}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding History}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="20" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:PlayHistoryEntry">
+              <Button Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).PlayHistoryItemCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="0">
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                        BorderBrush="{DynamicResource ZuneBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0" 
+                        Width="200" 
+                        Height="280" 
+                        Padding="16">
+                  <Grid RowDefinitions="168,Auto,Auto,Auto">
+                    <Border Grid.Row="0" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
+                      <TextBlock Text="♫" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    </Border>
+                    <TextBlock Grid.Row="1" Text="{Binding TrackTitle}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,12,0,2" />
+                    <TextBlock Grid.Row="2" Text="{Binding ArtistName}" Classes="caption" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                    <TextBlock Grid.Row="3" Text="{Binding PlayedAtUtc, StringFormat='{}{0:MMM dd  HH:mm}'}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" Margin="0,4,0,0" />
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <!-- Deck 3: NEW RELEASES DECK -->
+      <ScrollViewer Grid.Row="1" IsVisible="{Binding IsNewActive}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding NewAlbums}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="20" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:Album">
+              <Button Command="{Binding $parent[UserControl].((vm:QuickplayViewModel)DataContext).PlayAlbumCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="0">
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                        BorderBrush="{DynamicResource ZuneBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0" 
+                        Width="200" 
+                        Height="280" 
+                        Padding="16">
+                  <Grid RowDefinitions="168,Auto,Auto">
+                    <Border Grid.Row="0" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
+                      <TextBlock Text="♫" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    </Border>
+                    <TextBlock Grid.Row="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,12,0,2" />
+                    <TextBlock Grid.Row="2" Text="{Binding ArtistName}" Classes="caption" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Grid>
+  </Grid>
+</UserControl>

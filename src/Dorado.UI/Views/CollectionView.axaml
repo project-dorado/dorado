@@ -1,0 +1,429 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:views="clr-namespace:Dorado.UI.Views;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="Dorado.UI.Views.CollectionView"
+             x:DataType="vm:CollectionViewModel">
+
+  <Panel>
+    <Grid RowDefinitions="Auto,*" Margin="40,6,40,16">
+      <!-- Sub-pivot Navigation Bar & Search Box -->
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,20">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="28">
+          <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Artists}">
+            <TextBlock Text="artists" Classes="subpivot" Classes.active="{Binding IsArtistsActive}" />
+          </Button>
+          <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Albums}">
+          <TextBlock Text="albums" Classes="subpivot" Classes.active="{Binding IsAlbumsActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Songs}">
+          <TextBlock Text="songs" Classes="subpivot" Classes.active="{Binding IsSongsActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Genres}">
+          <TextBlock Text="genres" Classes="subpivot" Classes.active="{Binding IsGenresActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Podcasts}">
+          <TextBlock Text="podcasts" Classes="subpivot" Classes.active="{Binding IsPodcastsActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Playlists}">
+          <TextBlock Text="playlists" Classes="subpivot" Classes.active="{Binding IsPlaylistsActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Videos}">
+          <TextBlock Text="videos" Classes="subpivot" Classes.active="{Binding IsVideosActive}" />
+        </Button>
+        <Button Command="{Binding SelectSubPivotCommand}" CommandParameter="{x:Static vm:CollectionSubPivot.Pictures}">
+          <TextBlock Text="pictures" Classes="subpivot" Classes.active="{Binding IsPicturesActive}" />
+        </Button>
+      </StackPanel>
+
+      <!-- Minimal Search Box -->
+      <TextBox Grid.Column="2" 
+               Width="240" 
+               Watermark="search collection..." 
+               Text="{Binding SearchQuery}"
+               CornerRadius="0"
+               Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+               Foreground="{DynamicResource ZuneTextActiveBrush}"
+               BorderBrush="{DynamicResource ZuneBorderBrush}"
+               BorderThickness="1"
+               Padding="10,6" />
+    </Grid>
+
+    <!-- Sub-pivot View Host -->
+    <Grid Grid.Row="1">
+      
+      <!-- 1. ARTISTS SUB-PIVOT: Authentic Zune Two-Column Discography View -->
+      <Grid IsVisible="{Binding IsArtistsActive}" ColumnDefinitions="250,32,*">
+        <!-- Left Column: Artist Index List -->
+        <Border Grid.Column="0" 
+                BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                BorderThickness="0,0,1,0" 
+                Padding="0,0,16,0">
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Artists}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:Artist">
+                  <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).SelectArtistCommand}"
+                          CommandParameter="{Binding}"
+                          HorizontalAlignment="Stretch"
+                          Padding="8,8"
+                          Margin="0,0,0,2">
+                    <TextBlock Text="{Binding Name}" 
+                               Classes="section-header" 
+                               FontWeight="Normal"
+                               TextTrimming="CharacterEllipsis" />
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+
+        <!-- Right Column: Selected Artist Discography -->
+        <Grid Grid.Column="2" RowDefinitions="Auto,*" Margin="12,0,0,0">
+          <!-- Giant Artist Banner Header -->
+          <Grid Grid.Row="0" Margin="0,0,0,24">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding SelectedArtist.Name, FallbackValue='Select an Artist'}" 
+                         Classes="mega-title" 
+                         Foreground="{DynamicResource ZuneTextActiveBrush}" />
+              <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                <Button Classes="zune-accent-btn" 
+                        Command="{Binding PlayArtistCommand}" 
+                        CommandParameter="{Binding SelectedArtist}">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="▶" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                    <TextBlock Text="PLAY ARTIST" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+                <Button Classes="zune-action" 
+                        Command="{Binding StartSmartDjFromArtistCommand}" 
+                        CommandParameter="{Binding SelectedArtist}"
+                        VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="🔀" Foreground="{DynamicResource ZuneAccentBrush}" FontSize="11" VerticalAlignment="Center" />
+                    <TextBlock Text="START SMART DJ" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+
+          <!-- Discography Album Cards with Side-by-Side Tracklists -->
+          <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding SelectedArtistAlbums}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:Album">
+                  <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                          BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                          BorderThickness="1" 
+                          CornerRadius="0" 
+                          Padding="20" 
+                          Margin="0,0,0,20">
+                    <Grid ColumnDefinitions="160,24,*">
+                      <!-- Left: Album Cover & Metadata -->
+                      <StackPanel Grid.Column="0" Spacing="8">
+                        <Border Width="150" Height="150" 
+                                Background="{DynamicResource ZuneCardBrush}" 
+                                BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="0">
+                          <Border.ContextMenu>
+                            <ContextMenu>
+                              <MenuItem Header="Play Album" 
+                                        Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayAlbumCommand}" 
+                                        CommandParameter="{Binding}" />
+                              <MenuItem Header="Start Smart DJ Mix" 
+                                        Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).StartSmartDjFromAlbumCommand}" 
+                                        CommandParameter="{Binding}" />
+                              <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                              <MenuItem Header="Pin to Quickplay"
+                                        Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PinAlbumCommand}"
+                                        CommandParameter="{Binding}" />
+                              <MenuItem Header="Unpin from Quickplay"
+                                        Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).UnpinAlbumCommand}"
+                                        CommandParameter="{Binding}" />
+                              <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                              <MenuItem Header="Find Album Info..."
+                                        Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).FindAlbumInfoCommand}"
+                                        CommandParameter="{Binding}" />
+                            </ContextMenu>
+                          </Border.ContextMenu>
+                          <Grid>
+                            <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="♫" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
+                          </Grid>
+                        </Border>
+                        <TextBlock Text="{Binding Title}" Classes="album-title" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Year, StringFormat={}{0}}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding Genre}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                        <Button Classes="zune-action" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayAlbumCommand}"
+                                CommandParameter="{Binding}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,4,0,0">
+                          <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <TextBlock Text="▶" Foreground="{DynamicResource ZuneAccentBrush}" />
+                            <TextBlock Text="PLAY ALBUM" FontSize="10" FontWeight="SemiBold" />
+                          </StackPanel>
+                        </Button>
+                      </StackPanel>
+
+                      <!-- Right: Full Track Listing for this Album -->
+                      <ItemsControl Grid.Column="2" ItemsSource="{Binding Tracks}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="models:Track">
+                            <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlaySongCommand}"
+                                    CommandParameter="{Binding}"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="0">
+                              <Border Background="Transparent" 
+                                      BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                                      BorderThickness="0,0,0,1" 
+                                      CornerRadius="0" 
+                                      Padding="10,8">
+                                <Grid ColumnDefinitions="36,*,70,30">
+                                  <TextBlock Grid.Column="0" Text="{Binding TrackNumber}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                  <TextBlock Grid.Column="2" Text="{Binding Duration, StringFormat={}{0:m\\:ss}}" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                  
+                                  <!-- Inline Heart Rating -->
+                                  <Button Grid.Column="3" 
+                                          Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).ToggleFavoriteCommand}"
+                                          CommandParameter="{Binding}"
+                                          Padding="2"
+                                          HorizontalAlignment="Right"
+                                          VerticalAlignment="Center">
+                                    <TextBlock Text="♥" FontSize="13" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                                  </Button>
+                                </Grid>
+                              </Border>
+                            </Button>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+
+      <!-- 2. ALBUMS SUB-PIVOT: Interactive Grid -->
+      <Grid IsVisible="{Binding IsAlbumsActive}" RowDefinitions="Auto,*">
+        <TextBlock Grid.Row="0"
+                   Text="{Binding FindAlbumInfoStatusText}"
+                   Classes="caption"
+                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                   Margin="0,0,0,12"
+                   IsVisible="{Binding HasFindAlbumInfoStatus}" />
+        <ScrollViewer Grid.Row="1">
+        <ItemsControl ItemsSource="{Binding Albums}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:Album">
+              <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayAlbumCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="0" 
+                      Margin="0,0,24,24">
+                <Button.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="Play Album" 
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayAlbumCommand}" 
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="Start Smart DJ Mix" 
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).StartSmartDjFromAlbumCommand}" 
+                              CommandParameter="{Binding}" />
+                    <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                    <MenuItem Header="Pin to Quickplay"
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PinAlbumCommand}"
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="Unpin from Quickplay"
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).UnpinAlbumCommand}"
+                              CommandParameter="{Binding}" />
+                    <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                    <MenuItem Header="Find Album Info..."
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).FindAlbumInfoCommand}"
+                              CommandParameter="{Binding}" />
+                  </ContextMenu>
+                </Button.ContextMenu>
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                        BorderBrush="{DynamicResource ZuneBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0"
+                        Width="180"
+                        Height="240"
+                        Padding="12">
+                  <Grid RowDefinitions="156,Auto,Auto">
+                    <Border Grid.Row="0" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
+                      <Grid>
+                        <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="♫" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" IsVisible="{Binding ArtworkUri, Converter={x:Static ObjectConverters.IsNull}}" />
+                      </Grid>
+                    </Border>
+                    <TextBlock Grid.Row="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,10,0,2" />
+                    <TextBlock Grid.Row="2" Text="{Binding ArtistName}" Classes="caption" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- 3. SONGS SUB-PIVOT: Exhaustive Data Table -->
+      <Grid IsVisible="{Binding IsSongsActive}" RowDefinitions="Auto,*">
+        <!-- Table Header -->
+        <Border Grid.Row="0" 
+                Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                BorderThickness="0,0,0,1" 
+                CornerRadius="0" 
+                Padding="16,10" 
+                Margin="0,0,0,8">
+          <Grid ColumnDefinitions="40,2*,2*,1.5*,80,50">
+            <TextBlock Grid.Column="0" Text="#" Classes="caption" FontWeight="Bold" />
+            <TextBlock Grid.Column="1" Text="TITLE" Classes="caption" FontWeight="Bold" />
+            <TextBlock Grid.Column="2" Text="ARTIST" Classes="caption" FontWeight="Bold" />
+            <TextBlock Grid.Column="3" Text="ALBUM" Classes="caption" FontWeight="Bold" />
+            <TextBlock Grid.Column="4" Text="TIME" Classes="caption" FontWeight="Bold" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="5" Text="RATING" Classes="caption" FontWeight="Bold" HorizontalAlignment="Right" />
+          </Grid>
+        </Border>
+
+        <!-- Song Rows -->
+        <ScrollViewer Grid.Row="1">
+          <ItemsControl ItemsSource="{Binding Songs}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="models:Track">
+                <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlaySongCommand}"
+                        CommandParameter="{Binding}"
+                        HorizontalAlignment="Stretch"
+                        Padding="0">
+                  <Button.ContextMenu>
+                    <ContextMenu>
+                      <MenuItem Header="Play Now" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlaySongCommand}" 
+                                CommandParameter="{Binding}" />
+                      <MenuItem Header="Play Next" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayNextCommand}" 
+                                CommandParameter="{Binding}" />
+                      <MenuItem Header="Add to Queue" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).EnqueueTrackCommand}" 
+                                CommandParameter="{Binding}" />
+                      <MenuItem Header="Start Smart DJ Mix" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).StartSmartDjFromTrackCommand}" 
+                                CommandParameter="{Binding}" />
+                      <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                      <MenuItem Header="Favorite (Heart)" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).ToggleFavoriteCommand}" 
+                                CommandParameter="{Binding}" />
+                      <MenuItem Header="Dislike (Broken Heart)" 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).ToggleDislikeCommand}" 
+                                CommandParameter="{Binding}" />
+                      <Separator Background="{DynamicResource ZuneBorderBrush}" />
+                      <MenuItem Header="Edit Info..." 
+                                Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).OpenEditMetadataCommand}" 
+                                CommandParameter="{Binding}" />
+                    </ContextMenu>
+                  </Button.ContextMenu>
+                  <Border Background="Transparent" 
+                          BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                          BorderThickness="0,0,0,1" 
+                          CornerRadius="0" 
+                          Padding="16,10">
+                    <Grid ColumnDefinitions="40,2*,2*,1.5*,80,50">
+                      <TextBlock Grid.Column="0" Text="{Binding TrackNumber}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="2" Text="{Binding ArtistName}" Classes="caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="3" Text="{Binding AlbumTitle}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="4" Text="{Binding Duration, StringFormat={}{0:m\\:ss}}" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="5" Text="♥" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    </Grid>
+                  </Border>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- 4. GENRES SUB-PIVOT -->
+      <ScrollViewer IsVisible="{Binding IsGenresActive}">
+        <ItemsControl ItemsSource="{Binding Genres}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <Button Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).PlayGenreCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="0" 
+                      Margin="0,0,20,20">
+                <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                        BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="0" 
+                        Width="220" 
+                        Height="120" 
+                        Padding="16">
+                  <Grid RowDefinitions="*,Auto">
+                    <TextBlock Grid.Row="0" Text="{Binding}" Classes="section-header" TextWrapping="Wrap" VerticalAlignment="Top" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="▶" FontSize="11" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+                      <TextBlock Text="PLAY GENRE MIX" Classes="caption" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <!-- 5. PODCASTS SUB-PIVOT -->
+      <ContentControl IsVisible="{Binding IsPodcastsActive}" Content="{Binding PodcastsVM}" />
+
+      <!-- 6. PLAYLISTS SUB-PIVOT -->
+      <ContentControl IsVisible="{Binding IsPlaylistsActive}" Content="{Binding PlaylistsVM}" />
+      <ContentControl IsVisible="{Binding IsVideosActive}" Content="{Binding VideoVM}" />
+      <ContentControl IsVisible="{Binding IsPicturesActive}" Content="{Binding PhotoVM}" />
+
+    </Grid>
+  </Grid>
+
+  <!-- 7. METADATA EDIT MODAL OVERLAY -->
+  <Grid IsVisible="{Binding IsEditMetadataOpen}" Background="#D9000000">
+    <views:MetadataEditView DataContext="{Binding ActiveEditMetadataVM}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+  </Grid>
+
+  <!-- 8. SMART PLAYLIST EDITOR MODAL OVERLAY -->
+  <Grid IsVisible="{Binding PlaylistsVM.IsSmartEditorOpen}" Background="#D9000000">
+    <views:SmartPlaylistEditorView DataContext="{Binding PlaylistsVM.ActiveSmartEditorVM}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+  </Grid>
+
+  <!-- 9. TRACK MATCH REVIEW MODAL OVERLAY -->
+  <Grid IsVisible="{Binding IsTrackMatchReviewOpen}" Background="#D9000000">
+    <views:TrackMatchReviewView DataContext="{Binding ActiveTrackMatchReviewVM}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+  </Grid>
+
+  <!-- 10. PHOTO SLIDESHOW OVERLAY (SLIDESHOWLAND parity) -->
+  <Panel IsVisible="{Binding IsSlideshowOpen}" Background="Black" ZIndex="120">
+    <views:PhotoSlideshowView DataContext="{Binding ActiveSlideshowVM}" />
+  </Panel>
+</Panel>
+</UserControl>

@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "not-zune-dev-tools": {
+    "dorado-dev-tools": {
       "command": "python3",
       "args": ["scripts/mcp_tools.py"],
-      "description": "Not-Zune development tools: physical Zune USB hardware prober and Zune Metro design invariant auditor."
+      "description": "Dorado development tools: physical Zune USB hardware prober and Zune Metro design invariant auditor."
     }
   }
 }

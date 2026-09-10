@@ -2,14 +2,14 @@
 name: zune-design-system
 description: >-
   Use this skill when designing, implementing, styling, or auditing user interface components,
-  themes, layouts, typography, and motion in Not-Zune to ensure complete fidelity to the Microsoft
+  themes, layouts, typography, and motion in Dorado to ensure complete fidelity to the Microsoft
   Zune "Metro" and Iris design language.
 ---
 
 # Zune "Metro" / Iris Design System Guide
 
 This guide defines the immutable rules, tokens, typography scales, layout geometries, and motion
-principles that govern all visual and interactive presentation in Not-Zune.
+principles that govern all visual and interactive presentation in Dorado.
 
 ---
 

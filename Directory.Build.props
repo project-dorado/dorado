@@ -4,11 +4,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>12</LangVersion>
-    <Authors>Heretek AI / Not-Zune Contributors</Authors>
-    <Company>Not-Zune</Company>
-    <Product>Not-Zune Media Player</Product>
+    <Authors>Heretek AI / Dorado Contributors</Authors>
+    <Company>Dorado</Company>
+    <Product>Dorado Media Player</Product>
     <Copyright>Copyright © 2026</Copyright>
-    <RepositoryUrl>https://github.com/Heretek-AI/not-zune</RepositoryUrl>
+    <RepositoryUrl>https://github.com/project-dorado/dorado</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>

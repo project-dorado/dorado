@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.project_dorado.dorado</id>
+
+  <name>Dorado</name>
+  <summary>The modern spiritual successor to Microsoft Zune Desktop</summary>
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+
+  <description>
+    <p>
+      Dorado is a cross-platform media player and library manager for
+      Windows and Linux, built as an authentic re-creation of the
+      Microsoft Zune Desktop / Zune 4.8 experience: content-first Metro
+      design, pivot navigation, Smart DJ, tri-state heart ratings, and a
+      dynamic Now Playing canvas.
+    </p>
+    <p>
+      Formerly named Not-Zune. Built with Avalonia UI on .NET 8.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.project_dorado.dorado.desktop</launchable>
+
+  <url type="homepage">https://github.com/project-dorado/dorado</url>
+  <url type="bugtracker">https://github.com/project-dorado/dorado/issues</url>
+
+  <developer id="io.github.project_dorado">
+    <name>project-dorado</name>
+  </developer>
+
+  <content_rating type="oars-1.1" />
+
+  <categories>
+    <category>AudioVideo</category>
+    <category>Audio</category>
+    <category>Player</category>
+  </categories>
+
+  <releases>
+    <release version="1.1.0" date="2026-09-10">
+      <description>
+        <p>Dorado rebrand: renamed from Not-Zune, new organization and packaging metadata.</p>
+      </description>
+    </release>
+  </releases>
+</component>

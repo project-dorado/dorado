@@ -29,7 +29,7 @@ bld/
 *.db
 *.sqlite
 *.sqlite3
-notzune.db
+dorado.db
 
 # Disassembly temporary downloads and unpack caches
 tools/*
@@ -42,3 +42,7 @@ tools/disassembly/*
 
 # Local Zune installer packages (kept out of VCS; decompiled trees above are tracked)
 review/
+
+# Python bytecode / caches
+__pycache__/
+*.pyc

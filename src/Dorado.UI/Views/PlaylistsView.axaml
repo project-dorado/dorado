@@ -1,0 +1,266 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="Dorado.UI.Views.PlaylistsView"
+             x:DataType="vm:PlaylistsViewModel">
+
+  <Grid ColumnDefinitions="260,32,*" Margin="0,16,0,0">
+    <!-- Left Column: Playlist Index & Creation -->
+    <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*">
+      <!-- Create New Playlist Row -->
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+        <TextBox Grid.Column="0"
+                 Text="{Binding NewPlaylistName}"
+                 Watermark="name new playlist"
+                 CornerRadius="0"
+                 Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                 Foreground="{DynamicResource ZuneTextActiveBrush}"
+                 BorderThickness="0"
+                 Padding="8,6" />
+        <Button Grid.Column="1"
+                Classes="zune-action"
+                Margin="8,0,0,0"
+                Command="{Binding CreatePlaylistCommand}"
+                ToolTip.Tip="Create Playlist">
+          <TextBlock Text="+" FontWeight="Bold" FontSize="16" />
+        </Button>
+      </Grid>
+
+      <TextBlock Grid.Row="1" Text="PLAYLISTS" Classes="section-header" Margin="0,0,0,8" />
+
+      <!-- Playlists List -->
+      <ScrollViewer Grid.Row="2" MaxHeight="220">
+        <ListBox ItemsSource="{Binding Playlists}"
+                 SelectedItem="{Binding SelectedPlaylist}"
+                 Background="Transparent"
+                 CornerRadius="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="models:Playlist">
+              <!-- Tier B2: each playlist card is a drag-drop target. On hover the accent background
+                   lights up; after 300 ms dwell, the hover-swap popup lists alternate playlists. -->
+              <Panel>
+                <Border x:Name="PlaylistDropZone"
+                        Padding="6,8"
+                        CornerRadius="0"
+                        Tag="{Binding}"
+                        DragDrop.AllowDrop="True"
+                        DragDrop.DragEnter="OnPlaylistDragEnter"
+                        DragDrop.DragLeave="OnPlaylistDragLeave"
+                        DragDrop.DragOver="OnPlaylistDragOver"
+                        DragDrop.Drop="OnPlaylistDrop">
+                  <Border.Background>
+                    <MultiBinding Converter="{x:Static conv:PlaylistDropHighlightConverter.Instance}">
+                      <Binding />
+                      <Binding Path="$parent[Window].DataContext.HoveredPlaylist" />
+                    </MultiBinding>
+                  </Border.Background>
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Name}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding UpdatedAtUtc, StringFormat='{}Updated {0:d}'}" Classes="caption" FontSize="9" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                  </StackPanel>
+                </Border>
+
+                <!-- Hover-swap popup: lists other playlists so the user can land on a different one
+                     by hovering after the 300ms dwell. PointerEnter on each item swaps the drop target. -->
+                <Popup IsOpen="{Binding $parent[Window].DataContext.IsHoverSwapExpanded, Mode=OneWay}"
+                       PlacementTarget="{Binding #PlaylistDropZone}"
+                       Placement="RightEdgeAlignedTop">
+                  <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+                          BorderBrush="{DynamicResource ZuneAccentBrush}"
+                          BorderThickness="1"
+                          Padding="8"
+                          MinWidth="180">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="DROP INTO" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="2" />
+                      <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.HoverSwapAlternatives}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate DataType="models:Playlist">
+                            <Button Command="{Binding $parent[Window].((vm:PlaylistsViewModel)DataContext).SwapHoverTargetCommand}"
+                                    CommandParameter="{Binding}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Background="Transparent"
+                                    Padding="6,4">
+                              <TextBlock Text="{Binding Name}" Classes="caption" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            </Button>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+                </Popup>
+              </Panel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </ScrollViewer>
+
+      <TextBlock Grid.Row="3" Text="SMART PLAYLISTS" Classes="section-header" Margin="0,16,0,8" />
+
+      <!-- Smart Playlists List -->
+      <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding SmartPlaylists}"
+                 SelectedItem="{Binding SelectedSmartPlaylist}"
+                 Background="Transparent"
+                 CornerRadius="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="models:SmartPlaylist">
+              <Border Padding="6,8" CornerRadius="0">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{Binding Name}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding Rules.Count, StringFormat='{}{0} rules'}" Classes="caption" FontSize="9" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Grid.Column="1"
+                Classes="zune-action"
+                Margin="8,0,0,0"
+                Command="{Binding NewSmartPlaylistCommand}"
+                ToolTip.Tip="New Smart Playlist">
+          <TextBlock Text="+" FontWeight="Bold" FontSize="16" />
+        </Button>
+      </Grid>
+
+      <TextBlock Grid.Row="5" Text="" />
+    </Grid>
+
+    <!-- Right Column: Playlist Details & Tracks -->
+    <Grid Grid.Column="2">
+      <!-- State 1: Static Playlist Selected -->
+      <Grid IsVisible="{Binding ShowStaticPlaylistPane}" RowDefinitions="Auto,Auto,Auto,*">
+        <!-- Playlist Title & Stats Header -->
+        <StackPanel Grid.Row="0" Spacing="4">
+          <TextBlock Text="{Binding PlaylistTitle}" Classes="hero" FontSize="36" />
+          <TextBlock Text="{Binding PlaylistStatsText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Action Strip -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,16,0,16">
+          <Button Classes="zune-action" Command="{Binding PlayPlaylistCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="▶" Classes="caption" />
+              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" />
+            </StackPanel>
+          </Button>
+
+          <Button Classes="zune-action" Command="{Binding ExportZplCommand}">
+            <TextBlock Text="EXPORT .ZPL" Classes="caption" FontWeight="SemiBold" />
+          </Button>
+
+          <Button Classes="zune-action" Command="{Binding DeletePlaylistCommand}">
+            <TextBlock Text="DELETE" Classes="caption" FontWeight="SemiBold" Foreground="#FF5555" />
+          </Button>
+        </StackPanel>
+
+        <!-- Status Message Banner -->
+        <TextBlock Grid.Row="2" 
+                   Text="{Binding StatusMessage}" 
+                   Classes="caption" 
+                   Foreground="{DynamicResource ZuneAccentBrush}" 
+                   Margin="0,0,0,8" />
+
+        <!-- Tracklist Table -->
+        <ScrollViewer Grid.Row="3">
+          <ItemsControl ItemsSource="{Binding SelectedPlaylistTracks}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="models:Track">
+                <!-- Tier B2: drag source — PointerPressed starts a DoDragDrop with the track payload. -->
+                <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" Padding="6,8" CornerRadius="0"
+                        Tag="{Binding}"
+                        PointerPressed="OnTrackPointerPressed">
+                  <Grid ColumnDefinitions="36,*,160,160,60,32">
+                    <TextBlock Grid.Column="0" Text="{Binding TrackNumber}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding ArtistName}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="3" Text="{Binding AlbumTitle}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="{Binding Duration, StringFormat='{}{0:m\\:ss}'}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+
+                    <!-- Remove from Playlist Button -->
+                    <Button Grid.Column="5"
+                            Command="{Binding $parent[UserControl].((vm:PlaylistsViewModel)DataContext).RemoveTrackCommand}"
+                            CommandParameter="{Binding}"
+                            Background="Transparent"
+                            Padding="6,2"
+                            ToolTip.Tip="Remove from playlist">
+                      <TextBlock Text="✕" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                    </Button>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- State 2: No Playlist Selected -->
+      <StackPanel IsVisible="{Binding ShowEmptyPlaylistPane}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+        <TextBlock Text="playlists" Classes="hero" HorizontalAlignment="Center" />
+        <TextBlock Text="Create a new playlist or smart playlist to view and listen."
+                   Classes="body"
+                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                   HorizontalAlignment="Center" />
+      </StackPanel>
+
+      <!-- State 3: Smart Playlist Selected -->
+      <Grid IsVisible="{Binding HasSelectedSmartPlaylist}" RowDefinitions="Auto,Auto,Auto,*">
+        <StackPanel Grid.Row="0" Spacing="4">
+          <TextBlock Text="{Binding SmartPlaylistTitle}" Classes="hero" FontSize="36" />
+          <TextBlock Text="{Binding SmartPlaylistStatsText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,16,0,16">
+          <Button Classes="zune-action" Command="{Binding PlaySmartPlaylistCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="▶" Classes="caption" />
+              <TextBlock Text="PLAY ALL" Classes="caption" FontWeight="SemiBold" />
+            </StackPanel>
+          </Button>
+
+          <Button Classes="zune-action" Command="{Binding RefreshSmartPlaylistCommand}">
+            <TextBlock Text="REFRESH" Classes="caption" FontWeight="SemiBold" />
+          </Button>
+
+          <Button Classes="zune-action" Command="{Binding EditSmartPlaylistCommand}" CommandParameter="{Binding SelectedSmartPlaylist}">
+            <TextBlock Text="EDIT RULES" Classes="caption" FontWeight="SemiBold" />
+          </Button>
+
+          <Button Classes="zune-action" Command="{Binding DeleteSmartPlaylistCommand}" CommandParameter="{Binding SelectedSmartPlaylist}">
+            <TextBlock Text="DELETE" Classes="caption" FontWeight="SemiBold" Foreground="#FF5555" />
+          </Button>
+        </StackPanel>
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding StatusMessage}"
+                   Classes="caption"
+                   Foreground="{DynamicResource ZuneAccentBrush}"
+                   Margin="0,0,0,8" />
+
+        <ScrollViewer Grid.Row="3">
+          <ItemsControl ItemsSource="{Binding SelectedSmartPlaylistTracks}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="models:Track">
+                <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" Padding="6,8" CornerRadius="0">
+                  <Grid ColumnDefinitions="36,*,160,160,60">
+                    <TextBlock Grid.Column="0" Text="{Binding TrackNumber}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding ArtistName}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="3" Text="{Binding AlbumTitle}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="{Binding Duration, StringFormat='{}{0:m\\:ss}'}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -56,7 +56,7 @@ Zunes communicate using the Media Transfer Protocol (MTP) with proprietary Micro
 
 Iterating objects one-by-one via standard MTP commands (`GetObjectHandles` + `GetObjectInfo`) takes hours for large collections (10,000+ tracks). 
 
-Instead, Not-Zune utilizes **fast ZMDB binary parsing**:
+Instead, Dorado utilizes **fast ZMDB binary parsing**:
 1. Retrieve the device's internal binary database file (`zune.zmdb` located in the root media directory) via a single MTP streaming download.
 2. Parse the binary table structure using the **F-marker record extractor algorithm**:
    - The database stores fixed-length record headers preceded by signature sync markers (F-markers).

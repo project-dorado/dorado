@@ -1,7 +1,7 @@
-# Not-Zune ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch)
+# Dorado ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch)
 
 **Date:** 2026-09-09
-**Scope:** Comprehensive cross-reference of `src/NotZune.UI/Views/*` against the
+**Scope:** Comprehensive cross-reference of `src/Dorado.UI/Views/*` against the
 Zune 4.8 evidence base (`tools/disx/zuneshell/`, `tools/disx/zunedbapi/`,
 `tools/disx/uix/`, `tools/disx/zune_resources/.rsrc/RCDATA/`).
 **Inputs preserved as historical:** `docs/parity/zune48_parity_audit.md`
@@ -14,7 +14,7 @@ Effort scale: **quick-win** = ≤½ day, pure plumbing · **medium** = 1–3 day
 
 ## 1. Views / UX surfaces
 
-### 1.1 Current views (24) under `src/NotZune.UI/Views/`
+### 1.1 Current views (24) under `src/Dorado.UI/Views/`
 
 | File | One-line role |
 |---|---|
@@ -221,12 +221,12 @@ audio gaps are (a) parametric EQ, (b) real encoder for rip, (c) real burner.
 
 ### 3.1 `IDeviceTransport` boundary
 
-- Interface: `src/NotZune.Application/Interfaces/IDeviceTransport.cs` (real, complete surface: capacity/used/free, GetContents/TryGetItem, CopyToDevice/RemoveFromDevice).
-- Implementation in tree: **one** — `src/NotZune.Application/Services/SimulatedDeviceTransport.cs` (in-memory store with seed content).
+- Interface: `src/Dorado.Application/Interfaces/IDeviceTransport.cs` (real, complete surface: capacity/used/free, GetContents/TryGetItem, CopyToDevice/RemoveFromDevice).
+- Implementation in tree: **one** — `src/Dorado.Application/Services/SimulatedDeviceTransport.cs` (in-memory store with seed content).
 - Stubs for real transports: **NONE**. There is no `MtpTransport.cs`, no `WmdTransport.cs`, no skeleton class.
 - The `SyncEngine` factory pattern (`_transportFactory`) supports injection but no production code injects anything other than `SimulatedDeviceTransport`.
 
-### 3.2 `NotZune.Infrastructure.Devices/` (only 2 files)
+### 3.2 `Dorado.Infrastructure.Devices/` (only 2 files)
 
 - `ZuneDeviceSyncService.cs` — Linux `/sys/bus/usb/devices` scanner, supports Zune product IDs (`063E/0710/0715/0723`).
 - `ZuneUsbHttpInterceptor.cs` — placeholder for USB-PPP HTTP interception.
@@ -263,7 +263,7 @@ This is hardware-dependent and was deferred in `deferred_registry.md`. **N-A** f
 
 ## 4. CD Land
 
-`src/NotZune.UI/Views/CDView.axaml` (110 lines) + `CDViewModel.cs` (203 lines).
+`src/Dorado.UI/Views/CDView.axaml` (110 lines) + `CDViewModel.cs` (203 lines).
 
 | Feature | Status | Notes |
 |---|---|---|
@@ -420,7 +420,7 @@ The current `IsAboutSubPivotActive` panel only renders version + OS info. Zune's
 
 ## 8. Graphics / assets
 
-### 8.1 Bundled assets under `src/NotZune.UI/Assets/Zune/` (12 dirs, ~100 files)
+### 8.1 Bundled assets under `src/Dorado.UI/Assets/Zune/` (12 dirs, ~100 files)
 
 - `Backgrounds/` — 44 USERBACKGROUND JPGs (10, 11–19, 20–29, 30–39, 40–47; missing 27 — gap).
 - `Branding/` — QUICKMIXICON, ZUNECOLORLOGO, ZUNEHDDEVICES, ZUNELOGO(.HOVER/.PRESSED), ZUNELOGOTEXT, ZUNEUSER.
@@ -438,7 +438,7 @@ The current `IsAboutSubPivotActive` panel only renders version + OS info. Zune's
 
 Searching the 1,671-item RCDATA list:
 
-- **`BRANDTAG.HORIZONTAL.PNG`, `BRANDTAG.VERTICAL.PNG`** — Not-Zune brand tag. Not bundled.
+- **`BRANDTAG.HORIZONTAL.PNG`, `BRANDTAG.VERTICAL.PNG`** — Dorado brand tag. Not bundled.
 - **All `ZUNELOGO.*` variants** — only the 3 we have. The 3 PNGs we already have are identical, just renamed.
 - **`ZUNEUSER.PNG`** — bundled.
 - **`ICON.NOWPLAYING.FRAME01.PNG`…`FRAME10.PNG`** (and HOVER/PRESSED variants, 30 total) — only `ICON.NOWPLAYING.FRAME*.PNG` (FRAME01–10) and the ENTER variant are in use. The HOVER/PRESSED variants per-frame would give the hover-state animation fidelity of Zune 4.8.

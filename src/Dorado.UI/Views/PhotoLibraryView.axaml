@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
+             x:Class="Dorado.UI.Views.PhotoLibraryView"
+             x:DataType="vm:PhotoLibraryViewModel">
+
+  <Panel>
+    <Grid ColumnDefinitions="240,32,*" Margin="0,16,0,0">
+      <!-- Left: Folder Tree -->
+      <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto,Auto,Auto">
+        <TextBlock Grid.Row="0" Text="folders" Classes="section-header" Margin="0,0,0,8" />
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding Folders}"
+                 SelectedItem="{Binding SelectedFolder}"
+                 Background="Transparent"
+                 CornerRadius="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Border Padding="6,7" CornerRadius="0">
+                <TextBlock Text="{Binding Converter={x:Static conv:PhotoFolderPathConverter.Instance}}" Classes="body" TextTrimming="CharacterEllipsis" />
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBox Grid.Row="2" Name="PhotoScanPathBox" Watermark="folder to scan (e.g. ~/Pictures)" CornerRadius="0" Margin="0,8,0,0" />
+        <Button Grid.Row="3" Classes="zune-action" Command="{Binding ScanFolderCommand}" CommandParameter="{Binding #PhotoScanPathBox.Text}" Margin="0,8,0,0">
+          <TextBlock Text="SCAN FOR PICTURES" Classes="caption" FontWeight="SemiBold" />
+        </Button>
+        <Button Grid.Row="4" Classes="zune-action" Command="{Binding StartSlideshowCommand}" Margin="0,8,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PLAY.PNG" Width="16" Height="16" />
+            <TextBlock Text="START SLIDESHOW" Classes="caption" FontWeight="SemiBold" />
+          </StackPanel>
+        </Button>
+      </Grid>
+
+      <!-- Right: Gallery Grid -->
+      <Grid Grid.Column="2" RowDefinitions="Auto,*">
+        <StackPanel Grid.Row="0" Spacing="4">
+          <TextBlock Text="pictures" Classes="hero" />
+          <TextBlock Text="{Binding GalleryStatsText}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+          <TextBlock Text="{Binding StatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" IsVisible="{Binding StatusText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+          <Panel>
+            <ItemsControl ItemsSource="{Binding GalleryPhotos}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="models:Photo">
+                  <Button Command="{Binding $parent[UserControl].((vm:PhotoLibraryViewModel)DataContext).ZoomPhotoCommand}"
+                          CommandParameter="{Binding}"
+                          Padding="0" Margin="0,0,14,14">
+                    <Border Width="150" Height="150"
+                            Background="{DynamicResource ZuneCardBrush}"
+                            BorderBrush="{DynamicResource ZuneBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="0">
+                      <Image Source="{Binding FilePath, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" />
+                    </Border>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel IsVisible="{Binding HasNoPhotos}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+              <TextBlock Text="no pictures yet" Classes="hero" HorizontalAlignment="Center" />
+              <TextBlock Text="Scan a folder above — JPG, PNG, BMP, GIF and WebP are supported."
+                         Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" HorizontalAlignment="Center" />
+            </StackPanel>
+          </Panel>
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+
+    <!-- Zoom Overlay -->
+    <Grid IsVisible="{Binding IsZoomOpen}" Background="#F0000000">
+      <Grid RowDefinitions="Auto,*" Margin="24">
+        <Button Grid.Row="0" Command="{Binding CloseZoomCommand}" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Padding="6">
+          <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+        </Button>
+        <Image Grid.Row="1"
+               Source="{Binding ZoomedPhoto.FilePath, Converter={x:Static conv:ArtworkSourceConverter.Large}}"
+               Stretch="Uniform"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center" />
+      </Grid>
+    </Grid>
+  </Panel>
+</UserControl>

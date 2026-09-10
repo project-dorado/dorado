@@ -1,7 +1,7 @@
-# Not-Zune ↔ Microsoft Zune 4.8 Parity Audit
+# Dorado ↔ Microsoft Zune 4.8 Parity Audit
 
 **Audit date:** 2026-09-09
-**Method:** Systematic comparison of the decompiled Microsoft Zune Desktop 4.8 component stack against the current Not-Zune implementation.
+**Method:** Systematic comparison of the decompiled Microsoft Zune Desktop 4.8 component stack against the current Dorado implementation.
 
 ---
 
@@ -37,7 +37,7 @@ Both `review/ZunePackage.exe` and `review/ZuneSetupPkg.exe` verified: `ZunePacka
 >
 > The original pre-Phase-5 snapshot is preserved below for history.
 
-Not-Zune is a **faithful UI shell** with a **growing feature set** built on clean architecture, but it has **one critical structural gap: there is no real audio playback engine** — `AudioEngine` (`src/NotZune.Infrastructure.Audio/AudioEngine.cs`) is a position-ticker simulation and no audio library (NAudio/ManagedBass) is referenced anywhere. Every audible experience (music, crossfade, ReplayGain, volume, the visualizer, podcast streams) is currently simulated; the only real audio output is `SoundEffectService` playing authentic Zune WAV chimes through OS CLI players.
+Dorado is a **faithful UI shell** with a **growing feature set** built on clean architecture, but it has **one critical structural gap: there is no real audio playback engine** — `AudioEngine` (`src/Dorado.Infrastructure.Audio/AudioEngine.cs`) is a position-ticker simulation and no audio library (NAudio/ManagedBass) is referenced anywhere. Every audible experience (music, crossfade, ReplayGain, volume, the visualizer, podcast streams) is currently simulated; the only real audio output is `SoundEffectService` playing authentic Zune WAV chimes through OS CLI players.
 
 | Domain | Parity | Verdict |
 |---|---|---|
@@ -70,7 +70,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### A. Shell & Navigation
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Custom borderless chrome, minimal window controls | `NONCLIENTCONTROLS.UIX`, `TOPTOOLBAR.UIX` | `MainShellView.axaml` + authentic `WINDOW.*.PNG` | FULL |
 | Panoramic top pivots (4: QUICKPLAY/COLLECTION/DEVICE/SETTINGS) | `PIVOTLIST.UIX`, `Shell.uix` | `NavigationPivot` + opacity-modulated pivot strip (adds SOCIAL/DISC/MIXVIEW — deliberate extension) | FULL |
@@ -87,7 +87,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### B. Quickplay
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Pins / History / New 3-deck panorama | `QUICKPLAYSTRIP.UIX`, `QUICKPLAYMODULE.UIX`, `QuickplayPage.cs`, `QuickplayExperience.cs` | `QuickplayView` 3-deck sliding panorama | FULL |
 | Quick Mix one-click mix | `QUICKMIX.UIX`, `QuickMixSessionManager.cs`, `QuickMixPlaylistFactory.cs` | `SmartDJEngine` (local-library scoring) | PARTIAL (substitute; Zune's used marketplace) |
@@ -99,7 +99,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### C. Collection (Music)
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Two-column artist discography browser | `ARTISTSPANEL.UIX`, `MusicLibraryPage.cs` | `CollectionView` artists pivot | FULL |
 | Album artwork grid | `ALBUMSPANEL.UIX` | Albums grid with real covers (Phase 4) | FULL |
@@ -116,7 +116,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### D. Now Playing
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Cinematic artist canvas + Ken-Burns | `NOWPLAYINGLAND.UIX`, `NOWPLAYINGMUSICBACKGROUND.UIX`, `NOWPLAYINGSTYLES.UIX`, `NowPlayingLand.cs` | `NowPlayingView` + real Fanart.tv backdrops (Phase 4) | FULL |
 | Typographic track overlays | `NOWPLAYINGSTYLES.UIX` | 60pt title / 32pt accent artist | FULL |
@@ -129,7 +129,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### E. Mixview
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Constellation graph (seed + orbiting tiles) | `MIXCONTROLS.UIX`, `MIXLAYER.UIX`, `MIXLAYOUT.UIX`, `MixResult*.cs` | `MixviewView` interactive canvas | FULL |
 | MixStack back navigation | `MixStack.cs`, `MixStackEntry.cs` (mirrored 1:1 in `MixModels.cs`) | `MixStack` push/pop + breadcrumb | FULL |
@@ -139,7 +139,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### F. Audio Engine ⚠️ CRITICAL
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Real audio playback (decode + output) | `ZuneSE_dll`, `ZuneCore_Dll`, codec DLLs | `AudioEngine` = position timer only; no NAudio/Bass/WASAPI | **SIMULATED** |
 | Volume control | `TRANSPORTCONTROLS.UIX` slider | Stored property, no signal path | SIMULATED |
@@ -151,7 +151,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### G. CD Land
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | CD view & disc detection | `CDVIEW.UIX`, `CDSTATE.UIX`, `CDLand.cs` | `DISC` pivot + `CDView` | PARTIAL (no optical-drive detection) |
 | Rip pipeline | `RipState.cs`, `ZuneEncEngDLL` | Simulated progress + authentic chime | SIMULATED (no drive on dev machine — accepted) |
@@ -160,7 +160,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### H. Device Sync & Lifecycle (hardware-dependent)
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Device land + segmented gas gauge | `DEVICELANDELEMENTS.UIX`, `GASGAUGE.UIX`, `Deviceland.cs`, `DeviceExperience.cs` | `DeviceView` + 6-segment authentic gauge | FULL (data simulated) |
 | Space reservation | `DEVICESPACERESERVATION.UIX` | Slider + GB preview (Settings + Device) | FULL (persisted Phase 4) |
@@ -175,7 +175,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### I. Podcasts
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Podcast library + series + episodes | `PODCASTLIBRARY.UIX`, `PODCASTSERIESPANEL.UIX`, `PODCASTEPISODESPANEL.UIX`, `PodcastLibraryPage.cs` | `PodcastsView` two-column manager | PARTIAL (RSS-only substitute) |
 | RSS subscription | (marketplace feed in Zune) | Real RSS 2.0 ingest | FULL (substitute) |
@@ -185,7 +185,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### J. Social / Marketplace / Account — *Zune servers dead (~2011–2015)*
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Zune Card / profile | `PROFILE.UIX`, `PROFILEEDIT.UIX`, `ProfilePage.cs` | `ZuneCardView` + `SOCIAL` pivot (local stats) | N-A — substitute FULL |
 | Achievements/badges | `BADGES.UIX`, `ProfileBadge.cs` | 5 badges with authentic seal asset | N-A — substitute FULL |
@@ -197,7 +197,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### K. Settings & Management
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | Two-tier management hub | `MANAGEMENT*.UIX` (14 documents) | SOFTWARE/DEVICE tiers, 7 sub-pivots | PARTIAL (subset) |
 | Collection settings (monitored folders) | `MANAGEMENTCOLLECTION.UIX` | COLLECTION sub-pivot + folder picker + scan | FULL |
@@ -211,7 +211,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### L. First-Launch & Onboarding
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | First-launch wizard (welcome→folders→filetypes→privacy) | `FIRSTLAUNCH.UIX`, `FirstLaunch*.Page.cs` ×7 | Demo-data seed only | MISSING |
 | First-connect device wizard | `FIRSTCONNECT.UIX`, `FirstConnect*.Page.cs` ×6 | — | N-A hardware |
@@ -219,7 +219,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ### M. Platform Services
 
-| Zune 4.8 feature | Evidence | Not-Zune | Status |
+| Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
 | ZMDB database engine (4 variants) | `ZuneZMDB{Classic,Library,Mobile,ZuneHD}DLL`, `ZuneDB_dll` | EF Core + SQLite (single schema) | PARTIAL (substitute) |
 | ZMDB managed API | `ZuneDBApi_Dll` → 1,030 files, 19 namespaces (`MicrosoftZuneLibrary`, `Microsoft.Zune.Service`, `Microsoft.Zune.QuickMix`, `Microsoft.Zune.Playlist`, `Microsoft.Zune.Subscription`, `Microsoft.Zune.User`, …) | `IMediaLibraryService` (+11 other interfaces) | PARTIAL (media core covered; subscription/user/service layers N-A) |
@@ -229,13 +229,13 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Multi-language MUI (26 locales) | `ZuneResources_Mui`, `*mui` files | English only | MISSING |
 | Explorer shell extension / launcher | `ZuneShellExt_Dll`, `ZuneLauncherEXE` | — | N-A |
 | x64 build | `zune-x64.msi` | .NET 8 cross-platform (x64/arm64 CI) | FULL |
-| Plugin extensibility | (none in Zune — COM/registry only) | `NotZune.Plugins.Protocol` JSON-RPC scaffold (unused) | FULL (exceeds Zune) |
+| Plugin extensibility | (none in Zune — COM/registry only) | `Dorado.Plugins.Protocol` JSON-RPC scaffold (unused) | FULL (exceeds Zune) |
 
 ---
 
 ## 4. Deliberate Substitutions for Dead Zune Services
 
-| Dead Zune dependency | Not-Zune replacement |
+| Dead Zune dependency | Dorado replacement |
 |---|---|
 | Zune Marketplace / Zune Pass (catalog, streaming, DRM) | Local library only; Smart DJ from local tracks |
 | Zune Social servers (profiles, messaging, badges) | Local `ZuneCardView` stats + badge engine from SQLite history |
@@ -262,5 +262,5 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 ## 6. Audit Confidence Notes
 
 - Managed-code evidence is complete (`ZuneShell_Dll` + `ZuneDBApi_Dll` fully decompiled); native components (`UIX_*`, `ZuneSE_dll`, `ZuneEncEngDLL`, `ZuneMTPZ_dll`, `Zumbus.sys`) were inventoried but not disassembled at machine-code level — their behavior is inferred from names, interfaces, strings, and the managed layers that call them.
-- UIX documents are compiled `.uib` bytecode in `ZuneShellResources_Dll` RCDATA; the 241 `.UIX` source names + 1,289 asset names used here come from the resource table (assets previously ingested into `src/NotZune.UI/Assets/Zune/`).
-- Feature statuses were verified against the Not-Zune source tree (13 views, 13 view-models, 10 application interfaces, 6 application services, 4 infrastructure projects, 58 passing tests) as of commit `6570600`.
+- UIX documents are compiled `.uib` bytecode in `ZuneShellResources_Dll` RCDATA; the 241 `.UIX` source names + 1,289 asset names used here come from the resource table (assets previously ingested into `src/Dorado.UI/Assets/Zune/`).
+- Feature statuses were verified against the Dorado source tree (13 views, 13 view-models, 10 application interfaces, 6 application services, 4 infrastructure projects, 58 passing tests) as of commit `6570600`.

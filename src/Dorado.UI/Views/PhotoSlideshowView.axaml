@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="660"
+             x:Class="Dorado.UI.Views.PhotoSlideshowView"
+             x:DataType="vm:PhotoSlideshowViewModel">
+
+  <Grid>
+    <!-- Full-bleed photo with Ken-Burns drift -->
+    <Panel Background="Black">
+      <Image Source="{Binding CurrentPhoto.FilePath, Converter={x:Static conv:ArtworkSourceConverter.Large}}"
+             Stretch="Uniform"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             RenderTransformOrigin="0.5,0.5">
+        <Image.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="{Binding KenBurnsScale}" ScaleY="{Binding KenBurnsScale}" />
+            <TranslateTransform X="{Binding KenBurnsTranslateX}" Y="{Binding KenBurnsTranslateY}" />
+          </TransformGroup>
+        </Image.RenderTransform>
+      </Image>
+    </Panel>
+
+    <!-- Top overlay: title + close -->
+    <Border VerticalAlignment="Top" Background="#B3000000" Padding="16,8">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <TextBlock Text="{Binding CurrentTitle}" Classes="body" FontWeight="SemiBold" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+          <TextBlock Text="{Binding PositionText}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Grid.Column="1" Command="{Binding CloseCommand}" Background="Transparent" BorderThickness="0" Padding="6">
+          <TextBlock Text="✕" FontSize="14" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+        </Button>
+      </Grid>
+    </Border>
+
+    <!-- Bottom transport (authentic SLIDESHOW.* assets) -->
+    <Border VerticalAlignment="Bottom" Background="#B3000000" Padding="16,10">
+      <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
+        <Button Command="{Binding BackCommand}" Background="Transparent" BorderThickness="0" Padding="4">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.BACK.PNG" Width="24" Height="24" />
+        </Button>
+        <Button Command="{Binding PlayPauseCommand}" Background="Transparent" BorderThickness="0" Padding="4">
+          <Panel>
+            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PLAY.PNG" Width="24" Height="24" IsVisible="{Binding !IsPlaying}" />
+            <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.PAUSE.PNG" Width="24" Height="24" IsVisible="{Binding IsPlaying}" />
+          </Panel>
+        </Button>
+        <Button Command="{Binding NextCommand}" Background="Transparent" BorderThickness="0" Padding="4">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Slideshow/SLIDESHOW.NEXT.PNG" Width="24" Height="24" />
+        </Button>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

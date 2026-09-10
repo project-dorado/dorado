@@ -45,7 +45,7 @@ Zune's UI was engineered using Microsoft's **Iris UI Framework** (originally cre
   - Inactive: 40% white (`#666666`)
   - Ambient Watermark: 8% white (`#181818`)
 
-### Extracted Authentic Graphics (`src/NotZune.UI/Assets/Zune/`)
+### Extracted Authentic Graphics (`src/Dorado.UI/Assets/Zune/`)
 - **Transport Bar**:
   - `TRANSPORT.PLAY.PNG` (35x35 32-bit RGBA)
   - `TRANSPORT.PAUSE.PNG` (35x35 32-bit RGBA)

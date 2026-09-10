@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dorado.Domain\Dorado.Domain.csproj" />
+    <ProjectReference Include="..\Dorado.Application\Dorado.Application.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.Persistence\Dorado.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.Audio\Dorado.Infrastructure.Audio.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.Devices\Dorado.Infrastructure.Devices.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.External\Dorado.Infrastructure.External.csproj" />
+    <ProjectReference Include="..\Dorado.Infrastructure.Video\Dorado.Infrastructure.Video.csproj" />
+    <ProjectReference Include="..\Dorado.Plugins.Sdk\Dorado.Plugins.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

@@ -1,11 +1,11 @@
-# Not-Zune
+# Dorado
 
 <div align="center">
 
-# 🎵 Not-Zune
+# 🎵 Dorado
 **The authentic cross-platform spiritual successor to Microsoft Zune Desktop & Player**
 
-[![Build & Release](https://github.com/Heretek-AI/not-zune/actions/workflows/build.yml/badge.svg)](https://github.com/Heretek-AI/not-zune/actions/workflows/build.yml)
+[![Build & Release](https://github.com/project-dorado/dorado/actions/workflows/build.yml/badge.svg)](https://github.com/project-dorado/dorado/actions/workflows/build.yml)
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
@@ -18,7 +18,7 @@
 
 ## ✨ Design Principles: The Zune "Metro" Experience
 
-Not-Zune is built on the purest tenets of the original Microsoft Zune Desktop software:
+Dorado is built on the purest tenets of the original Microsoft Zune Desktop software:
 
 - **Content Before Chrome:** Zero rounded corners (`CornerRadius = 0`), no drop shadows, no skeuomorphic gradients or faux-leather textures.
 - **Typography as Art:** Sized and kerned with Segoe UI / Selawik metrics across Display, Pivot, Sub-pivot, and Caption hierarchies. Opacity communicates state (Active: 100%, Hover: 85%, Inactive: 40%).
@@ -38,17 +38,17 @@ Built with Clean Architecture in .NET 8 / C# 12:
 
 ```
 src/
-├── NotZune.Domain/                       # Entities (Track, Album, Artist, Playlist, Device, SyncModels)
-├── NotZune.Application/                  # Player coordinator, Smart DJ engine, sync orchestrator, settings
-├── NotZune.Infrastructure.Persistence/   # SQLite database & EF Core (WAL journaling)
-├── NotZune.Infrastructure.Audio/         # BASS engine: gapless chaining, equal-power crossfade, ReplayGain, FFT visualizer
-├── NotZune.Infrastructure.Video/         # libVLCSharp (playback + now-playing clips)
-├── NotZune.Infrastructure.Devices/       # IDeviceTransport abstraction + SimulatedDeviceTransport (real MTPZ hardware-N/A)
-├── NotZune.Infrastructure.External/      # MusicBrainz, Fanart.tv, Last.fm, LRCLIB metadata aggregators
-├── NotZune.Plugins.Protocol/             # Shared JSON-RPC message contracts
-├── NotZune.Plugins.Sdk/                  # Sandboxed out-of-process plugin SDK
-├── NotZune.UI/                           # Shared Avalonia XAML views, ViewModels, styles, animations
-└── NotZune.Desktop/                      # Desktop executable for Linux and Windows
+├── Dorado.Domain/                       # Entities (Track, Album, Artist, Playlist, Device, SyncModels)
+├── Dorado.Application/                  # Player coordinator, Smart DJ engine, sync orchestrator, settings
+├── Dorado.Infrastructure.Persistence/   # SQLite database & EF Core (WAL journaling)
+├── Dorado.Infrastructure.Audio/         # BASS engine: gapless chaining, equal-power crossfade, ReplayGain, FFT visualizer
+├── Dorado.Infrastructure.Video/         # libVLCSharp (playback + now-playing clips)
+├── Dorado.Infrastructure.Devices/       # IDeviceTransport abstraction + SimulatedDeviceTransport (real MTPZ hardware-N/A)
+├── Dorado.Infrastructure.External/      # MusicBrainz, Fanart.tv, Last.fm, LRCLIB metadata aggregators
+├── Dorado.Plugins.Protocol/             # Shared JSON-RPC message contracts
+├── Dorado.Plugins.Sdk/                  # Sandboxed out-of-process plugin SDK
+├── Dorado.UI/                           # Shared Avalonia XAML views, ViewModels, styles, animations
+└── Dorado.Desktop/                      # Desktop executable for Linux and Windows
 ```
 
 ---
@@ -144,7 +144,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 - **Tier D3 — Reusable confirm/error dialog service** (`IDialogService`) replacing hand-rolled dialogs
 
 ### Smaller polish
-- **Tier B3 — Long-press to pin** to Quickplay (from `xune-HD` canon)
+- **Tier B3 — Long-press to pin** to Quickplay (from `dorado-hd` canon)
 - **MusicBrainz + AcoustID auto-metadata + dedup** at scan time
 - **Direct device playback** from desktop (play tracks off the device)
 - **On-the-fly WMA Lossless transcoding** during sync
@@ -174,12 +174,12 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Running Desktop
 ```bash
-dotnet run --project src/NotZune.Desktop/NotZune.Desktop.csproj
+dotnet run --project src/Dorado.Desktop/Dorado.Desktop.csproj
 ```
 
 ### Running Tests
 ```bash
-dotnet test NotZune.sln
+dotnet test Dorado.sln
 ```
 
 ### Design Audit
@@ -190,16 +190,16 @@ python3 -c "import sys; sys.path.insert(0,'scripts'); from mcp_tools import audi
 ### Multi-Platform Publishing
 ```bash
 # Linux x64
-dotnet publish src/NotZune.Desktop -r linux-x64 -c Release
+dotnet publish src/Dorado.Desktop -r linux-x64 -c Release
 
 # Linux arm64
-dotnet publish src/NotZune.Desktop -r linux-arm64 -c Release
+dotnet publish src/Dorado.Desktop -r linux-arm64 -c Release
 
 # Windows x64
-dotnet publish src/NotZune.Desktop -r win-x64 -c Release
+dotnet publish src/Dorado.Desktop -r win-x64 -c Release
 
 # Windows arm64
-dotnet publish src/NotZune.Desktop -r win-arm64 -c Release
+dotnet publish src/Dorado.Desktop -r win-arm64 -c Release
 ```
 
 ### Platform Notes
@@ -207,7 +207,7 @@ dotnet publish src/NotZune.Desktop -r win-arm64 -c Release
 - **Windows x64:** full audio + video out of the box (VLC natives bundled via `VideoLAN.LibVLC.Windows`).
 - **Windows arm64:** BASS publishes no ARM64 natives, so audio playback runs in simulated (silent) mode; video is unaffected.
 
-Continuous integration (`.github/workflows/ci.yml`) builds the solution Release with a zero-warnings policy, runs the full test suite, and re-runs the design-invariants audit on every push. Tagging `v*` (or `.github/workflows/release.yml` → Run workflow) publishes self-contained archives for linux-x64, linux-arm64, win-x64, and win-arm64.
+Continuous integration (`.github/workflows/ci.yml`) builds the solution Release with a zero-warnings policy, runs the full test suite, and re-runs the design-invariants audit on every push. Tagging `dorado-v*` (or `.github/workflows/release.yml` → Run workflow) publishes self-contained archives for linux-x64, linux-arm64, win-x64, and win-arm64.
 
 ---
 
@@ -266,7 +266,7 @@ This repository contains built-in agent customizations and tools:
 
 ## 💖 Special Thanks & Acknowledgements
 
-A heartfelt **thank you to [cmoserror1](https://github.com/cmoserror1)** for inspiring the creation of this project. Your passion and vision for the enduring beauty of the Zune experience made Not-Zune possible!
+A heartfelt **thank you to [cmoserror1](https://github.com/cmoserror1)** for inspiring the creation of this project. Your passion and vision for the enduring beauty of the Zune experience made Dorado possible!
 
 Additional gratitude to the vibrant Zune preservation, modding, and development community across [zunes.me](https://zunes.me), [ZuneDev](https://github.com/ZuneDev), and everyone keeping the spirit of authentic digital design alive.
 

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Dorado
+GenericName=Media Player
+Comment=The modern spiritual successor to Microsoft Zune Desktop
+Exec=dorado %F
+TryExec=dorado
+Icon=io.github.project_dorado.dorado
+Terminal=false
+Categories=AudioVideo;Audio;Player;Video;
+StartupNotify=true
+StartupWMClass=Dorado
+MimeType=audio/mpeg;audio/flac;audio/ogg;audio/x-wav;audio/mp4;video/mp4;video/x-matroska;video/webm;

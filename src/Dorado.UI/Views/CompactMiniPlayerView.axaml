@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="130"
+             x:Class="Dorado.UI.Views.CompactMiniPlayerView"
+             x:DataType="vm:MainShellViewModel"
+             Background="{DynamicResource ZuneSurfaceElevatedBrush}">
+
+  <Grid RowDefinitions="Auto,Auto,*" PointerPressed="OnMiniBarPointerPressed">
+    <!-- 1. Top Mini System Bar: Brand Wordmark & Restore/Close Window Controls -->
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="12,6,8,2">
+      <!-- Mini Brand Mark -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <Image Source="avares://Dorado.UI/Assets/dorado_32.png" Width="14" Height="14" VerticalAlignment="Center" />
+        <TextBlock Text="ZUNE" 
+                   FontFamily="{StaticResource ZunePivotFontFamily}" 
+                   FontSize="10" 
+                   FontWeight="Bold" 
+                   LetterSpacing="2" 
+                   Foreground="{DynamicResource ZuneTextDimmedBrush}" 
+                   VerticalAlignment="Center" />
+      </StackPanel>
+
+      <!-- Window Action Controls: Restore & Close -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+        <Button Classes="window-control" Command="{Binding ToggleCompactModeCommand}" ToolTip.Tip="Restore to Full Zune Window">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.RESTORE.PNG" Width="13" Height="14" />
+        </Button>
+        <Button Classes="window-control window-close" Click="OnCloseClicked" ToolTip.Tip="Close">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Window/WINDOW.CLOSE.PNG" Width="13" Height="14" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- 2. Hairline Seek Scrubber -->
+    <ProgressBar Grid.Row="1" 
+                 Height="2" 
+                 CornerRadius="0"
+                 VerticalAlignment="Top"
+                 Value="{Binding ProgressPercentage}" 
+                 Maximum="1.0" 
+                 Foreground="{DynamicResource ZuneAccentBrush}" 
+                 Background="{DynamicResource ZuneInputBackgroundBrush}" />
+
+    <!-- 3. Player Content & Transport Strip -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="12,8,12,6" VerticalAlignment="Center">
+      <!-- Left: Mini Square Album Art & Rating Badge -->
+      <Border Grid.Column="0"
+              Width="44" Height="44"
+              Background="{DynamicResource ZuneCardBrush}"
+              BorderBrush="{DynamicResource ZuneBorderBrush}"
+              BorderThickness="1"
+              CornerRadius="0">
+        <Grid>
+          <TextBlock Text="♫" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          <!-- Mini Heart badge if favorite -->
+          <Image Source="avares://Dorado.UI/Assets/Zune/Rating/RATING.LIKEIT.SELECTED.PNG"
+                 IsVisible="{Binding IsFavorite}"
+                 Width="12" Height="11"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Bottom"
+                 Margin="0,0,2,2" />
+        </Grid>
+      </Border>
+
+      <!-- Center: Track Title & Artist Metadata -->
+      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,10,0" Spacing="2">
+        <TextBlock Text="{Binding CurrentTrack.Title, FallbackValue='Not Playing'}"
+                   Classes="body"
+                   FontWeight="SemiBold"
+                   TextTrimming="CharacterEllipsis"
+                   MaxWidth="170" />
+        <TextBlock Text="{Binding CurrentTrack.ArtistName, FallbackValue='Zune Player'}"
+                   Classes="caption"
+                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                   TextTrimming="CharacterEllipsis"
+                   MaxWidth="170" />
+        <TextBlock Text="{Binding ElapsedTimeText}"
+                   Classes="caption"
+                   Foreground="{DynamicResource ZuneTextDimmedBrush}"
+                   FontSize="8" />
+      </StackPanel>
+
+      <!-- Showlist Toggle + Compact Transport -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <!-- Showlist toggle (upcoming queue) -->
+        <Button Command="{Binding NowPlayingVM.ToggleShowlistCommand}" Padding="4" ToolTip.Tip="Showlist (upcoming queue)">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.SHOWLIST.ON.PNG" Width="20" Height="20" />
+        </Button>
+
+        <!-- Previous -->
+        <Button Command="{Binding PreviousCommand}" Padding="4" ToolTip.Tip="Previous">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.BACK.PNG" Width="20" Height="20" />
+        </Button>
+
+        <!-- Play / Pause -->
+        <Button Command="{Binding PlayPauseCommand}" Padding="4" ToolTip.Tip="Play / Pause">
+          <Panel Width="28" Height="28">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PLAY.PNG" IsVisible="{Binding !IsPlaying}" Width="28" Height="28" />
+            <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.PAUSE.PNG" IsVisible="{Binding IsPlaying}" Width="28" Height="28" />
+          </Panel>
+        </Button>
+
+        <!-- Next -->
+        <Button Command="{Binding NextCommand}" Padding="4" ToolTip.Tip="Next">
+          <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.FORWARD.PNG" Width="20" Height="20" />
+        </Button>
+      </StackPanel>
+
+      <!-- Compact volume slider -->
+      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="6,0,0,0">
+        <Image Source="avares://Dorado.UI/Assets/Zune/Transport/TRANSPORT.MUTE.OFF.PNG" Width="14" Height="12" VerticalAlignment="Center" />
+        <Slider Width="60"
+                Value="{Binding Volume}"
+                Minimum="0"
+                Maximum="100"
+                VerticalAlignment="Center" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

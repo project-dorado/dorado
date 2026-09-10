@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="Dorado.UI.Views.ZuneCardView"
+             x:DataType="vm:ZuneCardViewModel">
+
+  <ScrollViewer Margin="40,16,40,24">
+    <StackPanel Spacing="28" MaxWidth="820" HorizontalAlignment="Left">
+      
+      <!-- Top Card Header: Avatar & Member Info -->
+      <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+              BorderBrush="{DynamicResource ZuneBorderBrush}" 
+              BorderThickness="1" 
+              CornerRadius="0" 
+              Padding="24">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <!-- User Avatar Box -->
+          <Border Grid.Column="0" 
+                  Width="68" Height="68" 
+                  Background="{DynamicResource ZuneCardBrush}" 
+                  BorderBrush="{DynamicResource ZuneAccentBrush}" 
+                  BorderThickness="2" 
+                  CornerRadius="0" 
+                  Margin="0,0,20,0">
+            <Image Source="avares://Dorado.UI/Assets/Zune/Social/PROFILE.DEFAULT.TILE.PNG" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+
+          <!-- User Zune Tag & Bio -->
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="{Binding ZuneTag}" Classes="mega-title" FontWeight="Light" />
+            <TextBlock Text="{Binding MemberSinceText}" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            <TextBlock Text="{Binding StatusMessage}" Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" Margin="0,2,0,0" />
+          </StackPanel>
+
+          <!-- Stat Counters -->
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
+            <Border Background="{DynamicResource ZuneCardBrush}" Padding="16,10" CornerRadius="0">
+              <StackPanel HorizontalAlignment="Center" Spacing="2">
+                <TextBlock Text="{Binding TotalTracksPlayed}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ZuneTextActiveBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="SCROBBLES" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" HorizontalAlignment="Center" />
+              </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource ZuneCardBrush}" Padding="16,10" CornerRadius="0">
+              <StackPanel HorizontalAlignment="Center" Spacing="2">
+                <TextBlock Text="{Binding TotalHoursText}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="LISTENING" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" HorizontalAlignment="Center" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Two-Column Analytics Layout: Top Artists & Badges -->
+      <Grid ColumnDefinitions="*,32,*">
+        
+        <!-- Left Wing: Top Played Artists -->
+        <Border Grid.Column="0" 
+                Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                BorderThickness="1" 
+                CornerRadius="0" 
+                Padding="24">
+          <StackPanel Spacing="16">
+            <TextBlock Text="HEAVY ROTATION (TOP ARTISTS)" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            
+            <ItemsControl ItemsSource="{Binding TopArtists}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:TopArtistStat">
+                  <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="0" Padding="0,10">
+                    <Grid RowDefinitions="Auto,Auto">
+                      <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding ArtistName}" Classes="body" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding PlayCount, StringFormat='{}{0} plays'}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                      </Grid>
+                      <!-- Progress bar of share -->
+                      <ProgressBar Grid.Row="1" 
+                                   Margin="0,6,0,0" 
+                                   Height="3" 
+                                   CornerRadius="0" 
+                                   Value="{Binding Percentage}" 
+                                   Maximum="100.0" 
+                                   Foreground="{DynamicResource ZuneAccentBrush}" 
+                                   Background="{DynamicResource ZuneCardBrush}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <!-- Right Wing: Zune Achievement Badges -->
+        <Border Grid.Column="2" 
+                Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
+                BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                BorderThickness="1" 
+                CornerRadius="0" 
+                Padding="24">
+          <StackPanel Spacing="16">
+            <TextBlock Text="ZUNE BADGES &amp; MILESTONES" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            
+            <ItemsControl ItemsSource="{Binding Badges}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:ZuneBadge">
+                  <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="0" Padding="0,10">
+                    <Grid ColumnDefinitions="36,*">
+                      <!-- Badge Seal Icon -->
+                      <Image Grid.Column="0" 
+                             Source="avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG" 
+                             Width="26" Height="25" 
+                             VerticalAlignment="Center" 
+                             HorizontalAlignment="Left" />
+                      
+                      <StackPanel Grid.Column="1" Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Title}" Classes="body" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Category}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Description}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

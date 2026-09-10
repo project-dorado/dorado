@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Not-Zune Developer MCP Server
+Dorado Developer MCP Server
 Provides local development tools for inspecting connected Zune USB devices,
 inspecting audio metadata, and auditing Zune Metro design invariants.
 """
@@ -21,7 +21,7 @@ def handle_initialize(request_id):
                 "tools": {}
             },
             "serverInfo": {
-                "name": "not-zune-dev-tools",
+                "name": "dorado-dev-tools",
                 "version": "1.0.0"
             }
         }

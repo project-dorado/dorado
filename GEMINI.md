@@ -1,6 +1,6 @@
-# Not-Zune: Repository Guidelines & Directives
+# Dorado: Repository Guidelines & Directives
 
-Welcome to **Not-Zune**, the modern cross-platform spiritual successor to Microsoft Zune Desktop and player.
+Welcome to **Dorado**, the modern cross-platform spiritual successor to Microsoft Zune Desktop and player.
 This repository is self-contained and adheres to strict design, architecture, and engineering principles.
 
 ---
@@ -57,20 +57,20 @@ All user interfaces in this project MUST strictly follow the authentic Zune desi
 
 The codebase follows Clean Architecture with strict separation of concerns:
 
-- `src/NotZune.Domain`: Entities, value objects, domain events, business invariants. (Zero external GUI/audio dependencies).
-- `src/NotZune.Application`: Application use cases, playback coordinators, library services, sync orchestrators, plugin interfaces.
-- `src/NotZune.Infrastructure.Persistence`: SQLite database, EF Core, FTS5 full-text search indexing.
-- `src/NotZune.Infrastructure.Audio`: Audio playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, system media controls (Linux MPRIS, Windows SMTC).
-- `src/NotZune.Infrastructure.Devices`: Physical Zune USB synchronization:
+- `src/Dorado.Domain`: Entities, value objects, domain events, business invariants. (Zero external GUI/audio dependencies).
+- `src/Dorado.Application`: Application use cases, playback coordinators, library services, sync orchestrators, plugin interfaces.
+- `src/Dorado.Infrastructure.Persistence`: SQLite database, EF Core, FTS5 full-text search indexing.
+- `src/Dorado.Infrastructure.Audio`: Audio playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, system media controls (Linux MPRIS, Windows SMTC).
+- `src/Dorado.Infrastructure.Devices`: Physical Zune USB synchronization:
   - Transport backends: `libusb` on Linux, `WinUSB` on Windows.
   - MTP / MTPZ security handshake.
   - ZMDB fast binary parser (F-marker record extractor).
   - USB PPP / TCP / DNS / HTTP reverse interceptor (`192.168.55.100`) for streaming artist biography XML and JPEG artwork directly to connected Zunes.
   - SSDP / PTP/IP wireless synchronization listener.
-- `src/NotZune.Infrastructure.External`: Metadata aggregators (MusicBrainz, Fanart.tv, Last.fm, ZuneNetApi).
-- `src/NotZune.Plugins.Protocol` & `src/NotZune.Plugins.Sdk`: Out-of-process JSON-RPC sandboxed plugin architecture.
-- `src/NotZune.UI`: Shared Avalonia XAML views, view models, controls, animations, and theme resources.
-- `src/NotZune.Desktop`: Desktop host executable for Linux and Windows.
+- `src/Dorado.Infrastructure.External`: Metadata aggregators (MusicBrainz, Fanart.tv, Last.fm, ZuneNetApi).
+- `src/Dorado.Plugins.Protocol` & `src/Dorado.Plugins.Sdk`: Out-of-process JSON-RPC sandboxed plugin architecture.
+- `src/Dorado.UI`: Shared Avalonia XAML views, view models, controls, animations, and theme resources.
+- `src/Dorado.Desktop`: Desktop host executable for Linux and Windows.
 
 ---
 

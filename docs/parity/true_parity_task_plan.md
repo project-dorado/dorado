@@ -1,4 +1,4 @@
-# Not-Zune True-Parity Task Plan
+# Dorado True-Parity Task Plan
 
 Derived from the audit in [`zune48_parity_audit.md`](zune48_parity_audit.md). Scoping decisions: **ManagedBass** audio engine, **video/photos included**, **i18n deferred**.
 

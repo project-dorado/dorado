@@ -20,13 +20,13 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore NotZune.sln
+        run: dotnet restore Dorado.sln
 
       - name: Build (Release, zero warnings policy)
-        run: dotnet build NotZune.sln -c Release --no-restore /warnaserror
+        run: dotnet build Dorado.sln -c Release --no-restore /warnaserror
 
       - name: Test
-        run: dotnet test NotZune.sln -c Release --no-build --nologo
+        run: dotnet test Dorado.sln -c Release --no-build --nologo
 
       - name: Design invariants audit
         run: |

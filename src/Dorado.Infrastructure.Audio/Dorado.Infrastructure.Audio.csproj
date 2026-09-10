@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dorado.Domain\Dorado.Domain.csproj" />
+    <ProjectReference Include="..\Dorado.Application\Dorado.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ManagedBass" Version="4.0.2" />
+    <PackageReference Include="ManagedBass.Aac" Version="4.0.2" />
+    <PackageReference Include="ManagedBass.Flac" Version="4.0.2" />
+    <PackageReference Include="ManagedBass.Mix" Version="4.0.2" />
+    <PackageReference Include="ManagedBass.Opus" Version="4.0.2" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BASS 2.4 native libraries (Un4seen Developments, free for non-commercial use; see Native/LICENSE-BASS.txt) -->
+    <None Include="Native\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

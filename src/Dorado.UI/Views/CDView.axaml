@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="Dorado.UI.Views.CDView"
+             x:DataType="vm:CDViewModel">
+
+  <Grid Margin="40,24,40,24" RowDefinitions="Auto,Auto,*">
+
+    <!-- Primary Header & Mode Switch -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="24" Margin="0,0,0,16">
+      <Button Command="{Binding SwitchModeCommand}" CommandParameter="Rip">
+        <TextBlock Text="RIP CD" Classes="subpivot" Classes.active="{Binding IsRipMode}" />
+      </Button>
+      <Button Command="{Binding SwitchModeCommand}" CommandParameter="Burn">
+        <TextBlock Text="BURN DISC" Classes="subpivot" Classes.active="{Binding IsBurnMode}" />
+      </Button>
+    </StackPanel>
+
+    <!-- Disc Session Summary Box -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+            BorderBrush="{DynamicResource ZuneBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="0"
+            Padding="24,16"
+            Margin="0,0,0,24">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <!-- Authentic CDLand disc + shine + glow stack (CDLANDSHINE always; CDRIPBURNGLOW during active session). -->
+        <Grid Grid.Column="0" Width="120" Height="120" Margin="0,0,24,0" VerticalAlignment="Center">
+          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDARTSHADOW.PNG"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center" />
+          <Border Width="100" Height="100"
+                  Background="#202020"
+                  BorderBrush="{DynamicResource ZuneSubtleBorderBrush}"
+                  BorderThickness="1"
+                  CornerRadius="0"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+            <TextBlock Text="♫" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          </Border>
+          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDLANDSHINE.PNG"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 IsHitTestVisible="False" />
+          <Image Source="avares://Dorado.UI/Assets/Zune/CD/CDRIPBURNGLOW.PNG"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 IsHitTestVisible="False"
+                 IsVisible="{Binding IsRipping, Mode=OneWay}" />
+        </Grid>
+
+        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+          <TextBlock Text="{Binding DiscTitle}" Classes="hero" FontSize="26" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="{Binding DiscArtist}" Classes="body" Foreground="{DynamicResource ZuneAccentBrush}" />
+            <TextBlock Text="•" Classes="body" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+            <TextBlock Text="{Binding TrackCount, StringFormat={}{0} Tracks}" Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            <TextBlock Text="•" Classes="body" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+            <TextBlock Text="{Binding TotalDurationText}" Classes="body" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+          </StackPanel>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
+          <Button Command="{Binding RipCdCommand}"
+                  Classes="zune-action"
+                  IsVisible="{Binding IsRipMode}"
+                  IsEnabled="{Binding !IsRipping}">
+            <TextBlock Text="START RIP" Classes="section-header" FontWeight="Bold" />
+          </Button>
+
+          <Button Command="{Binding BurnCdCommand}"
+                  Classes="zune-action"
+                  IsVisible="{Binding IsBurnMode}"
+                  IsEnabled="{Binding !IsBurning}">
+            <TextBlock Text="START BURN" Classes="section-header" FontWeight="Bold" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Content Area: Track List and Progress -->
+    <Grid Grid.Row="2" RowDefinitions="Auto,*">
+
+      <!-- Progress Section -->
+      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding IsRipping}">
+        <TextBlock Text="{Binding RipStatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+        <ProgressBar Value="{Binding RipProgress}" Minimum="0.0" Maximum="1.0" Height="4" CornerRadius="0"
+                     Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
+      </StackPanel>
+
+      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding IsBurning}">
+        <TextBlock Text="{Binding BurnStatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+        <ProgressBar Value="{Binding BurnProgress}" Minimum="0.0" Maximum="1.0" Height="4" CornerRadius="0"
+                     Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
+      </StackPanel>
+
+      <!-- Track Listing -->
+      <ScrollViewer Grid.Row="1">
+        <ItemsControl ItemsSource="{Binding DiscTracks}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:Track">
+              <Border Background="Transparent" 
+                      BorderBrush="{DynamicResource ZuneBorderBrush}" 
+                      BorderThickness="0,0,0,1" 
+                      CornerRadius="0" 
+                      Padding="12,10">
+                <Grid ColumnDefinitions="40,*,120,60">
+                  <TextBlock Grid.Column="0" Text="{Binding TrackNumber, StringFormat={}{0:D2}}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                  <TextBlock Grid.Column="1" Text="{Binding Title}" Classes="body" FontWeight="SemiBold" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="2" Text="{Binding Duration, StringFormat={}{0:m\\:ss}}" Classes="caption" VerticalAlignment="Center" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+                  
+                  <Button Grid.Column="3" 
+                          Command="{Binding $parent[UserControl].((vm:CDViewModel)DataContext).PlayTrackCommand}"
+                          CommandParameter="{Binding}"
+                          Classes="zune-action" 
+                          Padding="6,3">
+                    <TextBlock Text="PLAY" Classes="caption" FontWeight="Bold" />
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Grid>
+
+  </Grid>
+</UserControl>

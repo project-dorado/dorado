@@ -1,0 +1,124 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="https://github.com/avaloniaui"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
+             xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
+             x:Class="Dorado.UI.Views.FirstConnectWizardView"
+             x:DataType="vm:FirstConnectWizardViewModel">
+
+  <Border Background="{DynamicResource ZuneBackgroundBrush}"
+          BorderBrush="{DynamicResource ZuneAccentBrush}"
+          BorderThickness="1"
+          Padding="48"
+          Width="680" Height="500"
+          CornerRadius="0">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- Step Header -->
+      <StackPanel Grid.Row="0" Spacing="6">
+        <TextBlock Text="{Binding StepTitle}" Classes="hero" FontSize="34" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+        <TextBlock Text="{Binding StepSubtitle}" Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextWrapping="Wrap" MaxWidth="600" />
+      </StackPanel>
+
+      <!-- Step Body -->
+      <Border Grid.Row="1" Margin="0,24,0,24" Padding="20"
+              Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+              BorderBrush="{DynamicResource ZuneBorderBrush}"
+              BorderThickness="1">
+        <StackPanel Spacing="20">
+
+          <!-- WELCOME -->
+          <StackPanel IsVisible="{Binding IsWelcomeStep}" Spacing="12">
+            <TextBlock Text="This wizard will:"
+                       Classes="section-header" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+            <TextBlock Text="1. Name your device"
+                       Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            <TextBlock Text="2. Pick which media types to sync"
+                       Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+            <TextBlock Text="3. Set your privacy preferences"
+                       Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+          </StackPanel>
+
+          <!-- NAME -->
+          <StackPanel IsVisible="{Binding IsNameStep}" Spacing="10">
+            <TextBlock Text="DEVICE NAME" Classes="section-header" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
+            <TextBox Text="{Binding DeviceName, Mode=TwoWay}"
+                     Background="{DynamicResource ZuneCardBrush}"
+                     BorderBrush="{DynamicResource ZuneBorderBrush}"
+                     Foreground="{DynamicResource ZuneTextActiveBrush}"
+                     CaretBrush="{DynamicResource ZuneAccentBrush}"
+                     Padding="10,6" />
+          </StackPanel>
+
+          <!-- SYNC OPTIONS -->
+          <StackPanel IsVisible="{Binding IsSyncOptionsStep}" Spacing="14">
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <ToggleSwitch OnContent="ON" OffContent="OFF" IsChecked="{Binding SyncMusic}" Foreground="{DynamicResource ZuneAccentBrush}" />
+              <TextBlock Text="SYNC MUSIC" Classes="body" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <ToggleSwitch OnContent="ON" OffContent="OFF" IsChecked="{Binding SyncVideos}" Foreground="{DynamicResource ZuneAccentBrush}" />
+              <TextBlock Text="SYNC VIDEOS" Classes="body" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <ToggleSwitch OnContent="ON" OffContent="OFF" IsChecked="{Binding SyncPhotos}" Foreground="{DynamicResource ZuneAccentBrush}" />
+              <TextBlock Text="SYNC PHOTOS" Classes="body" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <ToggleSwitch OnContent="ON" OffContent="OFF" IsChecked="{Binding SyncPodcasts}" Foreground="{DynamicResource ZuneAccentBrush}" />
+              <TextBlock Text="SYNC PODCASTS" Classes="body" VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+
+          <!-- PRIVACY -->
+          <StackPanel IsVisible="{Binding IsPrivacyStep}" Spacing="14">
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <ToggleSwitch OnContent="ON" OffContent="OFF" IsChecked="{Binding ShareAnonymousData}" Foreground="{DynamicResource ZuneAccentBrush}" />
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="SHARE ANONYMOUS USAGE DATA" Classes="body" FontWeight="SemiBold" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+                <TextBlock Text="Helps the project understand which features are used most."
+                           Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+
+          <!-- DONE -->
+          <StackPanel IsVisible="{Binding IsDoneStep}" Spacing="12">
+            <TextBlock Text="YOUR DEVICE IS READY" Classes="section-header" Foreground="{DynamicResource ZuneAccentBrush}" />
+            <TextBlock Text="Sync will begin the next time you click SYNC TO DEVICE on the device page."
+                       Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+
+        </StackPanel>
+      </Border>
+
+      <!-- Footer Buttons -->
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto">
+        <Button Grid.Column="1" Classes="zune-action"
+                Command="{Binding BackCommand}"
+                IsVisible="{Binding CanGoBack}"
+                Margin="0,0,12,0">
+          <TextBlock Text="BACK" Classes="caption" FontWeight="SemiBold" LetterSpacing="1" />
+        </Button>
+        <Button Grid.Column="2" Classes="zune-action"
+                Command="{Binding SkipCommand}"
+                IsVisible="{Binding IsWelcomeStep}"
+                Margin="0,0,12,0">
+          <TextBlock Text="SKIP" Classes="caption" FontWeight="SemiBold" LetterSpacing="1" />
+        </Button>
+        <Button Grid.Column="3" Classes="zune-accent-btn"
+                Command="{Binding NextCommand}"
+                IsVisible="{Binding !IsDoneStep}">
+          <TextBlock Text="NEXT" Classes="caption" FontWeight="SemiBold" LetterSpacing="1" />
+        </Button>
+        <Button Grid.Column="3" Classes="zune-accent-btn"
+                Command="{Binding FinishCommand}"
+                IsVisible="{Binding IsDoneStep}">
+          <TextBlock Text="FINISH" Classes="caption" FontWeight="SemiBold" LetterSpacing="1" />
+        </Button>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>
