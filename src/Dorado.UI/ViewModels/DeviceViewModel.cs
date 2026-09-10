@@ -3,11 +3,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Interfaces;
 using Dorado.Application.Models;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
+using Dorado.UI.Controls;
 
 namespace Dorado.UI.ViewModels;
 
@@ -53,6 +55,7 @@ public class DeviceViewModel : ViewModelBase
                 OnPropertyChanged(nameof(SystemText));
                 OnPropertyChanged(nameof(FreeText));
                 OnPropertyChanged(nameof(GasGaugeColumns));
+                OnPropertyChanged(nameof(StorageSegments));
             }
         }
     }
@@ -90,6 +93,20 @@ public class DeviceViewModel : ViewModelBase
             return FormattableString.Invariant($"{m:F3}*,{v:F3}*,{p:F3}*,{pod:F3}*,{s:F3}*,{f:F3}*");
         }
     }
+
+    /// <summary>
+    /// Ordered gas-gauge segments using the authentic Zune 4.8 media-type colours:
+    /// Music magenta, Video purple, Pictures cyan, Podcasts amber, System grey, Free charcoal.
+    /// </summary>
+    public IReadOnlyList<ZuneStorageSegment> StorageSegments => new[]
+    {
+        new ZuneStorageSegment("MUSIC", SelectedDevice?.MusicBytes ?? 0, Color.Parse("#FA2A55"), MusicText),
+        new ZuneStorageSegment("VIDEO", SelectedDevice?.VideoBytes ?? 0, Color.Parse("#A200FF"), VideoText),
+        new ZuneStorageSegment("PICTURES", SelectedDevice?.PhotoBytes ?? 0, Color.Parse("#1BA1E2"), PhotoText),
+        new ZuneStorageSegment("PODCASTS", SelectedDevice?.PodcastBytes ?? 0, Color.Parse("#F09609"), PodcastText),
+        new ZuneStorageSegment("SYSTEM", SelectedDevice?.SystemBytes ?? 0, Color.Parse("#444444"), SystemText),
+        new ZuneStorageSegment("FREE", SelectedDevice?.FreeSpaceBytes ?? 0, Color.Parse("#222222"), FreeText)
+    };
 
     private int _spaceReservationPercent = 10;
     public int SpaceReservationPercent

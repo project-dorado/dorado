@@ -6,6 +6,7 @@
              xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
               xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
               xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
+              xmlns:controls="clr-namespace:Dorado.UI.Controls;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
              x:Class="Dorado.UI.Views.DeviceView"
              x:DataType="vm:DeviceViewModel">
@@ -32,48 +33,35 @@
           <TextBlock Grid.Column="1" Text="{Binding StorageText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
         </Grid>
 
-        <!-- Segmented Multi-Color Gas Gauge Bar -->
+        <!-- Segmented Multi-Color Gas Gauge Bar (GASGAUGE parity) -->
         <Border BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="1" CornerRadius="0" Height="20" Background="{DynamicResource ZuneBackgroundBrush}">
-          <Grid x:Name="GasGaugeGrid">
-            <!-- Music (Accent/Pink) -->
-            <Border Grid.Column="0" Background="{DynamicResource ZuneAccentBrush}" ToolTip.Tip="{Binding MusicText}" CornerRadius="0" />
-            <!-- Video (Amber/Orange) -->
-            <Border Grid.Column="1" Background="{DynamicResource ZuneOrangeBrush}" ToolTip.Tip="{Binding VideoText}" CornerRadius="0" />
-            <!-- Pictures (Cyan) -->
-            <Border Grid.Column="2" Background="{DynamicResource ZuneCyanBrush}" ToolTip.Tip="{Binding PhotoText}" CornerRadius="0" />
-            <!-- Podcasts (Lime) -->
-            <Border Grid.Column="3" Background="{DynamicResource ZuneLimeBrush}" ToolTip.Tip="{Binding PodcastText}" CornerRadius="0" />
-            <!-- System / Other (Grey) -->
-            <Border Grid.Column="4" Background="{DynamicResource ZuneTextDimmedBrush}" ToolTip.Tip="{Binding SystemText}" CornerRadius="0" />
-            <!-- Free Space (Dark Charcoal) -->
-            <Border Grid.Column="5" Background="{DynamicResource ZuneSurfaceElevatedBrush}" ToolTip.Tip="{Binding FreeText}" CornerRadius="0" />
-          </Grid>
+          <controls:ZuneStorageGaugeControl Segments="{Binding StorageSegments}" />
         </Border>
 
         <!-- Color Legend Row -->
         <WrapPanel Margin="0,4,0,0">
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneAccentBrush}" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#FA2A55" CornerRadius="0" />
             <TextBlock Text="{Binding MusicText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneOrangeBrush}" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#A200FF" CornerRadius="0" />
             <TextBlock Text="{Binding VideoText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneCyanBrush}" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#1BA1E2" CornerRadius="0" />
             <TextBlock Text="{Binding PhotoText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneLimeBrush}" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#F09609" CornerRadius="0" />
             <TextBlock Text="{Binding PodcastText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneTextDimmedBrush}" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#444444" CornerRadius="0" />
             <TextBlock Text="{Binding SystemText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,8">
-            <Border Width="10" Height="10" Background="{DynamicResource ZuneSurfaceElevatedBrush}" BorderBrush="#444444" BorderThickness="1" CornerRadius="0" />
+            <Border Width="10" Height="10" Background="#222222" BorderBrush="#444444" BorderThickness="1" CornerRadius="0" />
             <TextBlock Text="{Binding FreeText}" Classes="caption" FontSize="10" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
           </StackPanel>
         </WrapPanel>

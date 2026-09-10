@@ -335,6 +335,34 @@ public class ZuneFeatureGapTests
     }
 
     [Fact]
+    public void DeviceViewModel_StorageSegments_UseAuthenticZuneMediaColors()
+    {
+        var dev = new TestDeviceSyncService();
+        dev.Devices.Add(new ZuneDevice
+        {
+            ModelName = "Zune HD 32GB",
+            SerialNumber = "ZUNE-HD-TEST-1234",
+            FirmwareVersion = "4.8",
+            CapacityBytes = 32L * 1024 * 1024 * 1024,
+            FreeSpaceBytes = 12L * 1024 * 1024 * 1024,
+            MusicBytes = 10L * 1024 * 1024 * 1024,
+            VideoBytes = 4L * 1024 * 1024 * 1024,
+            PhotoBytes = 2L * 1024 * 1024 * 1024,
+            PodcastBytes = 2L * 1024 * 1024 * 1024,
+            SystemBytes = 2L * 1024 * 1024 * 1024
+        });
+
+        var vm = new DeviceViewModel(dev);
+        var segments = vm.StorageSegments;
+
+        Assert.Equal(6, segments.Count);
+        Assert.Equal(new[] { "MUSIC", "VIDEO", "PICTURES", "PODCASTS", "SYSTEM", "FREE" },
+            segments.Select(s => s.Label).ToArray());
+        Assert.Equal(10.0 * 1024 * 1024 * 1024, segments[0].Bytes);
+        Assert.All(segments, s => Assert.False(string.IsNullOrWhiteSpace(s.Tooltip)));
+    }
+
+    [Fact]
     public void MainShellViewModel_HeaderSearch_SwitchesToCollectionAndFilters()
     {
         var coordinator = new PlaybackQueueCoordinator();
