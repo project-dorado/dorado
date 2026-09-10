@@ -59,3 +59,28 @@ Goal: replace the simulated sync blob with a genuine sync-group engine so that (
 **9 ✅ → 11 → (10 only if blind-implementing CD is desired)**
 
 Phase 9 ✅ complete (all sync semantics + transport abstraction + guest/reverse sync). Remaining: Phase 11 (CI packaging, measured re-audit, performance pass, deferred registry) and the optional capability-gated Phase 10.
+
+---
+
+# Next Program — Phases 12–17 (approved 2026-09-10)
+
+Scoping decisions: **balanced** (finish Zune 4.8 fidelity + layer rune-inspired modern
+capabilities), **plugin host with Last.fm + Discord reference plugins**, **no physical Zune
+hardware** (build the transport seam + virtual harness), **i18n un-deferred (first pass)**.
+Sources and licenses: [`osint_registry.md`](osint_registry.md).
+Execution order: **0 → 12 → 13 → 16a → 14 → 17 → 16b → 15** (16a may parallelize with 13/14).
+
+Cross-cutting convention per phase: unit tests for every new service · design-invariants audit
+(0 violations) · Release build 0 warnings/0 errors · README scorecard + `deferred_registry.md`
+refresh · milestone commit.
+
+| Phase | Goal | Status |
+|---|---|---|
+| **0 — OSINT registry + reconciliation** | Catalog community sources with license/clean-room notes; reconcile docs vs code (`gap_inventory.md` §0, `GEMINI.md` FTS5, README test count). | ✅ Done |
+| **12 — Plugin host runtime** | Out-of-process host (`.znp` loader, `plugin.json`, stdio/socket JSON-RPC, health/restart, host services), event bridge from `IPlayerCoordinator`, `SoftwareSubPivot.Plugins` settings page; reference `Dorado.Plugins.LastFm` + `Dorado.Plugins.Discord`. | NEXT |
+| **13 — Listening intelligence** | Audio-feature analysis (BPM/key/energy/spectral) persisted per track; feature-vector similarity feeding Smart DJ + Mixview; first-class auto-updating `DynamicMix` entities. | Planned |
+| **14 — Podcast modernization** | Feed normalization (redirects, HTML enclosures, Patreon/Anchor quirks) + series-level grouping. | Planned |
+| **15 — MTP transport** | `MtpTransport` implementing `IDeviceTransport` (libusb; reuse product IDs `063E/0710/0715/0723`) + in-memory virtual MTP target for contract tests. Hardware stays N-A. | Planned |
+| **16a — Fidelity quick wins** | BASS_FX parametric EQ, FTS5 search, A–Z type-ahead (Mixview rating tiles and NP button states already wired). | Planned |
+| **16b — Fidelity medium** | Quickplay hub hero maps (clean-room recreation), drag-inertia pivot strip, Iris art-frame animation. | Planned |
+| **17 — i18n first pass** | Localization service + string extraction, `en` + 1 locale, language setting; keep remaining 24 deferred. | Planned |

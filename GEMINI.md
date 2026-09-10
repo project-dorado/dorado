@@ -59,7 +59,7 @@ The codebase follows Clean Architecture with strict separation of concerns:
 
 - `src/Dorado.Domain`: Entities, value objects, domain events, business invariants. (Zero external GUI/audio dependencies).
 - `src/Dorado.Application`: Application use cases, playback coordinators, library services, sync orchestrators, plugin interfaces.
-- `src/Dorado.Infrastructure.Persistence`: SQLite database, EF Core, FTS5 full-text search indexing.
+- `src/Dorado.Infrastructure.Persistence`: SQLite database (EF Core, WAL journaling). Full-text search is currently in-memory prefix matching; FTS5 indexing is a planned Phase 16 item, not yet implemented.
 - `src/Dorado.Infrastructure.Audio`: Audio playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, system media controls (Linux MPRIS, Windows SMTC).
 - `src/Dorado.Infrastructure.Devices`: Physical Zune USB synchronization:
   - Transport backends: `libusb` on Linux, `WinUSB` on Windows.

@@ -12,6 +12,37 @@ Effort scale: **quick-win** = ≤½ day, pure plumbing · **medium** = 1–3 day
 
 ---
 
+## 0. Reality Reconciliation (2026-09-10)
+
+This inventory was written at `3a4318a`. Several of its TOP-15 gaps were closed by the
+subsequent motion/theme/settings commits (`d612da8`, `481c363`, `351d756`, `52c630e`).
+Verified against the working tree:
+
+| Claim in this doc | Actual state (verified 2026-09-10) |
+|---|---|
+| §1.5 / §7.4 Settings pivot-gating bug (5 missing notifications) | **FIXED** — `481c363`; guarded by `SettingsPivotGatingTests.cs` |
+| §8.3 CD disc backdrop/glow not referenced | **FIXED** — `CDLANDSHINE`, `CDRIPBURNGLOW`, `CDARTSHADOW` bound in `CDView.axaml:32–55` |
+| §8.3 Now Playing button states | **FIXED** — hover/pressed frame variants in `MainShellViewModel`; `NowPlayingIconTests.cs` |
+| §9.4 Drawer slide-in/fade animations | **FIXED** — `d612da8`; `DrawerAnimTests.cs` |
+| §7.5 / §1.1 About sub-pivot is placeholder | **FIXED** — real About panel at `SettingsView.axaml:630` |
+| §10 Search across podcasts/videos | **FIXED** — `SearchExtendedAsync` in `MainShellViewModel` |
+| §10 Search across playlists | **STILL MISSING** |
+| §11.1 Mini-player showlist + volume | **FIXED** — `CompactMiniPlayerView.axaml:86–120` |
+| §5.2 / TOP-15 Smart DJ timeout + progress | **STILL OPEN** — `GenerateMixAsync` remains unbounded, no progress |
+| §1.3 Iris art-frame animation (`NOWPLAYINGARTLOGO/ARTSHAPE`) | **STILL OPEN** — no references in source |
+| §7.4 Reusable dialog service | **STILL OPEN** — no `IDialogService` exists |
+| §11.2 Zune Card avatar picker / editable tag | **STILL OPEN** — `ZuneTag`/`StatusMessage` read-only |
+| §5.1 Hub hero artwork maps | **STILL OPEN** — no `QuickPlayMap_*`/`SoftwareMap_*` assets in-tree |
+| §10 / §16 A–Z type-ahead jump | **STILL OPEN** |
+| §9 drag-inertia pivot | **STILL OPEN** — wheel-pan only |
+
+Also: `GEMINI.md` previously claimed FTS5 indexing; there is **no FTS5** in the codebase
+(search is in-memory prefix matching). The test baseline is **167 passing** (163 Application +
+4 Domain), not 163. See [`osint_registry.md`](osint_registry.md) for the community-source plan
+and [`true_parity_task_plan.md`](true_parity_task_plan.md) for the Phase 12–17 program.
+
+---
+
 ## 1. Views / UX surfaces
 
 ### 1.1 Current views (24) under `src/Dorado.UI/Views/`
@@ -646,23 +677,23 @@ Medium:
 **Ranking by impact × ease-of-implementation.** The recent Phases 5–9 already
 moved parity from ~55–60% to ~75–80%. This list targets the next band.
 
-| # | Gap | Effort | Impact | Rationale |
-|---|---|---|---|---|
-| 1 | **Settings pivot-gating bug** (`SoftwarePivot` setter doesn't fire 5 sub-pivot notifications) | **quick-win** (≤1 hr) | **HIGH** | Every user that clicks Podcasts/FileTypes/Privacy/Photos/General sees a stacking bug. Trivial fix. |
-| 2 | **CDView disc backdrop + glow** (`CDLANDSHINE.PNG` + `CDRIPBURNGLOW.PNG` + `CDARTSHADOW.PNG` already extracted but not referenced in `CDView.axaml`) | **quick-win** (½ day) | MEDIUM | Three assets sitting in `Assets/Zune/CD/` already; we just don't bind them. |
-| 3 | **Now Playing button animation states** (`NOWPLAYING.BUTTON.PNG/.HOVER/.PRESSED/.DISABLED.PNG` + 10 HOVER/PRESSED frame variants already in corpus) | **quick-win** (½ day) | MEDIUM | The MainShell's animated equalizer button currently only cycles 10 default frames — adding HOVER/PRESSED per-frame gives the authentic hover-state fidelity. |
-| 4 | **Now Playing art-frame iris animation** (`NOWPLAYINGARTLOGO_01–06.PNG` + `NOWPLAYINGARTSHAPE_01A–03D.PNG` already extracted) | **medium** (1–2 days) | HIGH | The most distinctive Zune 4.8 visual moment — the iris-revealing colored-art frames behind the now-playing text. We have the assets, we just don't animate them. |
-| 5 | **Drawer slide-in / fade animations** (Bio, Showlist, Sync toast — currently IsVisible toggle) | **medium** (1 day) | HIGH | Avalonia `Transitions` + a small `ReactiveDrawer` behavior; Zune's slide-out drawers are a defining interaction. |
-| 6 | **Mode-swap crossfade in Now Playing** (Artist Canvas ↔ Mosaic Wall ↔ Video) | **medium** (½ day) | MEDIUM | Replace the direct Grid swap with `TransitioningContentControl` + a 250 ms cross-fade. |
-| 7 | **Smart DJ 5-second timeout + progress callback** (`IQuickMixProgress`) | **quick-win** (½ day) | MEDIUM | `GenerateMixAsync` should honor `CancellationToken(5s)` and emit progress. Zune parity +1 minor +1 medium. |
-| 8 | **Reusable confirm/error dialog service** (`DIALOG.UIX`, `ERRORDIALOG.UIX`, `CONFIRMCLOSE.UIX`) | **medium** (1 day) | MEDIUM | Every view that mutates state currently hand-rolls its confirm dialog. A `IDialogService` with modal Avalonia windows is the missing framework piece. |
-| 9 | **REAL About sub-pivot** (logo, version, OS, build date, copyright, EULA link) | **medium** (½ day) | LOW | Cosmetic; "About" page is currently just two text lines. |
-| 10 | **Search across podcasts / videos / playlists** | **quick-win** (½ day) | MEDIUM | 5 LOC change in `UpdateSearchSuggestions` to include those collections. |
-| 11 | **Smart DJ seed-progress + Quick Mix notification** (`QuickMixProgress.cs` + `QuickMixNotification.cs` parity) | **medium** (1 day) | MEDIUM | Animated "CREATING YOUR MIX…" overlay during generation. |
-| 12 | **Zune Card avatar picker + editable ZuneTag/StatusMessage** | **medium** (1 day) | LOW | Replace static tile with image-picker; inline edit for the displayed strings. |
-| 13 | **Mini-player showlist toggle + volume slider** | **quick-win** (½ day) | MEDIUM | Two commands we already have; just expose them inside `CompactMiniPlayerView`. |
-| 14 | **Hub hero artwork maps on Quickplay** (`QuickPlayMap_*.png` / `SoftwareMap_*.png` shipped but not consumed) | **medium** (1–2 days) | MEDIUM | The Quickplay hub background is a solid color; the asset names hint at high-fidelity world-map graphics that ship but aren't bound. |
-| 15 | **Real CD rip/burn pipeline** (`cdparanoia` / `cdrdao` / IMAPI2 / `ffmpeg`) | **large** (1+ week) | MEDIUM-LOW | Capability-gated by optical-drive access; documented as deferred in `deferred_registry.md`. Promote to "in-progress" if a developer with optical-drive access joins. |
+| # | Gap | Effort | Impact | Status (2026-09-10) | Rationale |
+|---|---|---|---|---|---|
+| 1 | **Settings pivot-gating bug** (`SoftwarePivot` setter doesn't fire 5 sub-pivot notifications) | **quick-win** (≤1 hr) | **HIGH** | ✅ CLOSED `481c363` | Every user that clicks Podcasts/FileTypes/Privacy/Photos/General saw a stacking bug. |
+| 2 | **CDView disc backdrop + glow** (`CDLANDSHINE.PNG` + `CDRIPBURNGLOW.PNG` + `CDARTSHADOW.PNG`) | **quick-win** (½ day) | MEDIUM | ✅ CLOSED `481c363` | Now bound in `CDView.axaml:32–55`. |
+| 3 | **Now Playing button animation states** (HOVER/PRESSED frame variants) | **quick-win** (½ day) | MEDIUM | ✅ CLOSED `481c363` | Hover/pressed frame variants wired; `NowPlayingIconTests.cs`. |
+| 4 | **Now Playing art-frame iris animation** (`NOWPLAYINGARTLOGO_01–06.PNG` + `NOWPLAYINGARTSHAPE_01A–03D.PNG`) | **medium** (1–2 days) | HIGH | ⬜ OPEN — assets no longer in-tree | The most distinctive Zune 4.8 visual moment; needs clean-room recreation (see `osint_registry.md`). |
+| 5 | **Drawer slide-in / fade animations** (Bio, Showlist, Sync toast) | **medium** (1 day) | HIGH | ✅ CLOSED `d612da8` | `DrawerAnimTests.cs`. |
+| 6 | **Mode-swap crossfade in Now Playing** (Artist Canvas ↔ Mosaic Wall ↔ Video) | **medium** (½ day) | MEDIUM | 🟡 PARTIAL | Shell-level `PivotParallaxTransition` exists; no per-mode cross-fade inside `NowPlayingView`. |
+| 7 | **Smart DJ 5-second timeout + progress callback** (`IQuickMixProgress`) | **quick-win** (½ day) | MEDIUM | ⬜ OPEN | `GenerateMixAsync` is unbounded and emits no progress. |
+| 8 | **Reusable confirm/error dialog service** (`DIALOG.UIX`, `ERRORDIALOG.UIX`, `CONFIRMCLOSE.UIX`) | **medium** (1 day) | MEDIUM | ⬜ OPEN | No `IDialogService`; views hand-roll confirmations. |
+| 9 | **REAL About sub-pivot** (logo, version, OS, build date, copyright, EULA link) | **medium** (½ day) | LOW | ✅ CLOSED `481c363` | Real panel at `SettingsView.axaml:630`. |
+| 10 | **Search across podcasts / videos / playlists** | **quick-win** (½ day) | MEDIUM | 🟡 PARTIAL — playlists remain | `SearchExtendedAsync` covers podcasts + videos. |
+| 11 | **Smart DJ seed-progress + Quick Mix notification** (`QuickMixProgress.cs` + `QuickMixNotification.cs` parity) | **medium** (1 day) | MEDIUM | ⬜ OPEN | Ties into item 7. |
+| 12 | **Zune Card avatar picker + editable ZuneTag/StatusMessage** | **medium** (1 day) | LOW | ⬜ OPEN | `ZuneTag`/`StatusMessage` are read-only projections. |
+| 13 | **Mini-player showlist toggle + volume slider** | **quick-win** (½ day) | MEDIUM | ✅ CLOSED `481c363` | `CompactMiniPlayerView.axaml:86–120`. |
+| 14 | **Hub hero artwork maps on Quickplay** (`QuickPlayMap_*.png` / `SoftwareMap_*.png`) | **medium** (1–2 days) | MEDIUM | ⬜ OPEN — assets absent | Needs clean-room recreation, not just a bind. |
+| 15 | **Real CD rip/burn pipeline** (`cdparanoia` / `cdrdao` / IMAPI2 / `ffmpeg`) | **large** (1+ week) | MEDIUM-LOW | ⬜ OPEN (deferred) | Capability-gated by optical-drive access. |
 
 ### Not-on-the-list (already covered or N-A)
 
@@ -678,6 +709,10 @@ moved parity from ~55–60% to ~75–80%. This list targets the next band.
 
 ### Cumulative parity scorecard after this list
 
-If all 15 are closed, weighted parity (UI presentation strongly, hardware/features neutral) lands at ~85–90%. The remaining ~10–15% is hardware-dependent MTPZ / i18n / Windows shell integration, all explicitly deferred.
+As of 2026-09-10, **7 of the 15 are closed** (items 1, 2, 3, 5, 9, 13, plus partial 10). The
+open fidelity remainder is items 4, 6, 7, 8, 10 (playlists), 11, 12, 14, 15 — folded into
+Phases 12–17 of the parity program (`true_parity_task_plan.md`). With those closed, weighted
+parity lands at ~85–90%; the remaining ~10–15% is hardware-dependent MTPZ / i18n / Windows
+shell integration.
 
 End of inventory.

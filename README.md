@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-163%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-167%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -129,7 +129,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **163 unit tests** passing (XUnit + Avalonia headless harness)
+- **167 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -261,6 +261,8 @@ This repository contains built-in agent customizations and tools:
 - **`.agents/skills/zune-hardware-sync`**: Guide to USB MTP/MTPZ, ZMDB binary parsing, and USB-PPP reverse interception.
 - **`.agents/skills/zune-plugins-protocol`**: Out-of-process plugin wire contracts and packaging specifications.
 - **`.agents/mcp_config.json`**: Local MCP development tools (`probe_zune_devices`, `audit_zune_design_invariants`).
+- **`docs/parity/osint_registry.md`**: Community/OSINT source registry (rune, Xune, ZuneDiscordRPC, ZuseMe, zune-podcasts, android-file-transfer-linux) with license and clean-room notes.
+- **`docs/parity/true_parity_task_plan.md`**: Phased parity program (Phases 12–17: plugin host, listening intelligence, podcast normalization, MTP transport, i18n).
 
 ---
 
