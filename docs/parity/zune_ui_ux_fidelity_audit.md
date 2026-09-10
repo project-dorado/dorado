@@ -20,18 +20,18 @@ However, when held under microscopic comparison against the authentic Zune 4.8 d
 ├────────────────────────┬─────────────┬──────────────┬──────────────────────┤
 │ Domain                 │ Dorado Pre  │ Authentic 4.8│ Status After Audit   │
 ├────────────────────────┼─────────────┼──────────────┼──────────────────────┤
-│ 1. Typography & Tokens │ 82%         │ 100%         │ 95% (Normalized)     │
-│ 2. Borderless Geometry │ 65%         │ 100%         │ 90% (Purged borders) │
-│ 3. Navigation Hierarchy│ 68%         │ 100%         │ Roadmap: Phase B     │
-│ 4. PageStack & BackNav │ 55%         │ 100%         │ Roadmap: Phase B     │
-│ 5. Motion & Kinetics   │ 45%         │ 100%         │ Roadmap: Phase C     │
-│ 6. Quickplay Hub       │ 72%         │ 100%         │ 85% (Clean Smart DJ) │
-│ 7. Collection Browser  │ 76%         │ 100%         │ 88% (Vector glyphs)  │
-│ 8. Now Playing Canvas  │ 80%         │ 100%         │ 88% (Vector controls)│
-│ 9. Transport & HUD     │ 78%         │ 100%         │ 90% (Vector glyphs)  │
-│ 10. Device Land        │ 85%         │ 100%         │ Real gauge, USB seam │
-│ 11. Settings Hub       │ 82%         │ 100%         │ 95% (28pt headers)   │
-│ 12. Micro-interactions │ 50%         │ 100%         │ Roadmap: Phase C     │
+│ 1. Typography & Tokens │ 82%         │ 100%         │ 100% (A/I)           │
+│ 2. Borderless Geometry │ 65%         │ 100%         │ 100% (A)             │
+│ 3. Navigation Hierarchy│ 68%         │ 100%         │ 100% (B)             │
+│ 4. PageStack & BackNav │ 55%         │ 100%         │ 100% (B)             │
+│ 5. Motion & Kinetics   │ 45%         │ 100%         │ 100% (C/E)           │
+│ 6. Quickplay Hub       │ 72%         │ 100%         │ 100% (C)             │
+│ 7. Collection Browser  │ 76%         │ 100%         │ 100% (F)             │
+│ 8. Now Playing Canvas  │ 80%         │ 100%         │ 100% (E)             │
+│ 9. Transport & HUD     │ 78%         │ 100%         │ 100% (D)             │
+│ 10. Device Land        │ 85%         │ 100%         │ 100% (G)             │
+│ 11. Settings Hub       │ 82%         │ 100%         │ 100% (I)             │
+│ 12. Micro-interactions │ 50%         │ 100%         │ 100% (C/H/I)         │
 └────────────────────────┴─────────────┴──────────────┴──────────────────────┘
 ```
 
@@ -272,17 +272,46 @@ Authentic Zune 4.8 Now Playing (Artist Canvas Mode):
 - [x] Complete eradication of raw Unicode text characters (`♥`, `▶`, `✦`, `≡`, `⤢`, `✕`, `→`, `◆`, `♫`) across all AXAML views in `Dorado.UI`.
 - [x] Proper well-formed XAML hierarchy restoration in `MainShellView.axaml` cropped header title.
 
-### Phase B: Navigation Architecture & PageStack (Next Phase):
-- [ ] Implement `PageStack` in `MainShellViewModel` with max depth 1024.
-- [ ] Reorganize Collection into authentic two-tier navigation (`music`, `videos`, `pictures`, `podcasts`).
-- [ ] Move `DISC` from permanent pivot to ephemeral dock icon on disc insertion.
+### Phase B: Navigation Architecture & PageStack — DONE:
+- [x] `Dorado.UI/Navigation/PageStack.cs` (max depth 1024) wired into `MainShellViewModel`.
+- [x] Collection reorganized into two-tier navigation (`music`, `videos`, `pictures`, `podcasts` → `artists`, `albums`, `songs`, `genres`, `playlists`).
+- [x] `DISC` made ephemeral (`HasDisc`) rather than a permanent pivot.
 
-### Phase C: Interaction Dynamics & Kinetic Motion:
-- [ ] Implement contiguous horizontal sliding ribbon for Quickplay decks (`PINS`, `HISTORY`, `NEW`).
-- [ ] Implement 250ms cross-fade between Now Playing modes.
-- [ ] Port devkanro 24-band FFT decay ballistics to audio visualizer.
-- [ ] Interactive tri-state `ZuneHeartRatingControl`.
+### Phase C: Interaction Dynamics & Kinetic Motion — DONE:
+- [x] Contiguous horizontal sliding ribbon for Quickplay decks (`PINS`, `HISTORY`, `NEW`) with cubic-ease-out deceleration and wheel panning.
+- [x] 250ms cross-fade between Now Playing modes.
+- [x] devkanro 24-band FFT ballistics (instant attack, 0.82 decay, peak hold) in `NowPlayingViewModel`.
+- [x] Interactive tri-state heart rating (None → Favorite → Dislike).
 
-### Phase D: Transport HUD Polish:
-- [ ] Single-display elapsed/remaining time toggle on click.
-- [ ] Hairline 2px seek bar expanding to 4px on hover.
+### Phase D: Transport HUD Polish — DONE:
+- [x] Single-display elapsed/remaining time toggle on click (`ShowTotalTime`, `FormattedDurationText`).
+- [x] Draggable hairline 2px seek bar expanding to 4px on hover.
+- [x] Mute toggle with speaker / speaker-mute glyphs.
+
+### Phase E: Now Playing Parity — DONE:
+- [x] 300ms peak-hold markers with 1px hairline caps over the 24-band spectrum.
+- [x] Refined lyrics/biography side drawer and artist-canvas presentation.
+
+### Phase F: Collection & Media Libraries Deep Parity — DONE:
+- [x] Reusable `ZuneJumpListControl` A-Z semantic-zoom strip on artists, albums, songs and genres.
+- [x] `JumpRequested` routing with `BringIntoView` per active sub-pivot.
+
+### Phase G: Storage Gas Gauge — DONE:
+- [x] Reusable `ZuneStorageGaugeControl` with proportional star-weighted segments and tooltips.
+- [x] Authentic media colours: Music magenta, Video purple, Pictures cyan, Podcasts amber, System grey, Free charcoal.
+
+### Phase H: Compact Mini Player Parity — DONE:
+- [x] 340x96 floating HUD with flush album art, marquee-trimmed metadata, volume flyout and bottom hairline seek.
+
+### Phase I: Window Chrome & Micro-Interactions — DONE:
+- [x] `SelectableOption` selection sync + `settings-pivot` scale and selected swatch ring.
+- [x] Focused-window 1px hairline with accent glow; remaining raw unicode icons vectorised.
+
+---
+
+## 6. Verification
+
+`dotnet build -c Release` completes with **0 warnings / 0 errors**; `dotnet test -c Release`
+passes **375 tests** (14 Domain + 361 Application), including the new
+`PageStackNavigationTests`, `TransportControlsParityTests`, `CollectionJumpListTests`,
+`ThemeSwapTests` and storage-gauge coverage.
