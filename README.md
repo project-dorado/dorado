@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-226%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-238%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -133,6 +133,11 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Cosine-similarity recommendations** (per-track, per-album, and favorites-centroid) feeding Mixview and Smart DJ
 - **Dynamic Mixes** (`DynamicMixService`): auto-updating rules — Most Played, Favorites Mix, Similar to Track/Album, Playlists Including Artist — surfaced as one-click mixes on Quickplay
 
+### Social & Reputation
+- **Tiered reputation badges** (Album/Artist Power Listener, Milestone, Marathon, Reviewer, Curator) with Bronze/Silver/Gold tiers, progress toward the next tier, and Zune's non-expiring unlock rule (derived from monotonic history)
+- **Local reviews** (a substitute for the dead Zune social layer): album reviews captured via the in-shell prompt dialog and persisted
+- **Curator / Forums substitute** reputation from playlists created and albums pinned
+
 ### Plugins
 - **Out-of-process plugin host** (`Dorado.Plugins.Host`): `.znp` (zip) installer, `plugin.json` manifest validation, stdio JSON-RPC with health/restart supervision, and a host-service bridge (`logger/log`, `storage/get|set`, `library/queryTracks`, `ui/showToast`)
 - **Player-event bridge** mapping `IPlayerCoordinator` events to `playback/trackChanged`, `playback/stateChanged`, `rating/changed`
@@ -153,7 +158,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **226 unit tests** passing (XUnit + Avalonia headless harness)
+- **238 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -163,7 +168,6 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Medium-priority features (Tiers C / D)
 - **Tier C1 — Custom artist backgrounds** (`Mixview` / Now Playing): Fanart.tv already integrated; needs the catalog.zune.net-style artist-photo fallback community has restored via servers like `spidersandmoths/ZuneArtistImages` *(Phase 21)*
-- **Tier C3 — Reputation Badges** (Album Power Listener / Artist Power Listener / Forums / Reviews — Bronze/Silver/Gold tiers, "badges did not expire") *(Phase 20)*
 - **Tier D2 — Hub hero artwork maps** on Quickplay (source assets absent after IP remediation; procedural clean-room equivalent) *(Phase 22)*
 
 ### Smaller polish

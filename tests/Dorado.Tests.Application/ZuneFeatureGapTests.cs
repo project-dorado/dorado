@@ -148,15 +148,19 @@ public class ZuneFeatureGapTests
         var statsService = new UserStatsService(lib);
         var badges = await statsService.GetBadgesAsync();
 
-        // Should unlock Early Adopter badge
-        var pioneerBadge = badges.FirstOrDefault(b => b.Title == "Early Adopter");
-        Assert.NotNull(pioneerBadge);
-        Assert.True(pioneerBadge.IsUnlocked);
+        // 50 plays by one artist → Artist Power Listener reaches Bronze (>= 25).
+        var artistBadge = badges.First(b => b.Id == "badge_artist_power");
+        Assert.True(artistBadge.IsUnlocked);
+        Assert.Equal(BadgeTier.Bronze, artistBadge.Tier);
 
-        // Should unlock Heavy Rotation badge (total plays >= 3)
-        var heavyRotationBadge = badges.FirstOrDefault(b => b.Title == "Heavy Rotation");
-        Assert.NotNull(heavyRotationBadge);
-        Assert.True(heavyRotationBadge.IsUnlocked);
+        // One album ("") accumulated 50 plays → Album Power Listener reaches Silver (>= 30).
+        var albumBadge = badges.First(b => b.Id == "badge_album_power");
+        Assert.Equal(BadgeTier.Silver, albumBadge.Tier);
+
+        // 50 total plays is below the Milestone Bronze threshold (100).
+        var milestoneBadge = badges.First(b => b.Id == "badge_milestone");
+        Assert.False(milestoneBadge.IsUnlocked);
+        Assert.Equal(BadgeTier.None, milestoneBadge.Tier);
     }
 
     [Fact]

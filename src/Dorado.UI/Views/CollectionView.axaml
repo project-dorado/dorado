@@ -259,6 +259,9 @@
                     <MenuItem Header="Find Album Info..."
                               Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).FindAlbumInfoCommand}"
                               CommandParameter="{Binding}" />
+                    <MenuItem Header="Write Review..."
+                              Command="{Binding $parent[UserControl].((vm:CollectionViewModel)DataContext).WriteReviewCommand}"
+                              CommandParameter="{Binding}" />
                   </ContextMenu>
                 </Button.ContextMenu>
                 <Border Background="{DynamicResource ZuneSurfaceElevatedBrush}"

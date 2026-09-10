@@ -16,4 +16,7 @@ public interface IDialogService
     Task<bool> ConfirmAsync(DialogRequest request, CancellationToken cancellationToken = default);
 
     Task AlertAsync(string title, string message, CancellationToken cancellationToken = default);
+
+    /// <summary>Requests single-line text input; returns null when cancelled.</summary>
+    Task<string?> PromptAsync(DialogRequest request, string? initialValue = null, CancellationToken cancellationToken = default);
 }

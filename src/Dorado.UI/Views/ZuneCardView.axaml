@@ -121,6 +121,10 @@
                           <TextBlock Text="{Binding Category}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" VerticalAlignment="Center" />
                         </StackPanel>
                         <TextBlock Text="{Binding Description}" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                          <TextBlock Text="{Binding TierText}" Classes="caption" FontWeight="SemiBold" Foreground="{DynamicResource ZuneAccentBrush}" />
+                          <TextBlock Text="{Binding ProgressText}" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+                        </StackPanel>
                       </StackPanel>
                     </Grid>
                   </Border>

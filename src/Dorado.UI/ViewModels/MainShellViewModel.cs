@@ -65,6 +65,9 @@ public class MainShellViewModel : ViewModelBase
     private string _dialogCancelText = "CANCEL";
     private bool _hasDialogCancel = true;
     private bool _isDialogDestructive;
+    private TaskCompletionSource<string?>? _promptCompletion;
+    private bool _isDialogPrompt;
+    private string _dialogInput = string.Empty;
 
     // Tier A3: idle screensaver for Now Playing. _nowPlayingIdleProgress 0..1 (1 = fully idle);
     // _nowPlayingArtRotation 0..360 degrees; both advance via the idle timer while the user is inactive
@@ -580,6 +583,40 @@ public class MainShellViewModel : ViewModelBase
         private set => SetProperty(ref _isDialogDestructive, value);
     }
 
+    public bool IsDialogPrompt
+    {
+        get => _isDialogPrompt;
+        private set => SetProperty(ref _isDialogPrompt, value);
+    }
+
+    public string DialogInput
+    {
+        get => _dialogInput;
+        set => SetProperty(ref _dialogInput, value);
+    }
+
+    private async Task<string?> ShowPromptAsync(DialogRequest request, string? initialValue, CancellationToken cancellationToken)
+    {
+        var completion = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            DialogTitle = request.Title;
+            DialogMessage = request.Message;
+            DialogConfirmText = request.ConfirmText;
+            DialogCancelText = request.CancelText ?? "CANCEL";
+            HasDialogCancel = request.CancelText is not null;
+            IsDialogDestructive = request.IsDestructive;
+            DialogInput = initialValue ?? string.Empty;
+            IsDialogPrompt = true;
+            _promptCompletion = completion;
+            IsDialogOpen = true;
+        });
+
+        using var registration = cancellationToken.Register(() => completion.TrySetResult(null));
+        return await completion.Task;
+    }
+
     private async Task<bool> ShowDialogAsync(DialogRequest request, CancellationToken cancellationToken)
     {
         var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -592,6 +629,7 @@ public class MainShellViewModel : ViewModelBase
             DialogCancelText = request.CancelText ?? "CANCEL";
             HasDialogCancel = request.CancelText is not null;
             IsDialogDestructive = request.IsDestructive;
+            IsDialogPrompt = false;
             _dialogCompletion = completion;
             IsDialogOpen = true;
         });
@@ -603,6 +641,16 @@ public class MainShellViewModel : ViewModelBase
     private void ConfirmDialog()
     {
         IsDialogOpen = false;
+
+        if (IsDialogPrompt)
+        {
+            IsDialogPrompt = false;
+            var prompt = _promptCompletion;
+            _promptCompletion = null;
+            prompt?.TrySetResult(DialogInput);
+            return;
+        }
+
         var completion = _dialogCompletion;
         _dialogCompletion = null;
         completion?.TrySetResult(true);
@@ -611,6 +659,15 @@ public class MainShellViewModel : ViewModelBase
     private void CancelDialog()
     {
         IsDialogOpen = false;
+
+        if (IsDialogPrompt)
+        {
+            IsDialogPrompt = false;
+            var prompt = _promptCompletion;
+            _promptCompletion = null;
+            prompt?.TrySetResult(null);
+        }
+
         var completion = _dialogCompletion;
         _dialogCompletion = null;
         completion?.TrySetResult(false);
@@ -676,7 +733,8 @@ public class MainShellViewModel : ViewModelBase
         PluginManager? pluginManager = null,
         IDynamicMixService? dynamicMixService = null,
         ILocalizationService? localization = null,
-        IDialogService? dialogService = null)
+        IDialogService? dialogService = null,
+        IReviewService? reviewService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -688,7 +746,7 @@ public class MainShellViewModel : ViewModelBase
 
         // Child ViewModels
         QuickplayVM = new QuickplayViewModel(playerCoordinator, libraryService, smartDJService, dynamicMixService);
-        CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService, dialogService);
+        CollectionVM = new CollectionViewModel(playerCoordinator, libraryService, _podcastService, smartDJService, artworkCacheService, metadataService, smartPlaylistService, videoLibraryService, videoEngine, photoLibraryService, dialogService, reviewService);
         NowPlayingVM = new NowPlayingViewModel(playerCoordinator, libraryService, enrichmentService, audioEngine, videoLibraryService, videoEngine);
         DeviceVM = new DeviceViewModel(deviceSyncService, libraryService, syncEngine, settingsStore, videoLibraryService, photoLibraryService, _podcastService, _soundEffectService, syncGroupService);
         SettingsVM = new SettingsViewModel(_soundEffectService, folderPickerService, _libraryService, playerCoordinator, deviceSyncService, settingsStore, pluginManager, localization, dialogService);
@@ -797,6 +855,7 @@ public class MainShellViewModel : ViewModelBase
         if (dialogService is Dorado.Application.Services.DialogService host)
         {
             host.ConfirmHandler = ShowDialogAsync;
+            host.PromptHandler = ShowPromptAsync;
         }
 
         ConfirmDialogCommand = new RelayCommand(ConfirmDialog);

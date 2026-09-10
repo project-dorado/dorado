@@ -522,6 +522,13 @@
           <StackPanel Spacing="18">
             <TextBlock Text="{Binding DialogTitle}" Classes="hero" FontSize="24" TextWrapping="Wrap" />
             <TextBlock Text="{Binding DialogMessage}" Classes="body" TextWrapping="Wrap" MaxWidth="460" />
+            <TextBox Text="{Binding DialogInput, Mode=TwoWay}"
+                     IsVisible="{Binding IsDialogPrompt}"
+                     Watermark="Type here…"
+                     AcceptsReturn="False"
+                     MinWidth="420"
+                     MaxWidth="460"
+                     CornerRadius="0" />
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
               <Button Classes="zune-action"
                       IsVisible="{Binding HasDialogCancel}"

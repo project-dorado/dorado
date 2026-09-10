@@ -11,6 +11,8 @@ public sealed class DialogService : IDialogService
 {
     public Func<DialogRequest, CancellationToken, Task<bool>>? ConfirmHandler { get; set; }
 
+    public Func<DialogRequest, string?, CancellationToken, Task<string?>>? PromptHandler { get; set; }
+
     public Task<bool> ConfirmAsync(DialogRequest request, CancellationToken cancellationToken = default)
         => ConfirmHandler?.Invoke(request, cancellationToken) ?? Task.FromResult(false);
 
@@ -18,4 +20,7 @@ public sealed class DialogService : IDialogService
     {
         await ConfirmAsync(new DialogRequest(title, message, "OK", null), cancellationToken).ConfigureAwait(false);
     }
+
+    public Task<string?> PromptAsync(DialogRequest request, string? initialValue = null, CancellationToken cancellationToken = default)
+        => PromptHandler?.Invoke(request, initialValue, cancellationToken) ?? Task.FromResult<string?>(null);
 }

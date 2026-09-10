@@ -6,11 +6,13 @@ namespace Dorado.Application.Services;
 public class UserStatsService : IUserStatsService
 {
     private readonly IMediaLibraryService _libraryService;
+    private readonly IReviewService? _reviewService;
     private readonly List<PlayHistoryEntry> _sessionPlays = new();
 
-    public UserStatsService(IMediaLibraryService libraryService)
+    public UserStatsService(IMediaLibraryService libraryService, IReviewService? reviewService = null)
     {
         _libraryService = libraryService;
+        _reviewService = reviewService;
     }
 
     public async Task<ZuneProfile> GetProfileAsync()
@@ -65,59 +67,23 @@ public class UserStatsService : IUserStatsService
         var history = await _libraryService.GetRecentHistoryAsync(100);
         var allPlays = history.Concat(_sessionPlays).ToList();
         var totalPlays = allPlays.Count;
+        var listeningHours = allPlays.Sum(p => p.DurationPlayed.TotalHours);
+
+        var topAlbumPlays = allPlays.GroupBy(p => p.AlbumTitle).Select(g => g.Count()).DefaultIfEmpty(0).Max();
+        var topArtistPlays = allPlays.GroupBy(p => p.ArtistName).Select(g => g.Count()).DefaultIfEmpty(0).Max();
+
+        var reviewCount = _reviewService is null ? 0 : await _reviewService.GetReviewCountAsync();
+        var playlistCount = (await _libraryService.GetAllPlaylistsAsync()).Count;
+        var pinnedCount = (await _libraryService.GetPinnedAlbumsAsync()).Count;
 
         return new List<ZuneBadge>
         {
-            new()
-            {
-                Id = "badge_early_adopter",
-                Title = "Early Adopter",
-                Description = "First to embrace the Dorado revolution.",
-                Category = "Pioneer",
-                IsUnlocked = true,
-                UnlockedAtUtc = DateTime.UtcNow.AddDays(-10),
-                IconUri = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG"
-            },
-            new()
-            {
-                Id = "badge_heavy_rotation",
-                Title = "Heavy Rotation",
-                Description = "Played an artist on continuous repeat.",
-                Category = "Listening",
-                IsUnlocked = totalPlays >= 3,
-                UnlockedAtUtc = totalPlays >= 3 ? DateTime.UtcNow.AddDays(-2) : null,
-                IconUri = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG"
-            },
-            new()
-            {
-                Id = "badge_centurion",
-                Title = "Centurion",
-                Description = "Logged over 100 track scrobbles.",
-                Category = "Milestone",
-                IsUnlocked = totalPlays >= 100,
-                UnlockedAtUtc = totalPlays >= 100 ? DateTime.UtcNow : null,
-                IconUri = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG"
-            },
-            new()
-            {
-                Id = "badge_smart_dj",
-                Title = "Smart DJ Master",
-                Description = "Generated intelligent mixes from library seeds.",
-                Category = "Discovery",
-                IsUnlocked = true,
-                UnlockedAtUtc = DateTime.UtcNow.AddDays(-5),
-                IconUri = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG"
-            },
-            new()
-            {
-                Id = "badge_vinyl_purist",
-                Title = "Audiophile Purist",
-                Description = "Preserving album art and gapless transitions.",
-                Category = "Audio",
-                IsUnlocked = true,
-                UnlockedAtUtc = DateTime.UtcNow.AddDays(-1),
-                IconUri = "avares://Dorado.UI/Assets/Zune/Social/PROFILE.BADGE.SEAL.PNG"
-            }
+            ReputationEngine.AlbumPowerListener(topAlbumPlays),
+            ReputationEngine.ArtistPowerListener(topArtistPlays),
+            ReputationEngine.Milestone(totalPlays),
+            ReputationEngine.Marathon(listeningHours),
+            ReputationEngine.Reviewer(reviewCount),
+            ReputationEngine.Curator(playlistCount + pinnedCount)
         };
     }
 

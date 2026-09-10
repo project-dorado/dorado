@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<Photo> Photos => Set<Photo>();
     public DbSet<SyncGroup> SyncGroups => Set<SyncGroup>();
     public DbSet<AudioFeatures> TrackAudioFeatures => Set<AudioFeatures>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -104,6 +105,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AudioFeatures>(entity =>
         {
             entity.HasKey(f => f.TrackId);
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.HasIndex(r => r.AlbumId);
+            entity.HasIndex(r => r.CreatedAtUtc);
         });
     }
 }

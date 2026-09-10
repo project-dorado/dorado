@@ -23,6 +23,8 @@ public class CollectionViewModel : ViewModelBase
 {
     private readonly IPlayerCoordinator _playerCoordinator;
     private readonly IMediaLibraryService _libraryService;
+    private readonly IDialogService? _dialogService;
+    private readonly IReviewService? _reviewService;
     private readonly ISmartDJService _smartDJService;
     private readonly IArtworkCacheService? _artworkCache;
     private readonly IExternalMetadataService? _metadataService;
@@ -127,6 +129,7 @@ public class CollectionViewModel : ViewModelBase
     public ICommand CloseEditMetadataCommand { get; }
     public ICommand PinAlbumCommand { get; }
     public ICommand UnpinAlbumCommand { get; }
+    public ICommand WriteReviewCommand { get; }
     public ICommand StartSmartDjFromTrackCommand { get; }
     public ICommand StartSmartDjFromAlbumCommand { get; }
     public ICommand StartSmartDjFromArtistCommand { get; }
@@ -189,10 +192,13 @@ public class CollectionViewModel : ViewModelBase
         IVideoLibraryService? videoLibraryService = null,
         IVideoPlaybackEngine? videoEngine = null,
         IPhotoLibraryService? photoLibraryService = null,
-        IDialogService? dialogService = null)
+        IDialogService? dialogService = null,
+        IReviewService? reviewService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
+        _dialogService = dialogService;
+        _reviewService = reviewService;
         _smartDJService = smartDJService ?? new Dorado.Application.Services.SmartDJEngine();
         _artworkCache = artworkCache;
         _metadataService = metadataService;
@@ -249,6 +255,7 @@ public class CollectionViewModel : ViewModelBase
         {
             if (album != null) await _libraryService.UnpinAlbumAsync(album.Id);
         });
+        WriteReviewCommand = new AsyncRelayCommand<Album>(OnWriteReviewAsync);
 
         StartSmartDjFromTrackCommand = new AsyncRelayCommand<Track>(OnStartSmartDjFromTrackAsync);
         StartSmartDjFromAlbumCommand = new AsyncRelayCommand<Album>(OnStartSmartDjFromAlbumAsync);
@@ -257,6 +264,32 @@ public class CollectionViewModel : ViewModelBase
         FindAlbumInfoCommand = new AsyncRelayCommand<Album>(OnFindAlbumInfoAsync);
 
         _ = RefreshDataAsync();
+    }
+
+    private async Task OnWriteReviewAsync(Album? album)
+    {
+        if (album is null || _dialogService is null || _reviewService is null)
+        {
+            return;
+        }
+
+        var body = await _dialogService.PromptAsync(new DialogRequest(
+            "Write a review",
+            $"Your review of \u201c{album.Title}\u201d by {album.ArtistName}",
+            "SAVE",
+            "CANCEL"));
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return;
+        }
+
+        await _reviewService.AddReviewAsync(new Review
+        {
+            AlbumId = album.Id,
+            AlbumTitle = album.Title,
+            ArtistName = album.ArtistName,
+            Body = body.Trim()
+        });
     }
 
     private TrackMatchReviewViewModel? _activeTrackMatchReviewVM;

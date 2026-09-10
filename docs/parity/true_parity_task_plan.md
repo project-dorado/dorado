@@ -103,7 +103,7 @@ Release 0 warnings · README scorecard + `deferred_registry.md` refresh · miles
 |---|---|---|
 | **18 — Reconciliation baseline** | Fix `GEMINI.md` aspirational claims (MPRIS/SMTC, WinUSB/libusb, ZMDB/SSDP), add OS-media + real-DSP analysis to the registry, correct README hub-map claim, re-measure scorecard (~85% → ~88%). | ✅ Done |
 | **19 — Interaction fidelity** | `IDialogService` (in-shell modal) + destructive confirms migrated; long-press-to-pin (B3); A–Z type-ahead across Collection/Podcasts/Videos/Playlists. | ✅ Done |
-| **20 — Reputation badges (C3)** | Tiered (Bronze/Silver/Gold) Album/Artist Power Listener + Milestones; Reviews substitute (local review entity/editor); Forums substitute (Curator reputation from edits/playlists/pins). | Planned |
+| **20 — Reputation badges (C3)** | Tiered (Bronze/Silver/Gold) Album/Artist Power Listener, Milestone, Marathon; local Reviews (prompt + persistence); Curator/Forums substitute. | ✅ Done |
 | **21 — Artist-background fallback (C1)** | `IArtistImageProvider` chain: Fanart.tv → community `ZuneArtistImages` (configurable) → Wikimedia/Last.fm → theme fallback. | Planned |
 | **22 — Clean-room visuals (D2 + Iris + chevrons)** | Procedural hub hero map; code-generated Iris art-frame reveal; vector pivot chevrons. | Planned |
 | **23 — Plugin ecosystem maturity** | `.znp` pack target + author template/sample; real stdio process E2E tests; expanded `player/*` + paginated `library/queryTracks` services. | Planned |

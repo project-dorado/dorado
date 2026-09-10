@@ -102,6 +102,7 @@ public partial class App : Avalonia.Application
         services.AddSingleton<DialogService>();
         services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<DialogService>());
         services.AddSingleton<IAudioFeatureStore, SqliteAudioFeatureStore>();
+        services.AddSingleton<IReviewService, SqliteReviewService>();
         services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
         services.AddSingleton<IDynamicMixService, DynamicMixService>();
 
@@ -193,6 +194,14 @@ public partial class App : Avalonia.Application
                 Danceability REAL NOT NULL,
                 SpectralCentroid REAL NOT NULL,
                 AnalyzedAtUtc TEXT NOT NULL)");
+
+            ctx.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS Reviews (
+                Id TEXT NOT NULL PRIMARY KEY,
+                AlbumId TEXT,
+                AlbumTitle TEXT NOT NULL,
+                ArtistName TEXT NOT NULL,
+                Body TEXT NOT NULL,
+                CreatedAtUtc TEXT NOT NULL)");
 
             if (!ctx.Tracks.Any())
             {
