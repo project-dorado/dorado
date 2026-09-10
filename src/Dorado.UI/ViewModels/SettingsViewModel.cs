@@ -12,12 +12,41 @@ using Dorado.Plugins.Host;
 
 namespace Dorado.UI.ViewModels;
 
-public record AccentColorOption(string Name, string HexCode);
-public record BackgroundThemeOption(string Name, string? AssetUri);
-
-public record ThemeOption(string Name, bool IsDark)
+public abstract class SelectableOption : ViewModelBase
 {
+    protected SelectableOption(string name) => Name = name;
+
+    public string Name { get; }
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
+    }
+
     public override string ToString() => Name;
+}
+
+public sealed class AccentColorOption : SelectableOption
+{
+    public AccentColorOption(string name, string hexCode) : base(name) => HexCode = hexCode;
+
+    public string HexCode { get; }
+}
+
+public sealed class BackgroundThemeOption : SelectableOption
+{
+    public BackgroundThemeOption(string name, string? assetUri) : base(name) => AssetUri = assetUri;
+
+    public string? AssetUri { get; }
+}
+
+public sealed class ThemeOption : SelectableOption
+{
+    public ThemeOption(string name, bool isDark) : base(name) => IsDark = isDark;
+
+    public bool IsDark { get; }
 }
 
 public enum SettingsTopLevelPivot
@@ -341,7 +370,7 @@ public class SettingsViewModel : ViewModelBase
         new("Soft White (Light)", false)
     };
 
-    private ThemeOption _selectedTheme = new("Matte Black (Dark)", true);
+    private ThemeOption _selectedTheme;
     public ThemeOption SelectedTheme
     {
         get => _selectedTheme;
@@ -349,6 +378,7 @@ public class SettingsViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedTheme, value))
             {
+                SyncAllSelections();
                 ApplyTheme(value);
                 SaveCurrentSettings();
             }
@@ -377,6 +407,7 @@ public class SettingsViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedAccent, value))
             {
+                SyncAllSelections();
                 ApplyAccent(value);
                 SaveCurrentSettings();
             }
@@ -391,9 +422,33 @@ public class SettingsViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedBackground, value))
             {
+                SyncAllSelections();
                 BackgroundArtChanged?.Invoke(this, value.AssetUri);
                 SaveCurrentSettings();
             }
+        }
+    }
+
+    /// <summary>
+    /// Keeps each option's <see cref="SelectableOption.IsSelected"/> flag in lockstep with the
+    /// collection's current selection so the Settings swatch pickers can highlight the active
+    /// theme / accent / background.
+    /// </summary>
+    private void SyncAllSelections()
+    {
+        foreach (var option in ThemeOptions)
+        {
+            option.IsSelected = ReferenceEquals(option, _selectedTheme);
+        }
+
+        foreach (var option in AccentColors)
+        {
+            option.IsSelected = ReferenceEquals(option, _selectedAccent);
+        }
+
+        foreach (var option in BackgroundThemes)
+        {
+            option.IsSelected = ReferenceEquals(option, _selectedBackground);
         }
     }
 
@@ -1384,6 +1439,7 @@ public class SettingsViewModel : ViewModelBase
 
         _selectedAccent = AccentColors[0];
         _selectedBackground = BackgroundThemes[1]; // Default to authentic Zune Vector Ribbon
+        _selectedTheme = ThemeOptions[0];
 
         SelectTopLevelPivotCommand = new RelayCommand<string>(pivotStr =>
         {
@@ -1440,6 +1496,7 @@ public class SettingsViewModel : ViewModelBase
         CloudSignOutCommand = new RelayCommand(OnCloudSignOut);
 
         LoadPersistedSettings();
+        SyncAllSelections();
         _isRestoringSettings = false;
     }
 

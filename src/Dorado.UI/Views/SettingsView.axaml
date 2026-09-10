@@ -15,10 +15,10 @@
     <!-- ======================================================== -->
     <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="28" Margin="0,0,0,12">
       <Button Command="{Binding SelectTopLevelPivotCommand}" CommandParameter="Software">
-        <TextBlock Text="{Binding Localization[pivot.software]}" Classes="subpivot" Classes.active="{Binding IsSoftwarePivotActive}" />
+        <TextBlock Text="{Binding Localization[pivot.software]}" Classes="settings-pivot" Classes.active="{Binding IsSoftwarePivotActive}" />
       </Button>
       <Button Command="{Binding SelectTopLevelPivotCommand}" CommandParameter="Device">
-        <TextBlock Text="{Binding Localization[pivot.device]}" Classes="subpivot" Classes.active="{Binding IsDevicePivotActive}" />
+        <TextBlock Text="{Binding Localization[pivot.device]}" Classes="settings-pivot" Classes.active="{Binding IsDevicePivotActive}" />
       </Button>
     </StackPanel>
 
@@ -444,7 +444,7 @@
             <TextBlock Text="Zune 4.8 shipped a soft light theme by default. Switch to soft white to match authentic Zune light."
                        Classes="caption" />
 
-            <ItemsControl ItemsSource="{Binding ThemeOptions}">
+            <ItemsControl x:Name="ThemeOptionsItems" ItemsSource="{Binding ThemeOptions}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                   <StackPanel Orientation="Horizontal" Spacing="16" />
@@ -457,9 +457,10 @@
                           Padding="0">
                     <StackPanel Spacing="8">
                       <Border Width="48" Height="48"
+                              CornerRadius="0"
                               Background="{DynamicResource ZuneCardBrush}"
-                              BorderBrush="{Binding $parent[Button].((Panel)DataContext).(vm:ThemeOption)IsDark, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter=True}"
-                              BorderThickness="2">
+                              Classes="swatch"
+                              Classes.selected="{Binding IsSelected}">
                         <TextBlock Text="{Binding Name}" Classes="caption" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                     </StackPanel>
@@ -486,7 +487,9 @@
                           CommandParameter="{Binding}"
                           Padding="0">
                     <StackPanel Spacing="8">
-                      <Border Background="{Binding HexCode}" Width="48" Height="48" CornerRadius="0" />
+                      <Border Background="{Binding HexCode}" Width="48" Height="48" CornerRadius="0"
+                              Classes="swatch"
+                              Classes.selected="{Binding IsSelected}" />
                       <TextBlock Text="{Binding Name}" Classes="caption" HorizontalAlignment="Center" />
                     </StackPanel>
                   </Button>
@@ -514,9 +517,9 @@
                             Padding="0">
                       <Border Width="160" Height="80" 
                               Background="{DynamicResource ZuneSurfaceElevatedBrush}" 
-                              BorderBrush="{DynamicResource ZuneBorderBrush}" 
-                              BorderThickness="1" 
-                              CornerRadius="0">
+                              CornerRadius="0"
+                              Classes="swatch"
+                              Classes.selected="{Binding IsSelected}">
                         <Grid>
                           <Image Source="{Binding AssetUri}" Stretch="UniformToFill" Opacity="0.5" />
                           <Border Background="#99111111" VerticalAlignment="Bottom" Padding="6,4">

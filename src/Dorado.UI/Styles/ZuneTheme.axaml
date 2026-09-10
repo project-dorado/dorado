@@ -139,6 +139,40 @@
     <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
   </Style>
 
+  <!-- Collection Tier 2 Secondary Sub-pivot (artists, albums, songs, genres, playlists) -->
+  <Style Selector="TextBlock.subpivot-secondary">
+    <Setter Property="FontFamily" Value="{StaticResource ZuneSubPivotFontFamily}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextDimmedBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.subpivot-secondary:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextHoverBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.subpivot-secondary.active">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
+  <!-- Settings Tier 1 Primary Pivot (SOFTWARE / DEVICE) -->
+  <Style Selector="TextBlock.settings-pivot">
+    <Setter Property="FontFamily" Value="{StaticResource ZunePivotFontFamily}" />
+    <Setter Property="FontSize" Value="28" />
+    <Setter Property="FontWeight" Value="Light" />
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextDimmedBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.settings-pivot:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextHoverBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.settings-pivot.active">
+    <Setter Property="Foreground" Value="{StaticResource ZuneTextActiveBrush}" />
+  </Style>
+
   <!-- Compact utility pivot (header SETTINGS, mode toggles) -->
   <Style Selector="TextBlock.mini-pivot">
     <Setter Property="FontFamily" Value="{StaticResource ZunePivotFontFamily}" />
@@ -287,6 +321,19 @@
     <Setter Property="Background" Value="{StaticResource ZuneSurfaceElevatedBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource ZuneBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <!-- Settings swatch pickers: selected state ring (theme / accent / background).
+       Uses the theme-aware active text token so the highlight stays legible on top of
+       arbitrary accent swatch fills and both the dark and light themes. -->
+  <Style Selector="Border.swatch">
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="Border.swatch.selected">
+    <Setter Property="BorderBrush" Value="{StaticResource ZuneTextActiveBrush}" />
+    <Setter Property="BorderThickness" Value="2" />
   </Style>
 
 </Styles>

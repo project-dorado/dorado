@@ -29,5 +29,11 @@
       <Border x:Name="ResizeSouth" Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide" PointerPressed="OnResizeZonePointerPressed" />
       <Border x:Name="ResizeSouthEast" Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner" PointerPressed="OnResizeZonePointerPressed" />
     </Grid>
+
+    <!-- Window chrome: subtle 1px hairline, with an accent glow while the window is focused -->
+    <Border IsHitTestVisible="False" BorderThickness="1" BorderBrush="#252525" CornerRadius="0" />
+    <Border IsHitTestVisible="False" BorderThickness="1" CornerRadius="0" Opacity="0.7"
+            BorderBrush="{DynamicResource ZuneAccentBrush}"
+            IsVisible="{Binding $parent[Window].IsActive}" />
   </Grid>
 </Window>
