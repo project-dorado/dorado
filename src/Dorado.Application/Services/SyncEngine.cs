@@ -116,6 +116,7 @@ public class SyncEngine : ISyncEngine
                         Category = content.Category,
                         EntityId = content.EntityId,
                         Title = content.Title,
+                        SizeBytes = content.SizeBytes,
                         Detail = "No longer in sync group"
                     });
                 }
@@ -253,8 +254,12 @@ public class SyncEngine : ISyncEngine
             return null;
         }
 
-        var digits = new string(ruleText.TakeWhile(char.IsDigit).ToArray());
-        return int.TryParse(digits, NumberStyles.Integer, CultureInfo.InvariantCulture, out var count) ? count : null;
+        // The count can appear anywhere in the rule label ("3 Newest Episodes",
+        // "Newest 25 Items", "Selected (Newest 50)").
+        var match = System.Text.RegularExpressions.Regex.Match(ruleText, @"\d+");
+        return match.Success && int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var count)
+            ? count
+            : null;
     }
 
     public async Task ApplyPlanAsync(SyncPlan plan, IDeviceTransport transport, IProgress<double>? progress = null)

@@ -97,6 +97,9 @@ public partial class App : Avalonia.Application
         services.AddSingleton<IVideoPlaybackEngine, VideoPlaybackEngine>();
         services.AddSingleton<ISyncEngine, SyncEngine>();
         services.AddSingleton<ISyncGroupService, SyncGroupService>();
+        services.AddSingleton<IAudioFeatureStore, SqliteAudioFeatureStore>();
+        services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
+        services.AddSingleton<IDynamicMixService, DynamicMixService>();
 
         // Plugin host (Phase 12): out-of-process plugins with an event bridge.
         services.AddSingleton(sp =>
@@ -173,6 +176,16 @@ public partial class App : Avalonia.Application
                 IsGuestSession INTEGER NOT NULL,
                 Categories TEXT NOT NULL,
                 UpdatedAtUtc TEXT NOT NULL)");
+
+            ctx.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS TrackAudioFeatures (
+                TrackId TEXT NOT NULL PRIMARY KEY,
+                Bpm REAL NOT NULL,
+                Energy REAL NOT NULL,
+                Valence REAL NOT NULL,
+                Acousticness REAL NOT NULL,
+                Danceability REAL NOT NULL,
+                SpectralCentroid REAL NOT NULL,
+                AnalyzedAtUtc TEXT NOT NULL)");
 
             if (!ctx.Tracks.Any())
             {

@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Video> Videos => Set<Video>();
     public DbSet<Photo> Photos => Set<Photo>();
     public DbSet<SyncGroup> SyncGroups => Set<SyncGroup>();
+    public DbSet<AudioFeatures> TrackAudioFeatures => Set<AudioFeatures>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -98,6 +99,11 @@ public class AppDbContext : DbContext
                 .HasConversion(
                     v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
                     v => System.Text.Json.JsonSerializer.Deserialize<List<SyncCategoryRule>>(string.IsNullOrEmpty(v) ? "[]" : v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<SyncCategoryRule>());
+        });
+
+        modelBuilder.Entity<AudioFeatures>(entity =>
+        {
+            entity.HasKey(f => f.TrackId);
         });
     }
 }
