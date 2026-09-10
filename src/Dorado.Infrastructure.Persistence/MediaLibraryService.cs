@@ -70,6 +70,29 @@ public class MediaLibraryService : IMediaLibraryService
             return await GetAllTracksAsync();
         }
 
+        var match = SearchIndex.BuildMatchExpression(query);
+        if (match is not null)
+        {
+            try
+            {
+                await using var ftsContext = await _contextFactory.CreateDbContextAsync();
+                if (SearchIndex.TableExists(ftsContext))
+                {
+                    return await ftsContext.Tracks
+                        .FromSqlRaw(
+                            "SELECT t.* FROM Tracks AS t JOIN TrackSearch AS f ON f.rowid = t.rowid " +
+                            "WHERE TrackSearch MATCH {0} ORDER BY bm25(TrackSearch) LIMIT 100",
+                            match)
+                        .AsNoTracking()
+                        .ToListAsync();
+                }
+            }
+            catch
+            {
+                // FTS unavailable or malformed match — fall back to the LIKE scan below.
+            }
+        }
+
         await using var ctx = await _contextFactory.CreateDbContextAsync();
         var q = query.Trim().ToLower();
 

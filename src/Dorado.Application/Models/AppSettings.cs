@@ -15,6 +15,8 @@ public class AppSettings
     public bool GaplessPlaybackEnabled { get; set; } = true;
     public bool SoundEffectsEnabled { get; set; } = true;
     public bool VolumeLevelingEnabled { get; set; } = true;
+    public bool EqualizerEnabled { get; set; }
+    public string EqualizerPreset { get; set; } = "Flat";
     public bool CompactModeAlwaysOnTop { get; set; } = true;
 
     // Rip

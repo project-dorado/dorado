@@ -202,6 +202,23 @@
                       Foreground="{DynamicResource ZuneTextActiveBrush}" />
           </StackPanel>
 
+          <!-- Equalizer -->
+          <StackPanel Spacing="10">
+            <TextBlock Text="EQUALIZER" Classes="section-header" />
+            <TextBlock Text="10-band peaking equalizer applied live to the mixer output." Classes="caption" />
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <CheckBox IsChecked="{Binding EqualizerEnabled}"
+                        Content="Enable Equalizer"
+                        CornerRadius="0"
+                        Foreground="{DynamicResource ZuneTextActiveBrush}" />
+              <ComboBox ItemsSource="{Binding EqualizerPresetOptions}"
+                        SelectedItem="{Binding EqualizerPreset}"
+                        IsEnabled="{Binding EqualizerEnabled}"
+                        Width="180"
+                        CornerRadius="0" />
+            </StackPanel>
+          </StackPanel>
+
           <!-- Sound Effects -->
           <StackPanel Spacing="10">
             <TextBlock Text="AUTHENTIC SOUND EFFECTS" Classes="section-header" />

@@ -81,6 +81,6 @@ refresh · milestone commit.
 | **13 — Listening intelligence** | Audio-feature analysis (BPM/energy/valence/acousticness/danceability/spectral-centroid) persisted per track; cosine similarity; `DynamicMix` rules surfaced on Quickplay. | ✅ Done |
 | **14 — Podcast modernization** | Feed normalization (redirects, HTML enclosures, Patreon/Anchor quirks) + series-level grouping. | Planned |
 | **15 — MTP transport** | `MtpTransport` implementing `IDeviceTransport` (libusb; reuse product IDs `063E/0710/0715/0723`) + in-memory virtual MTP target for contract tests. Hardware stays N-A. | Planned |
-| **16a — Fidelity quick wins** | BASS_FX parametric EQ, FTS5 search, A–Z type-ahead (Mixview rating tiles and NP button states already wired). | Planned |
+| **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅; A–Z type-ahead deferred (needs a list-control scroll-into-view refactor). | 🟡 EQ+FTS5 done |
 | **16b — Fidelity medium** | Quickplay hub hero maps (clean-room recreation), drag-inertia pivot strip, Iris art-frame animation. | Planned |
 | **17 — i18n first pass** | Localization service + string extraction, `en` + 1 locale, language setting; keep remaining 24 deferred. | Planned |

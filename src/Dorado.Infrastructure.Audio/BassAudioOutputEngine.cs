@@ -13,7 +13,7 @@ namespace Dorado.Infrastructure.Audio;
 /// Degrades gracefully to <see cref="IsAvailable"/> = false when no audio device or
 /// native libraries are present (CI, headless, unsupported RID).
 /// </summary>
-public sealed class BassAudioOutputEngine : IAudioOutputEngine
+public sealed class BassAudioOutputEngine : IAudioOutputEngine, IEqualizerControl
 {
     private const int MixerFrequency = 44100;
     private const int MixerChannels = 2;
@@ -43,6 +43,14 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine
     private float[]? _fftScratch;
     private bool _initialized;
     private bool _disposed;
+
+    private readonly object _eqGate = new();
+    private readonly double[] _eqGains = new double[Equalizer.CenterFrequencies.Length];
+    private Equalizer? _equalizer;
+    private DSPProcedure? _eqDspCallback;
+    private float[]? _eqScratch;
+    private volatile bool _eqEnabled;
+    private bool _eqDspRegistered;
 
     public bool IsAvailable { get; private set; }
 
@@ -269,6 +277,67 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine
             {
                 ClearPrepared();
             }
+        }
+    }
+
+    public void ApplyEqualizer(bool enabled, IReadOnlyList<double> bandGainsDb, double preampDb)
+    {
+        lock (_eqGate)
+        {
+            _eqEnabled = enabled;
+            for (var i = 0; i < _eqGains.Length; i++)
+            {
+                _eqGains[i] = i < bandGainsDb.Count ? bandGainsDb[i] : 0;
+            }
+
+            _equalizer ??= new Equalizer(MixerFrequency, MixerChannels);
+            _equalizer.SetGains(_eqGains, preampDb);
+            EnsureEqDsp();
+        }
+    }
+
+    private void EnsureEqDsp()
+    {
+        if (!IsAvailable || _mixer == 0 || _eqDspRegistered)
+        {
+            return;
+        }
+
+        try
+        {
+            _eqDspCallback ??= OnEqDsp;
+            _eqDspRegistered = Bass.ChannelSetDSP(_mixer, _eqDspCallback, IntPtr.Zero, 0) != 0;
+        }
+        catch
+        {
+            _eqDspRegistered = false;
+        }
+    }
+
+    private void OnEqDsp(int handle, int channel, IntPtr buffer, int length, IntPtr user)
+    {
+        if (!_eqEnabled || _equalizer is null || buffer == IntPtr.Zero || length <= 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var count = length / sizeof(float);
+            var scratch = _eqScratch;
+            if (scratch is null || scratch.Length < count)
+            {
+                scratch = new float[count];
+                _eqScratch = scratch;
+            }
+
+            Marshal.Copy(buffer, scratch, 0, count);
+            _equalizer.Process(scratch, count);
+            Marshal.Copy(scratch, 0, buffer, count);
+        }
+        catch
+        {
+            // Never let a DSP glitch crash the audio thread.
         }
     }
 
@@ -548,6 +617,7 @@ public sealed class BassAudioOutputEngine : IAudioOutputEngine
                 if (_mixer != 0)
                 {
                     Bass.ChannelPlay(_mixer);
+                    EnsureEqDsp();
                     _tickTimer.Start();
                 }
                 else

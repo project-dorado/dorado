@@ -483,6 +483,44 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    public IReadOnlyList<string> EqualizerPresetOptions => Dorado.Application.Services.EqualizerPresets.Names;
+
+    private bool _equalizerEnabled;
+    public bool EqualizerEnabled
+    {
+        get => _equalizerEnabled;
+        set
+        {
+            if (SetProperty(ref _equalizerEnabled, value))
+            {
+                ApplyEqualizer();
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private string _equalizerPreset = Dorado.Application.Services.EqualizerPresets.Flat;
+    public string EqualizerPreset
+    {
+        get => _equalizerPreset;
+        set
+        {
+            if (SetProperty(ref _equalizerPreset, value))
+            {
+                ApplyEqualizer();
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private void ApplyEqualizer()
+    {
+        if (_playerCoordinator is IEqualizerControl equalizer)
+        {
+            equalizer.ApplyEqualizer(_equalizerEnabled, Dorado.Application.Services.EqualizerPresets.GetGains(_equalizerPreset), 0);
+        }
+    }
+
     private bool _compactModeAlwaysOnTop = true;
     public bool CompactModeAlwaysOnTop
     {
@@ -1278,6 +1316,11 @@ public class SettingsViewModel : ViewModelBase
             OnPropertyChanged(nameof(SoundEffectsEnabled));
 
             VolumeLevelingEnabled = settings.VolumeLevelingEnabled;
+            _equalizerEnabled = settings.EqualizerEnabled;
+            OnPropertyChanged(nameof(EqualizerEnabled));
+            _equalizerPreset = string.IsNullOrWhiteSpace(settings.EqualizerPreset) ? Dorado.Application.Services.EqualizerPresets.Flat : settings.EqualizerPreset;
+            OnPropertyChanged(nameof(EqualizerPreset));
+            ApplyEqualizer();
             CompactModeAlwaysOnTop = settings.CompactModeAlwaysOnTop;
 
             _selectedRipFormat = settings.SelectedRipFormat;
@@ -1428,6 +1471,8 @@ public class SettingsViewModel : ViewModelBase
             GaplessPlaybackEnabled = GaplessPlaybackEnabled,
             SoundEffectsEnabled = SoundEffectsEnabled,
             VolumeLevelingEnabled = VolumeLevelingEnabled,
+            EqualizerEnabled = EqualizerEnabled,
+            EqualizerPreset = EqualizerPreset,
             CompactModeAlwaysOnTop = CompactModeAlwaysOnTop,
             SelectedRipFormat = SelectedRipFormat,
             SelectedRipBitrate = SelectedRipBitrate,

@@ -5,7 +5,7 @@ using Dorado.Domain.Models;
 
 namespace Dorado.Application.Services;
 
-public class PlaybackQueueCoordinator : IPlayerCoordinator
+public class PlaybackQueueCoordinator : IPlayerCoordinator, IEqualizerControl
 {
     private readonly List<Track> _queue = new();
     private readonly List<Track> _history = new();
@@ -36,6 +36,14 @@ public class PlaybackQueueCoordinator : IPlayerCoordinator
 
     public PlaybackState State => _state;
     public Track? CurrentTrack => (_currentIndex >= 0 && _currentIndex < _queue.Count) ? _queue[_currentIndex] : null;
+    public void ApplyEqualizer(bool enabled, IReadOnlyList<double> bandGainsDb, double preampDb)
+    {
+        if (_audioEngine is IEqualizerControl equalizer)
+        {
+            equalizer.ApplyEqualizer(enabled, bandGainsDb, preampDb);
+        }
+    }
+
     public TimeSpan CurrentPosition => _audioEngine is { IsAvailable: true } && !IsSimulatedPlayback
         ? _audioEngine.GetPosition()
         : _currentPosition;

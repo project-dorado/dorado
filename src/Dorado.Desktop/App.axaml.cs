@@ -133,6 +133,9 @@ public partial class App : Avalonia.Application
             // scans/sync-group writes responsive.
             ctx.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
 
+            // FTS5 full-text search index over the collection catalog.
+            SearchIndex.Ensure(ctx);
+
             // Schema upgrades for databases created before later phases (EnsureCreated
             // only provisions brand-new databases; it never alters existing ones).
             ctx.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS SmartPlaylists (
