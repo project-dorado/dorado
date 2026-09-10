@@ -82,5 +82,5 @@ refresh · milestone commit.
 | **14 — Podcast modernization** | Feed normalization (namespace-agnostic parsing, iTunes durations, media/enclosure fallbacks, HTML-page discovery, dedupe). | ✅ Done |
 | **15 — MTP transport** | `MtpTransport` + `IMtpDeviceClient` seam; `LibUsbMtpDeviceClient` (product-ID detection) + `VirtualMtpDeviceClient`; shared contract tests. Real MTPZ session layer remains hardware-N-A. | ✅ Done |
 | **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅; A–Z type-ahead deferred (needs a list-control scroll-into-view refactor). | 🟡 EQ+FTS5 done |
-| **16b — Fidelity medium** | Quickplay hub hero maps (clean-room recreation), drag-inertia pivot strip, Iris art-frame animation. | Planned |
+| **16b — Fidelity medium** | Drag-inertia pivot strip ✅; Quickplay hub hero maps + Iris art-frame animation deferred (assets absent post IP move — need clean-room recreation). | 🟡 Partial |
 | **17 — i18n first pass** | `ILocalizationService` + catalog, `en` + `fr`, language selector in Settings → General, persisted. Remaining string extraction/locales incremental (see deferred registry). | ✅ Done |

@@ -149,7 +149,11 @@
           <ScrollViewer Grid.Column="0"
                         HorizontalScrollBarVisibility="Hidden"
                         VerticalScrollBarVisibility="Disabled"
-                        PointerWheelChanged="OnPivotStripPointerWheelChanged">
+                        PointerWheelChanged="OnPivotStripPointerWheelChanged"
+                        PointerPressed="OnPivotStripPointerPressed"
+                        PointerMoved="OnPivotStripPointerMoved"
+                        PointerReleased="OnPivotStripPointerReleased"
+                        PointerCaptureLost="OnPivotStripPointerCaptureLost">
             <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
               <Button Command="{Binding SelectPivotCommand}" CommandParameter="{x:Static vm:NavigationPivot.Quickplay}">
                 <TextBlock Text="QUICKPLAY" Classes="pivot-header" Classes.active="{Binding IsQuickplayActive}" />
