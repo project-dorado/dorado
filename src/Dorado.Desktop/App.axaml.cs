@@ -155,6 +155,9 @@ public partial class App : Avalonia.Application
             sp.GetRequiredService<ExternalMetadataService>(),
             () => sp.GetRequiredService<CloudClientProvider>().Get(),
             () => sp.GetRequiredService<ISettingsStore>().Load()));
+        // Mixview external related-artist enrichment reuses the MusicBrainz-backed
+        // facade (cached + rate-limited); optional and failure-tolerant.
+        services.AddSingleton<IArtistRelationshipService>(sp => sp.GetRequiredService<ExternalMetadataService>());
 
         // Emulator bridge: lazily spawns `dorado --ipc` on first use and drives
         // it over JSON-RPC. The emulator CLI is a separate repo/process; no

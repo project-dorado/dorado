@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-375%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-385%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -160,7 +160,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **375 unit tests** passing (XUnit + Avalonia headless harness)
+- **385 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -247,7 +247,7 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | B. Quickplay | **~85%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; artwork maps pending |
 | C. Collection (music) | **~92%** | Artists/Albums/Songs/Genres/Playlists/Smart Playlists + Find Album Info + FTS5 search |
 | D. Now Playing | **~90%** | 3 modes + Ken-Burns + idle screensaver + bio/lyrics/showlist drawers |
-| E. Mixview | **~65%** | Local mosaic + audio-feature similarity engine; external satellites pending |
+| E. Mixview | **~72%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
 | F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
 | G. CD Land | **~40%** | Full UI, simulated rip/burn (no optical drive) |
 | H. Device sync | **~70%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam |

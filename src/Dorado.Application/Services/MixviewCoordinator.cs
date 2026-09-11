@@ -12,10 +12,12 @@ namespace Dorado.Application.Services;
 public class MixviewCoordinator : IMixviewService
 {
     private readonly IMediaLibraryService _libraryService;
+    private readonly IArtistRelationshipService? _artistRelationships;
 
-    public MixviewCoordinator(IMediaLibraryService libraryService)
+    public MixviewCoordinator(IMediaLibraryService libraryService, IArtistRelationshipService? artistRelationships = null)
     {
         _libraryService = libraryService;
+        _artistRelationships = artistRelationships;
     }
 
     public async Task<MixConstellation> GenerateConstellationAsync(
@@ -120,6 +122,58 @@ public class MixviewCoordinator : IMixviewService
                 NodeType = MixNodeType.Artist,
                 EntityId = artist.Id
             });
+        }
+
+        // External related-artist enrichment (MusicBrainz): surface artists the
+        // local genre heuristic missed, but only when they exist in the library
+        // (so the node is clickable). Best-effort: failures leave the local
+        // constellation untouched.
+        if (_artistRelationships is not null)
+        {
+            var present = satellites
+                .Where(s => s.NodeType == MixNodeType.Artist)
+                .Select(s => s.Title)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            present.Add(seedName);
+
+            try
+            {
+                var relatedNames = await _artistRelationships
+                    .GetRelatedArtistsAsync(seedName, limit: 8, cancellationToken)
+                    .ConfigureAwait(false);
+
+                foreach (var name in relatedNames)
+                {
+                    if (!present.Add(name))
+                    {
+                        continue;
+                    }
+
+                    var local = allArtists.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    if (local is null)
+                    {
+                        continue;
+                    }
+
+                    satellites.Add(new MixNode
+                    {
+                        Id = local.Id,
+                        Title = local.Name,
+                        Subtitle = "RELATED ARTIST",
+                        NodeType = MixNodeType.Artist,
+                        EntityId = local.Id
+                    });
+
+                    if (satellites.Count(s => s.NodeType == MixNodeType.Artist) >= 8)
+                    {
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+                // External enrichment is optional.
+            }
         }
 
         // Calculate organic orbital coordinates

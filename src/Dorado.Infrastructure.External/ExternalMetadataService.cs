@@ -11,7 +11,7 @@ namespace Dorado.Infrastructure.External;
 /// Orchestrates the individual keyless/keyed metadata providers into one resilient facade.
 /// All failures degrade gracefully to null results; results are memoized for 24 hours.
 /// </summary>
-public sealed class ExternalMetadataService : IExternalMetadataService
+public sealed class ExternalMetadataService : IExternalMetadataService, IArtistRelationshipService
 {
     private const string UserAgent = "Dorado/1.0 (+https://github.com/project-dorado/dorado)";
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
@@ -49,6 +49,27 @@ public sealed class ExternalMetadataService : IExternalMetadataService
         };
         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
         return client;
+    }
+
+    public async Task<IReadOnlyList<string>> GetRelatedArtistsAsync(
+        string artistName,
+        int limit = 8,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(artistName))
+        {
+            return Array.Empty<string>();
+        }
+
+        var key = $"related:{artistName.ToLowerInvariant()}:{limit}";
+        if (_cache.TryGetValue(key, out var hit) && hit.ExpiresAtUtc > DateTimeOffset.UtcNow)
+        {
+            return hit.Value as IReadOnlyList<string> ?? Array.Empty<string>();
+        }
+
+        var names = await _musicBrainz.LookupRelatedArtistsAsync(artistName, limit, cancellationToken).ConfigureAwait(false);
+        _cache[key] = (DateTimeOffset.UtcNow.Add(CacheTtl), names);
+        return names;
     }
 
     public async Task<ArtistMetadataResult?> FetchArtistMetadataAsync(string artistName, CancellationToken cancellationToken = default)

@@ -775,7 +775,8 @@ public class MainShellViewModel : ViewModelBase
         IDialogService? dialogService = null,
         IReviewService? reviewService = null,
         ICloudSocialService? cloudSocialService = null,
-        ICloudSignInService? cloudSignInService = null)
+        ICloudSignInService? cloudSignInService = null,
+        IArtistRelationshipService? artistRelationships = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -821,7 +822,7 @@ public class MainShellViewModel : ViewModelBase
             cloudSocialService,
             () => settingsStore?.Load().CloudHandle ?? string.Empty);
 
-        var mixService = new MixviewCoordinator(libraryService);
+        var mixService = new MixviewCoordinator(libraryService, artistRelationships);
         MixviewVM = new MixviewViewModel(mixService, playerCoordinator, smartDJService, libraryService);
 
         NowPlayingVM.LaunchMixviewRequested += async (_, artist) =>

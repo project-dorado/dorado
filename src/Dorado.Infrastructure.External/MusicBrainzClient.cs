@@ -125,6 +125,50 @@ public sealed class MusicBrainzClient
         return best.MbId == null ? null : best;
     }
 
+    /// <summary>Resolves an artist's related artists (collaborations, band membership) by name.</summary>
+    public async Task<IReadOnlyList<string>> LookupRelatedArtistsAsync(
+        string artistName,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var seed = await SearchArtistAsync(artistName, cancellationToken).ConfigureAwait(false);
+        if (seed?.MbId is not { Length: > 0 } mbid)
+        {
+            return Array.Empty<string>();
+        }
+
+        var url = $"https://musicbrainz.org/ws/2/artist/{Uri.EscapeDataString(mbid)}?inc=artist-rels&fmt=json";
+        using var document = await GetJsonDocumentAsync(url, cancellationToken).ConfigureAwait(false);
+        if (document == null || !document.RootElement.TryGetProperty("relations", out var relations))
+        {
+            return Array.Empty<string>();
+        }
+
+        var names = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { artistName };
+        foreach (var relation in relations.EnumerateArray())
+        {
+            if (!relation.TryGetProperty("artist", out var artist)
+                || !artist.TryGetProperty("name", out var nameElement)
+                || nameElement.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var name = nameElement.GetString();
+            if (!string.IsNullOrWhiteSpace(name) && seen.Add(name))
+            {
+                names.Add(name);
+                if (names.Count >= limit)
+                {
+                    break;
+                }
+            }
+        }
+
+        return names;
+    }
+
     private async Task<JsonDocument?> GetJsonDocumentAsync(string url, CancellationToken cancellationToken)
     {
         try
