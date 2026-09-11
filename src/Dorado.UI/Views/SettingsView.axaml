@@ -939,6 +939,22 @@
               <TextBlock Grid.Row="2" Grid.Column="0" Text="Sync Status:" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" Margin="0,4" />
               <TextBlock Grid.Row="2" Grid.Column="1" Text="Listening on port 10102" Classes="body" Foreground="{DynamicResource ZuneAccentBrush}" Margin="0,4" />
             </Grid>
+
+            <Border Background="{DynamicResource ZuneSurfaceBrush}" BorderBrush="{DynamicResource ZuneBorderBrush}" BorderThickness="1" CornerRadius="0" Padding="16" MaxWidth="550" Margin="0,12,0,0">
+              <StackPanel Spacing="8">
+                <TextBlock Text="DORADO-HD DEVICE LINK" Classes="section-header" />
+                <TextBlock Text="Pair the Dorado-HD Android app over your LAN to run the sync protocol." Classes="caption" />
+                <CheckBox IsChecked="{Binding LanSyncEnabled}" Content="Enable LAN sync endpoint" CornerRadius="0" Foreground="{DynamicResource ZuneTextActiveBrush}" />
+                <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" MaxWidth="500">
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="Pairing code:" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" Margin="0,4" />
+                  <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LanSyncPairingCode}" Classes="body" FontWeight="SemiBold" Margin="0,4" />
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="Port:" Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" Margin="0,4" />
+                  <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LanSyncPort}" Classes="body" Margin="0,4" />
+                </Grid>
+                <Button Content="Generate new code" Command="{Binding RegenerateLanSyncCodeCommand}" CornerRadius="0" HorizontalAlignment="Left" />
+                <TextBlock Text="Restart Dorado to apply listener changes." Classes="caption" Foreground="{DynamicResource ZuneTextDimmedBrush}" />
+              </StackPanel>
+            </Border>
           </StackPanel>
         </StackPanel>
 

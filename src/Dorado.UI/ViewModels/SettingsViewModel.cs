@@ -1148,6 +1148,11 @@ public class SettingsViewModel : ViewModelBase
         RefreshCloudStatus("signed out");
     }
 
+    private void OnRegenerateLanSyncCode()
+    {
+        LanSyncPairingCode = NewPairingCode();
+    }
+
     private void RefreshCloudStatus(string? overrideText = null)
     {
         OnPropertyChanged(nameof(IsCloudSignedIn));
@@ -1373,6 +1378,54 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    // ---- LAN sync (Dorado-HD phone pairing) ----
+
+    private bool _lanSyncEnabled;
+    public bool LanSyncEnabled
+    {
+        get => _lanSyncEnabled;
+        set
+        {
+            if (SetProperty(ref _lanSyncEnabled, value))
+            {
+                if (value && string.IsNullOrWhiteSpace(_lanSyncPairingCode))
+                {
+                    LanSyncPairingCode = NewPairingCode();
+                }
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private int _lanSyncPort = 8787;
+    public int LanSyncPort
+    {
+        get => _lanSyncPort;
+        set
+        {
+            if (SetProperty(ref _lanSyncPort, value))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private string _lanSyncPairingCode = string.Empty;
+    public string LanSyncPairingCode
+    {
+        get => _lanSyncPairingCode;
+        set
+        {
+            if (SetProperty(ref _lanSyncPairingCode, value))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
+    private static string NewPairingCode() =>
+        System.Security.Cryptography.RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+
     public string ProductName => Dorado.Application.AppInfo.ProductName;
     public string ProductTagline => Dorado.Application.AppInfo.Tagline;
     public string ProductCopyright => Dorado.Application.AppInfo.CopyrightLine;
@@ -1399,6 +1452,7 @@ public class SettingsViewModel : ViewModelBase
     public ICommand SelectBackgroundCommand { get; }
     public ICommand SelectThemeCommand { get; }
     public ICommand TestSoundCommand { get; }
+    public ICommand RegenerateLanSyncCodeCommand { get; }
 
     public SettingsViewModel(
         ISoundEffectService? soundService = null,
@@ -1494,6 +1548,7 @@ public class SettingsViewModel : ViewModelBase
         TestSoundCommand = new RelayCommand(() => _soundService?.PlaySyncComplete());
         CloudSignInCommand = new AsyncRelayCommand(OnCloudSignInAsync);
         CloudSignOutCommand = new RelayCommand(OnCloudSignOut);
+        RegenerateLanSyncCodeCommand = new RelayCommand(OnRegenerateLanSyncCode);
 
         LoadPersistedSettings();
         SyncAllSelections();
@@ -1635,6 +1690,12 @@ public class SettingsViewModel : ViewModelBase
             OnPropertyChanged(nameof(WirelessSyncEnabled));
             _networkName = settings.NetworkName;
             OnPropertyChanged(nameof(NetworkName));
+            _lanSyncEnabled = settings.LanSyncEnabled;
+            OnPropertyChanged(nameof(LanSyncEnabled));
+            _lanSyncPort = settings.LanSyncPort;
+            OnPropertyChanged(nameof(LanSyncPort));
+            _lanSyncPairingCode = settings.LanSyncPairingCode;
+            OnPropertyChanged(nameof(LanSyncPairingCode));
 
             _firstLaunchCompleted = settings.FirstLaunchCompleted;
             OnPropertyChanged(nameof(FirstLaunchCompleted));
@@ -1763,9 +1824,9 @@ public class SettingsViewModel : ViewModelBase
             // ...and fields owned by the sign-in/sync/emulator services.
             CloudAccessToken = existing.CloudAccessToken,
             CloudAccessTokenExpiresAtUtc = existing.CloudAccessTokenExpiresAtUtc,
-            LanSyncEnabled = existing.LanSyncEnabled,
-            LanSyncPort = existing.LanSyncPort,
-            LanSyncPairingCode = existing.LanSyncPairingCode,
+            LanSyncEnabled = LanSyncEnabled,
+            LanSyncPort = LanSyncPort,
+            LanSyncPairingCode = LanSyncPairingCode,
             EmulatorEnabled = existing.EmulatorEnabled,
             EmulatorCliPath = existing.EmulatorCliPath,
         });

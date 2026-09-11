@@ -25,6 +25,7 @@ namespace Dorado.Desktop;
 public partial class App : Avalonia.Application
 {
     private ServiceProvider? _serviceProvider;
+    private SyncMdnsAdvertiser? _syncAdvertiser;
 
     public override void Initialize()
     {
@@ -53,9 +54,13 @@ public partial class App : Avalonia.Application
         // LAN sync: start the phone sync socket only when the user opted in.
         try
         {
-            if (_serviceProvider.GetRequiredService<ISettingsStore>().Load().LanSyncEnabled)
+            var lanSettings = _serviceProvider.GetRequiredService<ISettingsStore>().Load();
+            if (lanSettings.LanSyncEnabled)
             {
                 _serviceProvider.GetRequiredService<SyncTcpServer>().Start();
+                // Advertise _dorado-sync._tcp so Dorado-HD discovers us automatically.
+                _syncAdvertiser = new SyncMdnsAdvertiser("Dorado Desktop", lanSettings.LanSyncPort);
+                _syncAdvertiser.Start();
             }
         }
         catch (Exception ex)
@@ -77,6 +82,8 @@ public partial class App : Avalonia.Application
             {
                 DataContext = shellVm
             };
+
+            desktop.Exit += (_, _) => _syncAdvertiser?.Dispose();
         }
 
         // Signed update check (opt-in). Runs off the UI thread; surfaces a verified
