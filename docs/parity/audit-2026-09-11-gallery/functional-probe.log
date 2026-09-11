@@ -1,0 +1,10 @@
+LIBRARY scan dirs=/home/john/Projects/project-dorado/test-media tracks=5 albums=2 artists=2
+  track: "Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 01 Da Doo" | Unknown Artist | Unknown Album | 02:11 | Music
+  track: "Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 02 Dentist!" | Unknown Artist | Unknown Album | 03:05 | Music
+  track: "Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 03 Suddenly" | Unknown Artist | Unknown Album | 03:31 | Music
+  track: "Pumpkin" | Schaffer the Darklord | Pumpkin + Scary and Naked | 03:10 | Music
+  track: "Scary and Naked" | Schaffer the Darklord | Pumpkin + Scary and Naked | 03:16 | Music
+AUDIO engineIsAvailable=False coordinatorSimulated=True
+PLAYBACK PlayTrackAsync completedWithin5s=True state=Playing hasSource=True simulated=False
+PLAYBACK file="Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 01 Da Doo" state=Playing position=1.98s
+PLAYBACK stopIssued state=Stopped
