@@ -551,6 +551,7 @@ public class CollectionViewModel : ViewModelBase
     public void FilterQuery(string query)
     {
         _searchQuery = query;
+        PlaylistsVM.Filter(query);
         if (string.IsNullOrWhiteSpace(query))
         {
             Albums.Clear();
@@ -666,16 +667,6 @@ public class CollectionViewModel : ViewModelBase
         foreach (var track in genreTracks)
         {
             SelectedGenreSongs.Add(track);
-        }
-    }
-
-    private async Task PerformSearchAsync()
-    {
-        var results = await _libraryService.SearchAsync(_searchQuery);
-        Songs.Clear();
-        foreach (var s in results)
-        {
-            Songs.Add(s);
         }
     }
 

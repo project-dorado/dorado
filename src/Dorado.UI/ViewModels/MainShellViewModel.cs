@@ -295,6 +295,23 @@ public class MainShellViewModel : ViewModelBase
             }
         }
 
+        try
+        {
+            var playlists = await _libraryService.GetAllPlaylistsAsync();
+            foreach (var playlist in playlists)
+            {
+                if (ct.IsCancellationRequested) return;
+                if (playlist.Name?.ToLowerInvariant().Contains(lower) == true)
+                {
+                    added.Add(playlist.Name);
+                }
+            }
+        }
+        catch
+        {
+            // best-effort
+        }
+
         if (ct.IsCancellationRequested || added.Count == 0) return;
 
         // Append the additional matches (deduped) without evicting the synchronous ones.
@@ -828,7 +845,9 @@ public class MainShellViewModel : ViewModelBase
         ZuneCardVM = new ZuneCardViewModel(
             _userStatsService,
             cloudSocialService,
-            () => settingsStore?.Load().CloudHandle ?? string.Empty);
+            () => settingsStore?.Load().CloudHandle ?? string.Empty,
+            settingsStore,
+            folderPickerService);
 
         var mixService = new MixviewCoordinator(libraryService, artistRelationships);
         MixviewVM = new MixviewViewModel(mixService, playerCoordinator, smartDJService, libraryService);

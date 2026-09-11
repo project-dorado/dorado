@@ -6,6 +6,7 @@
              xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
              xmlns:interfaces="clr-namespace:Dorado.Application.Interfaces;assembly=Dorado.Application"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="Dorado.UI.Views.ZuneCardView"
              x:DataType="vm:ZuneCardViewModel">
@@ -28,14 +29,40 @@
                   BorderThickness="2" 
                   CornerRadius="0" 
                   Margin="0,0,20,0">
-            <Path Data="{x:Static design:ZuneGlyphs.ProfileTile}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Grid>
+              <Path Data="{x:Static design:ZuneGlyphs.ProfileTile}" Stretch="Uniform" Fill="{DynamicResource ZuneTextDimmedBrush}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <!-- User avatar overrides the placeholder glyph when one is set. -->
+              <Image Source="{Binding AvatarUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" IsVisible="{Binding HasAvatar}" />
+            </Grid>
           </Border>
 
-          <!-- User Zune Tag & Bio -->
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-            <TextBlock Text="{Binding ZuneTag}" Classes="mega-title" FontWeight="Light" />
+          <!-- User Zune Tag & Bio (view mode) -->
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4" IsVisible="{Binding !IsEditingProfile}">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <TextBlock Text="{Binding ZuneTag}" Classes="mega-title" FontWeight="Light" VerticalAlignment="Center" />
+              <Button Command="{Binding BeginEditProfileCommand}" Classes="zune-action" VerticalAlignment="Center" Padding="8,4">
+                <TextBlock Text="EDIT PROFILE" Classes="caption" FontWeight="SemiBold" />
+              </Button>
+            </StackPanel>
             <TextBlock Text="{Binding MemberSinceText}" Classes="caption" FontWeight="Bold" Foreground="{DynamicResource ZuneAccentBrush}" LetterSpacing="1" />
             <TextBlock Text="{Binding StatusMessage}" Classes="body" Foreground="{DynamicResource ZuneTextSecondaryBrush}" Margin="0,2,0,0" />
+          </StackPanel>
+
+          <!-- User Zune Tag & Bio (edit mode) -->
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6" IsVisible="{Binding IsEditingProfile}" Margin="0,0,20,0">
+            <TextBox Text="{Binding EditZuneTag}" Watermark="Zune tag" MaxLength="32" />
+            <TextBox Text="{Binding EditStatusMessage}" Watermark="Status message" MaxLength="120" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Command="{Binding PickAvatarCommand}" Classes="zune-action" Padding="10,5">
+                <TextBlock Text="CHOOSE AVATAR" Classes="caption" FontWeight="SemiBold" />
+              </Button>
+              <Button Command="{Binding SaveProfileCommand}" Classes="zune-accent-btn" Padding="10,5">
+                <TextBlock Text="SAVE" Classes="caption" FontWeight="Bold" />
+              </Button>
+              <Button Command="{Binding CancelEditProfileCommand}" Classes="zune-action" Padding="10,5">
+                <TextBlock Text="CANCEL" Classes="caption" Foreground="{DynamicResource ZuneTextSecondaryBrush}" />
+              </Button>
+            </StackPanel>
           </StackPanel>
 
           <!-- Stat Counters -->

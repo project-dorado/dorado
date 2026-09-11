@@ -17,6 +17,27 @@ public class PlaylistsViewModel : ViewModelBase
     private readonly ISmartPlaylistService? _smartPlaylistService;
 
     public ObservableCollection<Playlist> Playlists { get; } = new();
+
+    private readonly List<Playlist> _allPlaylists = new();
+
+    /// <summary>Filters the visible playlist list by name/description (collection search parity).</summary>
+    public void Filter(string query)
+    {
+        Playlists.Clear();
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            foreach (var p in _allPlaylists) Playlists.Add(p);
+            return;
+        }
+
+        var lower = query.Trim().ToLowerInvariant();
+        foreach (var p in _allPlaylists.Where(p =>
+            (p.Name?.ToLowerInvariant().Contains(lower) ?? false) ||
+            (p.Description?.ToLowerInvariant().Contains(lower) ?? false)))
+        {
+            Playlists.Add(p);
+        }
+    }
     public ObservableCollection<Track> SelectedPlaylistTracks { get; } = new();
     public ObservableCollection<SmartPlaylist> SmartPlaylists { get; } = new();
     public ObservableCollection<Track> SelectedSmartPlaylistTracks { get; } = new();
@@ -209,8 +230,10 @@ public class PlaylistsViewModel : ViewModelBase
     public async Task LoadPlaylistsAsync()
     {
         var list = await _libraryService.GetAllPlaylistsAsync();
+        _allPlaylists.Clear();
+        _allPlaylists.AddRange(list);
         Playlists.Clear();
-        foreach (var p in list)
+        foreach (var p in _allPlaylists)
         {
             Playlists.Add(p);
         }

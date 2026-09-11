@@ -1,4 +1,5 @@
 using Dorado.Application.Interfaces;
+using Dorado.Application.Models;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 
@@ -18,7 +19,17 @@ public class SmartDJEngine : ISmartDJService
     private const double RandomJitter = 3.0;
 
     public Task<IReadOnlyList<Track>> GenerateMixAsync(SmartDJSeed seed, IReadOnlyList<Track> libraryTracks)
+        => GenerateMixAsync(seed, libraryTracks, null, CancellationToken.None);
+
+    public Task<IReadOnlyList<Track>> GenerateMixAsync(
+        SmartDJSeed seed,
+        IReadOnlyList<Track> libraryTracks,
+        IProgress<QuickMixProgress>? progress,
+        CancellationToken cancellationToken = default)
     {
+        progress?.Report(new QuickMixProgress("Scanning library", 0.10));
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Tier B1 (Zune 4.8 Smart DJ parity): broken hearts are ALWAYS excluded — even
         // when the seed context (album/artist/genre match) would otherwise pull them in.
         // Hearts are surfaced first via a bonus that overrides the similarity weights.
@@ -58,6 +69,9 @@ public class SmartDJEngine : ISmartDJService
             IsFavorite = track.Rating == HeartRating.Favorite,
         });
 
+        progress?.Report(new QuickMixProgress("Scoring candidates", 0.55));
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Stage 2: order — favorites first (broken hearts already excluded), then by score.
         // Using a stable secondary sort by Title keeps the output deterministic for tests.
         var ordered = scored
@@ -67,6 +81,10 @@ public class SmartDJEngine : ISmartDJService
             .Take(seed.TargetTrackCount)
             .Select(x => x.Track)
             .ToList();
+
+        progress?.Report(new QuickMixProgress("Building mix", 0.90));
+        cancellationToken.ThrowIfCancellationRequested();
+        progress?.Report(new QuickMixProgress("Ready", 1.0));
 
         return Task.FromResult<IReadOnlyList<Track>>(ordered);
     }

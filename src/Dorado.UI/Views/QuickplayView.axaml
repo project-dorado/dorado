@@ -77,6 +77,16 @@
           </Button>
         </StackPanel>
 
+        <!-- Quick Mix progress / notification (QuickMixProgress + QuickMixNotification parity) -->
+        <StackPanel Spacing="4" IsVisible="{Binding HasQuickMixStatus}" Margin="0,4,0,0">
+          <TextBlock Text="{Binding QuickMixStatusText}" Classes="caption"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource ZuneAccentBrush}" />
+          <ProgressBar Value="{Binding QuickMixProgress}" Minimum="0.0" Maximum="1.0" Height="3" CornerRadius="0"
+                       IsVisible="{Binding IsQuickMixBusy}"
+                       Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
+        </StackPanel>
+
         <!-- Dynamic Mixes (auto-updating rules) -->
         <StackPanel Spacing="10" IsVisible="{Binding HasDynamicMixes}" Margin="0,8,0,0">
           <TextBlock Text="DYNAMIC MIXES" Classes="caption" FontWeight="SemiBold"

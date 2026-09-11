@@ -1,7 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Interfaces;
+using Dorado.Application.Models;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 
@@ -52,6 +58,39 @@ public class QuickplayViewModel : ViewModelBase
     {
         get => _smartDjSeedText;
         set => SetProperty(ref _smartDjSeedText, value);
+    }
+
+    /// <summary>Quick Mix generation wall-clock limit (overridable for tests).</summary>
+    public static TimeSpan QuickMixTimeout { get; set; } = TimeSpan.FromSeconds(5);
+
+    private CancellationTokenSource? _quickMixCts;
+    private string? _quickMixStatusText;
+    public string? QuickMixStatusText
+    {
+        get => _quickMixStatusText;
+        private set
+        {
+            if (SetProperty(ref _quickMixStatusText, value))
+            {
+                OnPropertyChanged(nameof(HasQuickMixStatus));
+            }
+        }
+    }
+
+    public bool HasQuickMixStatus => !string.IsNullOrEmpty(QuickMixStatusText);
+
+    private double _quickMixProgress;
+    public double QuickMixProgress
+    {
+        get => _quickMixProgress;
+        private set => SetProperty(ref _quickMixProgress, value);
+    }
+
+    private bool _isQuickMixBusy;
+    public bool IsQuickMixBusy
+    {
+        get => _isQuickMixBusy;
+        private set => SetProperty(ref _isQuickMixBusy, value);
     }
 
     public ICommand SelectDeckCommand { get; }
@@ -148,6 +187,63 @@ public class QuickplayViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Runs Smart DJ generation with progress reporting and a hard wall-clock
+    /// timeout (Quick Mix notification parity). Returns an empty list on timeout.
+    /// </summary>
+    private async Task<IReadOnlyList<Track>> GenerateMixWithProgressAsync(SmartDJSeed seed, IReadOnlyList<Track> pool)
+    {
+        _quickMixCts?.Cancel();
+        _quickMixCts?.Dispose();
+        _quickMixCts = new CancellationTokenSource();
+
+        IsQuickMixBusy = true;
+        QuickMixProgress = 0;
+        QuickMixStatusText = "Preparing Quick Mix...";
+
+        try
+        {
+            var progress = new InlineProgress(p =>
+            {
+                QuickMixStatusText = p.Stage;
+                QuickMixProgress = p.Fraction;
+            });
+
+            var generation = _smartDJService.GenerateMixAsync(seed, pool, progress, _quickMixCts.Token);
+            var timeout = Task.Delay(QuickMixTimeout);
+
+            if (await Task.WhenAny(generation, timeout) != generation)
+            {
+                _quickMixCts.Cancel();
+                QuickMixStatusText = "Quick Mix timed out.";
+                QuickMixProgress = 0;
+                return Array.Empty<Track>();
+            }
+
+            var mix = await generation;
+            QuickMixProgress = 1;
+            QuickMixStatusText = mix.Count > 0 ? $"Quick Mix ready — {mix.Count} tracks" : "No tracks matched this mix.";
+            return mix;
+        }
+        catch (OperationCanceledException)
+        {
+            QuickMixStatusText = "Quick Mix timed out.";
+            QuickMixProgress = 0;
+            return Array.Empty<Track>();
+        }
+        finally
+        {
+            IsQuickMixBusy = false;
+        }
+    }
+
+    private sealed class InlineProgress : IProgress<QuickMixProgress>
+    {
+        private readonly Action<QuickMixProgress> _onReport;
+        public InlineProgress(Action<QuickMixProgress> onReport) => _onReport = onReport;
+        public void Report(QuickMixProgress value) => _onReport(value);
+    }
+
     private async Task OnLaunchSmartDjAsync()
     {
         var allTracks = await _libraryService.GetAllTracksAsync();
@@ -159,7 +255,7 @@ public class QuickplayViewModel : ViewModelBase
             ExcludeDisliked = true
         };
 
-        var mix = await _smartDJService.GenerateMixAsync(seed, allTracks);
+        var mix = await GenerateMixWithProgressAsync(seed, allTracks);
         if (mix.Count > 0)
         {
             await _playerCoordinator.PlayTrackAsync(mix[0], mix);
@@ -178,7 +274,7 @@ public class QuickplayViewModel : ViewModelBase
             ExcludeDisliked = true
         };
 
-        var mix = await _smartDJService.GenerateMixAsync(seed, pool);
+        var mix = await GenerateMixWithProgressAsync(seed, pool);
         if (mix.Count > 0)
         {
             await _playerCoordinator.PlayTrackAsync(mix[0], mix);
@@ -197,7 +293,7 @@ public class QuickplayViewModel : ViewModelBase
             ExcludeDisliked = true
         };
 
-        var mix = await _smartDJService.GenerateMixAsync(seed, pool);
+        var mix = await GenerateMixWithProgressAsync(seed, pool);
         if (mix.Count > 0)
         {
             await _playerCoordinator.PlayTrackAsync(mix[0], mix);

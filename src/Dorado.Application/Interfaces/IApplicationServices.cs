@@ -1,4 +1,5 @@
 using Dorado.Application.Events;
+using Dorado.Application.Models;
 using Dorado.Domain.Enums;
 using Dorado.Domain.Models;
 
@@ -77,4 +78,15 @@ public interface IDeviceSyncService
 public interface ISmartDJService
 {
     Task<IReadOnlyList<Track>> GenerateMixAsync(SmartDJSeed seed, IReadOnlyList<Track> libraryTracks);
+
+    /// <summary>
+    /// Progress-reporting, cancellable overload (Quick Mix notification parity).
+    /// Defaults to the plain generation so existing implementations keep working.
+    /// </summary>
+    Task<IReadOnlyList<Track>> GenerateMixAsync(
+        SmartDJSeed seed,
+        IReadOnlyList<Track> libraryTracks,
+        IProgress<QuickMixProgress>? progress,
+        CancellationToken cancellationToken = default)
+        => GenerateMixAsync(seed, libraryTracks);
 }

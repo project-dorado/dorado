@@ -109,6 +109,11 @@ public class AppSettings
     public string SelectedBackgroundName { get; set; } = string.Empty;
     public string SelectedThemeName { get; set; } = string.Empty;
 
+    // Zune Card (local, user-authored profile — a substitute for the dead Zune Social layer)
+    public string ZuneTag { get; set; } = string.Empty;
+    public string ZuneStatusMessage { get; set; } = string.Empty;
+    public string ZuneAvatarUri { get; set; } = string.Empty;
+
     // Onboarding
     public bool FirstLaunchCompleted { get; set; }
     public string WhatsNewSeenVersion { get; set; } = string.Empty;

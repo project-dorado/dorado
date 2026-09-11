@@ -11,6 +11,8 @@ public class ZuneCardViewModel : ViewModelBase
     private readonly IUserStatsService _statsService;
     private readonly ICloudSocialService? _cloud;
     private readonly Func<string>? _handleProvider;
+    private readonly ISettingsStore? _settingsStore;
+    private readonly IFolderPickerService? _folderPicker;
 
     private ZuneProfile _profile = new();
     private ZuneCardSnapshot? _liveCard;
@@ -54,23 +56,128 @@ public class ZuneCardViewModel : ViewModelBase
     public int TotalTracksPlayed => Profile.TotalTracksPlayed;
     public string TotalHoursText => $"{Profile.TotalListeningTime.TotalHours:0.1} HRS";
 
+    // ---- Editable profile (audit M-6 / Top-15 #12) -------------------------
+
+    private bool _isEditingProfile;
+    public bool IsEditingProfile
+    {
+        get => _isEditingProfile;
+        private set => SetProperty(ref _isEditingProfile, value);
+    }
+
+    private string _editZuneTag = string.Empty;
+    public string EditZuneTag
+    {
+        get => _editZuneTag;
+        set => SetProperty(ref _editZuneTag, value);
+    }
+
+    private string _editStatusMessage = string.Empty;
+    public string EditStatusMessage
+    {
+        get => _editStatusMessage;
+        set => SetProperty(ref _editStatusMessage, value);
+    }
+
+    private string _editAvatarUri = string.Empty;
+    public string EditAvatarUri
+    {
+        get => _editAvatarUri;
+        set
+        {
+            if (SetProperty(ref _editAvatarUri, value))
+            {
+                OnPropertyChanged(nameof(AvatarUri));
+                OnPropertyChanged(nameof(HasAvatar));
+            }
+        }
+    }
+
+    /// <summary>Display avatar (edit buffer wins while editing; falls back to the profile value).</summary>
+    public string AvatarUri => string.IsNullOrWhiteSpace(_editAvatarUri) ? Profile.AvatarUri : _editAvatarUri;
+    public bool HasAvatar => !string.IsNullOrWhiteSpace(AvatarUri);
+
     public ICommand RefreshCommand { get; }
+    public ICommand BeginEditProfileCommand { get; }
+    public ICommand SaveProfileCommand { get; }
+    public ICommand CancelEditProfileCommand { get; }
+    public ICommand PickAvatarCommand { get; }
 
     public ZuneCardViewModel(
         IUserStatsService statsService,
         ICloudSocialService? cloud = null,
-        Func<string>? handleProvider = null)
+        Func<string>? handleProvider = null,
+        ISettingsStore? settingsStore = null,
+        IFolderPickerService? folderPicker = null)
     {
         _statsService = statsService;
         _cloud = cloud;
         _handleProvider = handleProvider;
+        _settingsStore = settingsStore;
+        _folderPicker = folderPicker;
         RefreshCommand = new AsyncRelayCommand(LoadStatsAsync);
+        BeginEditProfileCommand = new RelayCommand(BeginEditProfile);
+        SaveProfileCommand = new RelayCommand(SaveProfile);
+        CancelEditProfileCommand = new RelayCommand(() => IsEditingProfile = false);
+        PickAvatarCommand = new AsyncRelayCommand(PickAvatarAsync);
         _ = LoadStatsAsync();
+    }
+
+    private void BeginEditProfile()
+    {
+        EditZuneTag = Profile.ZuneTag;
+        EditStatusMessage = Profile.StatusMessage;
+        EditAvatarUri = Profile.AvatarUri;
+        IsEditingProfile = true;
+    }
+
+    private void SaveProfile()
+    {
+        Profile.ZuneTag = string.IsNullOrWhiteSpace(EditZuneTag) ? "ZuneUser" : EditZuneTag.Trim();
+        Profile.StatusMessage = EditStatusMessage?.Trim() ?? string.Empty;
+        Profile.AvatarUri = EditAvatarUri?.Trim() ?? string.Empty;
+
+        if (_settingsStore is not null)
+        {
+            var settings = _settingsStore.Load();
+            settings.ZuneTag = Profile.ZuneTag;
+            settings.ZuneStatusMessage = Profile.StatusMessage;
+            settings.ZuneAvatarUri = Profile.AvatarUri;
+            _settingsStore.Save(settings);
+        }
+
+        OnPropertyChanged(nameof(ZuneTag));
+        OnPropertyChanged(nameof(StatusMessage));
+        OnPropertyChanged(nameof(AvatarUri));
+        OnPropertyChanged(nameof(HasAvatar));
+        IsEditingProfile = false;
+    }
+
+    private async Task PickAvatarAsync()
+    {
+        if (_folderPicker is null) return;
+        var path = await _folderPicker.PickFileAsync("Select Avatar Image", "*.png;*.jpg;*.jpeg");
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            EditAvatarUri = path;
+        }
     }
 
     public async Task LoadStatsAsync()
     {
         Profile = await _statsService.GetProfileAsync();
+
+        // User-authored profile values (persisted) win over the computed defaults.
+        var persisted = _settingsStore?.Load();
+        if (persisted is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(persisted.ZuneTag)) Profile.ZuneTag = persisted.ZuneTag;
+            if (!string.IsNullOrWhiteSpace(persisted.ZuneStatusMessage)) Profile.StatusMessage = persisted.ZuneStatusMessage;
+            if (!string.IsNullOrWhiteSpace(persisted.ZuneAvatarUri)) Profile.AvatarUri = persisted.ZuneAvatarUri;
+        }
+        _editAvatarUri = Profile.AvatarUri;
+        OnPropertyChanged(nameof(AvatarUri));
+        OnPropertyChanged(nameof(HasAvatar));
         OnPropertyChanged(nameof(ZuneTag));
         OnPropertyChanged(nameof(StatusMessage));
         OnPropertyChanged(nameof(MemberSinceText));
