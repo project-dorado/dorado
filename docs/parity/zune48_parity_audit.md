@@ -1,6 +1,6 @@
 # Dorado ↔ Microsoft Zune 4.8 Parity Audit
 
-**Audit date:** 2026-09-09
+**Audit date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Method:** Systematic comparison of the decompiled Microsoft Zune Desktop 4.8 component stack against the current Dorado implementation.
 
 ---
@@ -33,11 +33,46 @@ Both `review/ZunePackage.exe` and `review/ZuneSetupPkg.exe` verified: `ZunePacka
 
 ## 2. Executive Summary
 
-> **RE-AUDIT SNAPSHOT (2026-09-09, post Phases 5–9):** The critical gaps closed below moved weighted overall parity from **≈ 55–60% → ≈ 75–80%** (weighted for UI presentation, hardware-dependent features neutral). Deltas per domain: **F. Audio engine** SIMULATED 0% → **HIGH ~85%** (ManagedBass 2.4: real decode, gapless, crossfade, ReplayGain, EQ, FFT visualizer, podcast streams); **L. First-launch** MISSING 0% → **HIGH ~85%** (welcome→folders→privacy→done wizard, What's New, monitored-folder scan); **H. Device sync** SIMULATED ~35% → **MEDIUM ~65%** (sync-group engine, dry-run manifest, guest sessions, reverse sync, transport seam; real MTPZ hardware remains N-A); **C. Collection** 80% → **HIGH ~90%** (smart playlists, Find-Album-Info per-track matching, autocomplete, back-stack, Mixview tiles); **D. Now Playing** 75% → **HIGH ~85%** (now-playing video clips via libVLC); **I. Podcasts** 50% → **MEDIUM-HIGH ~70%** (real audio playback); **M. Platform services** 40% → **~50%** (video/photo libraries on the SQLite ZMDB substitute). Remaining below-70% domains: B. Quickplay (~65%), E. Mixview (~60%), G. CD Land (~40%, capability-gated — no optical drive), J. Social/Marketplace (N-A, dead servers), M. Platform services (~50%: no UPnP/share/MUI).
->
-> The original pre-Phase-5 snapshot is preserved below for history.
+> **CURRENT (2026-09-10, post Phase 23).** The Phase 5–11 and 12–23 programs are
+> complete. Weighted overall parity is **≈ 88%**. Highlights versus the original
+> pre-Phase-5 audit: the **audio engine is real** (ManagedBass — decode, gapless,
+> equal-power crossfade, ReplayGain, 10-band EQ, FFT visualizer, podcast streams);
+> **first-launch onboarding** ships; **Device sync** has a sync-group engine, dry-run
+> manifest, guest/reverse sync, an MTP transport seam and LAN sync/mDNS (real MTPZ
+> hardware remains N-A); **Collection** has a two-tier hierarchy, smart playlists,
+> FTS5 search and per-track Find-Album-Info; **Now Playing** has three modes incl.
+> libVLC video; **Podcasts** normalize and play feeds; **Listening intelligence** adds
+> DSP audio features and Dynamic Mixes; plugins, badges/reviews, i18n (en/fr),
+> AcoustID enrichment and clean-room visuals ship. Remaining below-70% domains:
+> **G. CD Land** (~40%, capability-gated — no optical drive), **J. Social/Marketplace**
+> (N-A, dead servers), **M. Platform services** (~60%: no UPnP/share/MUI), and
+> **H. Device sync** (~70%, MTPZ hardware N-A).
 
-Dorado is a **faithful UI shell** with a **growing feature set** built on clean architecture, but it has **one critical structural gap: there is no real audio playback engine** — `AudioEngine` (`src/Dorado.Infrastructure.Audio/AudioEngine.cs`) is a position-ticker simulation and no audio library (NAudio/ManagedBass) is referenced anywhere. Every audible experience (music, crossfade, ReplayGain, volume, the visualizer, podcast streams) is currently simulated; the only real audio output is `SoundEffectService` playing authentic Zune WAV chimes through OS CLI players.
+| Domain | Parity | Verdict |
+|---|---|---|
+| A. Shell & Navigation | **~92%** | Authentic chrome, pivots, transport, shortcuts |
+| B. Quickplay | **~85%** | Decks + hearts-aware Smart DJ; procedural hub map (authentic PNG maps absent) |
+| C. Collection (music) | **~92%** | Two-tier browsing, smart playlists, FTS5, per-track Find-Album-Info |
+| D. Now Playing | **~90%** | Three modes incl. libVLC video; Ken-Burns; drawers |
+| E. Mixview | **~72%** | Local mosaic + DSP similarity + external MusicBrainz satellites |
+| F. Audio engine | **~88%** | Real ManagedBass: gapless, crossfade, ReplayGain, 10-band EQ, FFT |
+| G. CD Land | **~40%** | Full UI, simulated rip/burn (no optical drive) |
+| H. Device sync & lifecycle | **~70%** | Sync engine + MTP seam + LAN sync/mDNS; MTPZ hardware N-A |
+| I. Podcasts | **~85%** | Subscribe + normalization + mark-played + stream playback |
+| J. Social / Marketplace / Account | **N-A (local substitute)** | Servers dead; Zune Card + tiered badges + local reviews |
+| K. Settings & Management | **~88%** | 13 software + 4 device pages, plugins, language, dark/light themes |
+| L. First-launch & onboarding | **~90%** | Wizard + What's New + FirstConnect |
+| M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis; UPnP/share/MUI deferred |
+
+**Weighted overall parity: ≈ 88%.**
+
+#### Original pre-Phase-5 snapshot (historical)
+
+Dorado was a **faithful UI shell** with a growing feature set built on clean architecture,
+but at that time had **one critical structural gap: no real audio playback engine** —
+`AudioEngine` was a position-ticker simulation and no audio library was referenced. Every
+audible experience was simulated; the only real audio output was `SoundEffectService`
+playing Zune WAV chimes.
 
 | Domain | Parity | Verdict |
 |---|---|---|
@@ -55,12 +90,7 @@ Dorado is a **faithful UI shell** with a **growing feature set** built on clean 
 | L. First-launch & onboarding | **MISSING (0%)** | No wizard |
 | M. Platform services (ZMDB, sharing) | **PARTIAL (~40%)** | SQLite substitute; no UPnP/share/MUI |
 
-**Weighted overall parity: ≈ 55–60%** (weighting UI presentation strongly, hardware-dependent features neutrally).
-
-**Top 3 actions for Phase 5:**
-1. **Real audio playback engine** — integrate a cross-platform .NET 8 audio library (NAudio WASAPI/ALSA or ManagedBass); this unblocks crossfade, ReplayGain, volume, gapless, FFT visualizer, and podcast playback. *Everything else in the audio domain is blocked on this.*
-2. **First-launch onboarding wizard** (welcome → monitored folders → privacy → done; mirrors `FirstLaunchLand` flow).
-3. **Find Album Info track matching** — extend the Phase 4 art lookup to the per-track metadata review dialog Zune used (`FINDALBUMINFOSONGMATCH.UIX`).
+**Weighted overall parity at that time: ≈ 55–60%.**
 
 ---
 
@@ -76,13 +106,13 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Panoramic top pivots (4: QUICKPLAY/COLLECTION/DEVICE/SETTINGS) | `PIVOTLIST.UIX`, `Shell.uix` | `NavigationPivot` + opacity-modulated pivot strip (adds SOCIAL/DISC/MIXVIEW — deliberate extension) | FULL |
 | Docked bottom transport (hairline scrub, tri-state heart) | `TRANSPORTCONTROLS.UIX`, `BOTTOMTOOLBAR.UIX` | Docked HUD + authentic transport assets | FULL |
 | Page stack with back navigation | `PAGESTACK.UIX`, `Page.cs`, `ZunePage.cs` | Pivot switching only; back-stack exists solely in Mixview (`MixStack`) | PARTIAL |
-| Search box with autocomplete | `AUTOCOMPLETEBOX.UIX` | Instant header search (no autocomplete dropdown) | PARTIAL |
+| Search box with autocomplete | `AUTOCOMPLETEBOX.UIX` | Async search autocomplete across collections/podcasts/videos | FULL |
 | Global keyboard shortcuts | `SHORTCUTKEYS.UIX` | Ctrl+P/B/F/H/T/M/E, F7–F9, Esc | FULL |
 | Min window 734×500 | `Shell.c_minimumWindowWidth/Height` | `MainWindow.axaml` | FULL |
 | Compact mini-player (audio) | `MINIMODE.UIX`, `MINIMODEAUDIO.UIX`, `MINIMODEJUMPLIST.UIX` | `CompactMiniPlayerView` (420×130, Ctrl+M) | PARTIAL (no jump-list hook, no video mini-mode) |
 | Notification area / taskbar integration | `NOTIFICATIONAREA.UIX`, `ZuneTaskbar_Dll` | None (platform-specific) | N-A |
 | Jump lists (recent/pinned tasks) | `JUMPLIST.UIX`, `JUMPINLIST.UIX` | None (Windows shell feature) | N-A |
-| "What's New" hub tile | `WHATSNEW.UIX` | — | MISSING |
+| "What's New" hub tile | `WHATSNEW.UIX` | What's New dialog on version change | FULL |
 | Animated equalizer icon | `ANIMATEDICONBUTTON.UIX` | 10-frame `ICON.NOWPLAYING.FRAME*` cycle | FULL |
 
 ### B. Quickplay
@@ -92,8 +122,8 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Pins / History / New 3-deck panorama | `QUICKPLAYSTRIP.UIX`, `QUICKPLAYMODULE.UIX`, `QuickplayPage.cs`, `QuickplayExperience.cs` | `QuickplayView` 3-deck sliding panorama | FULL |
 | Quick Mix one-click mix | `QUICKMIX.UIX`, `QuickMixSessionManager.cs`, `QuickMixPlaylistFactory.cs` | `SmartDJEngine` (local-library scoring) | PARTIAL (substitute; Zune's used marketplace) |
 | Quick Mix progress + notification | `QuickMixProgress.cs`, `QuickMixNotification.cs` | Mix launch + queue population | PARTIAL |
-| Hub hero artwork maps | `QuickPlayMap_*.png`, `SoftwareMap_*.png` | Card-based hero (no artwork maps) | MISSING |
-| Auto-playlist dialog | `AUTOC/ AUTOPLAYLISTDIALOG.UIX` | — | MISSING |
+| Hub hero artwork maps | `QuickPlayMap_*.png`, `SoftwareMap_*.png` | Procedural golden-angle hub map (`HubMapControl`); authentic PNG maps absent | PARTIAL |
+| Auto-playlist dialog | `AUTOC/ AUTOPLAYLISTDIALOG.UIX` | Rule-based smart-playlist editor (`SmartPlaylistEditorView`) | FULL |
 | Radio panel (streams) | `RADIOPANEL.UIX`, `RadioPage.cs` | — | N-A (dead streams) |
 | Ad/best-value tiles | `BESTVALUE.UIX`, `BILLINGOFFER.UIX` | — | N-A |
 
@@ -106,13 +136,13 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Dense track data table | `TRACKSPANEL.UIX`, `TRACKSPANELCOLUMNS.UIX`, `SPREADSHEET*.UIX` | Songs data table | FULL |
 | Genre hub | `GENRESPANEL.UIX` | Genres card grid | FULL |
 | Playlists + ZPL export | `PLAYLISTS*.UIX`, `PLAYLISTDIALOG.UIX`, `ADDTOPLAYLIST.UIX`, `Microsoft.Zune.Playlist` | `PlaylistsView`, ZPL XML export | FULL |
-| Smart/auto playlists | `AUTOPLAYLISTDIALOG.UIX` | — | MISSING |
+| Smart/auto playlists | `AUTOPLAYLISTDIALOG.UIX` | Rule-based auto playlists | FULL |
 | Metadata editor | `EDITMEDIAINFODIALOG.UIX`, `EDITMEDIAINFOCONTROLS.UIX` | `MetadataEditView` + TagLibSharp writeback | FULL |
-| Find Album Info (per-track match + art) | `FINDALBUMINFODIALOG.UIX`, `FINDALBUMINFOSONGMATCH.UIX`, `AlbumArtUpdateHandler.cs` | Phase 4 art-only lookup (no per-track matching review) | PARTIAL |
+| Find Album Info (per-track match + art) | `FINDALBUMINFODIALOG.UIX`, `FINDALBUMINFOSONGMATCH.UIX`, `AlbumArtUpdateHandler.cs` | Per-track match review (`TrackMatchReviewView`) | FULL |
 | Folder watching | `FirstLaunchMonitoredFoldersPage.cs`, `ADDTOCOLLECTION.UIX` | Debounced `FileSystemWatcher` | FULL |
 | Ratings (heart / broken heart) | `RATING.LIKEIT/HATEIT.PNG` | Context menus + HUD hearts | FULL |
-| **Video library** | `VIDEOLIBRARY.UIX`, `VideoLibraryPage.cs`, `VideosPanel.cs` | — | MISSING |
-| **Photo library + gallery + slideshow** | `PHOTOLIBRARY.UIX`, `GALLERYVIEW.UIX`, `PHOTOSLIDESHOW.UIX`, `SlideshowLand.cs` | — | MISSING |
+| **Video library** | `VIDEOLIBRARY.UIX`, `VideoLibraryPage.cs`, `VideosPanel.cs` | libVLC-backed `VideoLibraryView` | FULL |
+| **Photo library + gallery + slideshow** | `PHOTOLIBRARY.UIX`, `GALLERYVIEW.UIX`, `PHOTOSLIDESHOW.UIX`, `SlideshowLand.cs` | Photo library + slideshow views | FULL |
 
 ### D. Now Playing
 
@@ -124,8 +154,8 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Lyrics & bio drawer | `NOWPLAYINGLAND.UIX` | Real Wikipedia bios + LRCLIB lyrics (Phase 4) | FULL |
 | Album mosaic wall | `NOWPLAYINGALBUMGRIDDEFS.UIX` | MosaicWall mode | FULL |
 | Auto-hiding HUD | `NowPlayingLand.cs` (idle timers) | 3.5s idle fade | FULL |
-| Now Playing video clips | `NOWPLAYINGCLIPS.UIX` | — | MISSING (no video) |
-| Ambient visualizer | (rendered by Iris engine) | Simulated spectrum bars (no FFT — blocked on audio engine) | SIMULATED |
+| Now Playing video clips | `NOWPLAYINGCLIPS.UIX` | libVLC clips in the main video surface | FULL |
+| Ambient visualizer | (rendered by Iris engine) | Real 75 ms FFT visualizer (24 perceptual bands) | FULL |
 
 ### E. Mixview
 
@@ -141,13 +171,13 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 | Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
-| Real audio playback (decode + output) | `ZuneSE_dll`, `ZuneCore_Dll`, codec DLLs | `AudioEngine` = position timer only; no NAudio/Bass/WASAPI | **SIMULATED** |
-| Volume control | `TRANSPORTCONTROLS.UIX` slider | Stored property, no signal path | SIMULATED |
-| Crossfade (0–10s) + gapless | `SyncControls`-adjacent playback options | `CrossfadeDurationSeconds` plumbed through UI only | SIMULATED |
-| ReplayGain / volume leveling | `ReplayGainTrackGainDb` fields in `ZuneDBApi` (`TrackMetadata`) | Settings toggle, no DSP | SIMULATED |
+| Real audio playback (decode + output) | `ZuneSE_dll`, `ZuneCore_Dll`, codec DLLs | Real BASS/ManagedBass decode + output | **FULL** |
+| Volume control | `TRANSPORTCONTROLS.UIX` slider | Real BASS volume/mute | FULL |
+| Crossfade (0–10s) + gapless | `SyncControls`-adjacent playback options | Equal-power crossfade + gapless chaining | FULL |
+| ReplayGain / volume leveling | `ReplayGainTrackGainDb` fields in `ZuneDBApi` (`TrackMetadata`) | ReplayGain DSP pass | FULL |
 | Sound effects (completion chimes) | `COMPLETEDSYNCBURNCD.WAV` et al. | `SoundEffectService` real WAV playback via OS CLI | FULL |
-| MP3/WMA/AAC encode (rip) | `ZuneEncEngDLL`, `ZuneEncEXE` | Simulated rip progress | SIMULATED |
-| AAC/H.264 decode, EVR/DXVA video | `ZuneAACDec_Dll`, `ZuneH264Dec_Dll`, `ZuneDXVA2_Dll`, `ZuneEvr_Dll` | — | MISSING |
+| MP3/WMA/AAC encode (rip) | `ZuneEncEngDLL`, `ZuneEncEXE` | FFmpeg transcode during sync; rip remains simulated | PARTIAL |
+| AAC/H.264 decode, EVR/DXVA video | `ZuneAACDec_Dll`, `ZuneH264Dec_Dll`, `ZuneDXVA2_Dll`, `ZuneEvr_Dll` | libVLC decode/playback (not EVR/DXVA) | FULL |
 
 ### G. CD Land
 
@@ -165,13 +195,13 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Device land + segmented gas gauge | `DEVICELANDELEMENTS.UIX`, `GASGAUGE.UIX`, `Deviceland.cs`, `DeviceExperience.cs` | `DeviceView` + 6-segment authentic gauge | FULL (data simulated) |
 | Space reservation | `DEVICESPACERESERVATION.UIX` | Slider + GB preview (Settings + Device) | FULL (persisted Phase 4) |
 | Sync options & sync groups | `DEVICESYNCOPTIONS.UIX`, `DEVICESYNCGROUPS.UIX`, `SyncGroup.cs`, `SchemaSyncGroup.cs`, `SyncCategory.cs`, `SyncMode.cs` | Music/podcast rule selection lists | PARTIAL (no real sync-group engine) |
-| Sync animation/toast | `SYNCANIMATION.UIX`, `SYNCINSTRUCTIONTOAST.UIX`, `SYNCNOTIFICATION.UIX`, `SyncNotification.cs` | Status text | MISSING |
-| MTP device contents browsing | `IDeviceContentsPage.cs`, `DEVICEPICTUREVIDEO.UIX` | — | MISSING (N-A without hardware) |
-| Wireless sync | `WIRELESSSYNC.UIX`, `WirelessSyncWizard.cs`, `WirelessSync*.Page.cs` | Wireless settings UI states | SIMULATED |
+| Sync animation/toast | `SYNCANIMATION.UIX`, `SYNCINSTRUCTIONTOAST.UIX`, `SYNCNOTIFICATION.UIX`, `SyncNotification.cs` | Sync toast + slide-in animation | FULL |
+| MTP device contents browsing | `IDeviceContentsPage.cs`, `DEVICEPICTUREVIDEO.UIX` | `MtpTransport` seam + virtual hardware-N-A | PARTIAL (N-A without hardware) |
+| Wireless sync | `WIRELESSSYNC.UIX`, `WirelessSyncWizard.cs`, `WirelessSync*.Page.cs` | LAN sync endpoint + mDNS for Dorado-HD; Zune-native wireless N-A | PARTIAL |
 | Windows Phone wireless sync | `MOBILEWIRELESSSYNC.UIX`, `MobileWirelessSyncWizard.cs` | — | N-A |
 | Firmware update / restore / rollback | `DEVICEUPDATE*.UIX`, `DEVICE RESTORE*.UIX`, `DeviceRollback*.cs`, `ZuneWmduDLL` | — | MISSING (N-A hardware) |
-| USB bus (kernel driver + enum svc + MTPZ) | `Zumbus.sys`, `ZuneBusEnumSvc`, `ZuneMTPZ_dll`, `ZuneUsbTransport_dll` | `Infrastructure.Devices` simulated sync; `ZuneUsbHttpInterceptor` (localhost placeholder for USB-PPP interception) | SIMULATED |
-| Guest sync | `GuestSchemaSyncGroup.cs`, `FirstConnectDeviceGuestWarning` | — | MISSING |
+| USB bus (kernel driver + enum svc + MTPZ) | `Zumbus.sys`, `ZuneBusEnumSvc`, `ZuneMTPZ_dll`, `ZuneUsbTransport_dll` | MTP seam (`LibUsb`/virtual) + LAN sync; kernel driver N-A | PARTIAL |
+| Guest sync | `GuestSchemaSyncGroup.cs`, `FirstConnectDeviceGuestWarning` | Guest sync sessions | FULL |
 
 ### I. Podcasts
 
@@ -205,7 +235,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Burn settings | `MANAGEMENTBURN.UIX` | BURN sub-pivot | FULL (burner simulated) |
 | Metadata settings | `MANAGEMENTMETADATA.UIX` | Metadata sub-pivot + provider gating (Phase 4) | FULL |
 | Display settings | `MANAGEMENTDISPLAY.UIX` | Display sub-pivot (accents, themes, compact) | FULL |
-| General/file-type/privacy/sharing | `MANAGEMENTGENERAL/FILETYPES/PRIVACY/SHARING.UIX` | — | MISSING (privacy/sharing partly N-A) |
+| General/file-type/privacy/sharing | `MANAGEMENTGENERAL/FILETYPES/PRIVACY/SHARING.UIX` | General/file-types/privacy ship; sharing N-A | PARTIAL |
 | Subscription/purchases/rentals | `MANAGEMENTSUBSCRIPTION/PURCHASES/RENTALS.UIX` | — | N-A |
 | Settings persistence | `ZuneCfg_Dll` | `JsonSettingsStore` (Phase 4) | FULL |
 
@@ -213,9 +243,9 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 | Zune 4.8 feature | Evidence | Dorado | Status |
 |---|---|---|---|
-| First-launch wizard (welcome→folders→filetypes→privacy) | `FIRSTLAUNCH.UIX`, `FirstLaunch*.Page.cs` ×7 | Demo-data seed only | MISSING |
+| First-launch wizard (welcome→folders→filetypes→privacy) | `FIRSTLAUNCH.UIX`, `FirstLaunch*.Page.cs` ×7 | First-launch wizard (welcome→folders→scan→done) | FULL |
 | First-connect device wizard | `FIRSTCONNECT.UIX`, `FirstConnect*.Page.cs` ×6 | — | N-A hardware |
-| Setup land | `SETUPLAND.UIX`, `SetupLandPage.cs` | — | MISSING |
+| Setup land | `SETUPLAND.UIX`, `SetupLandPage.cs` | Covered by the first-launch wizard + What's New | PARTIAL |
 
 ### M. Platform Services
 
@@ -226,10 +256,10 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Play-history & stats | `MicrosoftZuneLibrary` history tables | `PlayHistoryEntry` + `UserStatsService` | FULL (substitute) |
 | Network media sharing (UPnP/WMC) | `ZuneNssExe`, `ZuneShareEXE`, `ContentDirectoryXML`, `MediaReceiverRegistrarXML` | — | MISSING |
 | Background service host | `ZuneService_Dll` | In-process coordinators | PARTIAL |
-| Multi-language MUI (26 locales) | `ZuneResources_Mui`, `*mui` files | English only | MISSING |
+| Multi-language MUI (26 locales) | `ZuneResources_Mui`, `*mui` files | en/fr shipped; 24 locales remain deferred | PARTIAL |
 | Explorer shell extension / launcher | `ZuneShellExt_Dll`, `ZuneLauncherEXE` | — | N-A |
 | x64 build | `zune-x64.msi` | .NET 8 cross-platform (x64/arm64 CI) | FULL |
-| Plugin extensibility | (none in Zune — COM/registry only) | `Dorado.Plugins.Protocol` JSON-RPC scaffold (unused) | FULL (exceeds Zune) |
+| Plugin extensibility | (none in Zune — COM/registry only) | Out-of-process JSON-RPC plugin host + reference plugins | FULL (exceeds Zune) |
 
 ---
 
@@ -246,16 +276,19 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 ---
 
-## 5. Phase 5+ Roadmap (ranked)
+## 5. Phase 5+ Roadmap (historical — shipped or superseded)
 
-1. **P0 — Real audio playback engine.** Add NAudio (WASAPI on Windows, ALSA/PulseAudio on Linux) or ManagedBass to `Infrastructure.Audio`; rewire `PlaybackQueueCoordinator` to a real output device. Unblocks: volume, crossfade, gapless, ReplayGain, FFT visualizer, podcast/CD playback. *This is the single highest-leverage parity item.*
-2. **P1 — First-launch wizard** (`FIRSTLAUNCH.UIX` flow): welcome → monitored folders → done, with demo-data decision point.
-3. **P1 — Find Album Info track matching**: per-track MBID resolution + review dialog (`FINDALBUMINFOSONGMATCH.UIX` parity), optionally honoring `WriteTagsToFile`.
-4. **P2 — Smart/auto playlists** (`AUTOPLAYLISTDIALOG.UIX` parity): rule-builder persisted like ZPL playlists.
-5. **P2 — Mixview rating tiles wiring** (like/hate/info/add actions on constellation nodes using the already-extracted `MIX.*` assets).
-6. **P3 — Video support** (playback engine extension + `VIDEOLIBRARY.UIX` view) and **Photo library + slideshow**.
-7. **P3 — Sync UX polish** (sync animation, instruction toast, notification area).
-8. **Deferred (N-A/hardware):** MTPZ device sync internals, firmware update/restore, wireless pairing, UPnP sharing.
+> Every item below shipped during Phases 5–23 except the N-A hardware rows, which are
+> recorded in [`deferred_registry.md`](deferred_registry.md).
+
+1. ✅ **P0 — Real audio playback engine.** Shipped as BASS/ManagedBass in `Infrastructure.Audio` (gapless, crossfade, ReplayGain, 10-band EQ, FFT, podcast/CD playback).
+2. ✅ **P1 — First-launch wizard** (`FIRSTLAUNCH.UIX` flow): welcome → monitored folders → scan → done, plus What's New.
+3. ✅ **P1 — Find Album Info track matching**: per-track MBID resolution + review dialog (`FINDALBUMINFOSONGMATCH.UIX` parity).
+4. ✅ **P2 — Smart/auto playlists** (`AUTOPLAYLISTDIALOG.UIX` parity): rule-builder persisted like ZPL playlists.
+5. ✅ **P2 — Mixview tiles wiring**: constellation nodes with similarity ranking and external related-artist satellites.
+6. ✅ **P3 — Video support** (`VIDEOLIBRARY.UIX` view via libVLC) and **Photo library + slideshow**.
+7. ✅ **P3 — Sync UX polish** (sync animation, instruction toast, gas gauge).
+8. ⏳ **Deferred (N-A/hardware):** MTPZ device sync internals, firmware update/restore, wireless pairing, UPnP sharing.
 
 ---
 
@@ -263,4 +296,4 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 
 - Managed-code evidence is complete (`ZuneShell_Dll` + `ZuneDBApi_Dll` fully decompiled); native components (`UIX_*`, `ZuneSE_dll`, `ZuneEncEngDLL`, `ZuneMTPZ_dll`, `Zumbus.sys`) were inventoried but not disassembled at machine-code level — their behavior is inferred from names, interfaces, strings, and the managed layers that call them.
 - UIX documents are compiled `.uib` bytecode in `ZuneShellResources_Dll` RCDATA; the 241 `.UIX` source names + 1,289 asset names used here come from the resource table (assets previously ingested into `src/Dorado.UI/Assets/Zune/`).
-- Feature statuses were verified against the Dorado source tree (13 views, 13 view-models, 10 application interfaces, 6 application services, 4 infrastructure projects, 58 passing tests) as of commit `6570600`.
+- Feature statuses were re-verified against the Dorado source tree (15 source projects, 22 views, 393 passing tests) as of 2026-09-10 (post Phase 23).

@@ -37,6 +37,7 @@ Dorado phase it informs, and the licensing constraints on reuse.
 | [`ZuneDev/ZuneModdingHelper`](https://github.com/ZuneDev/ZuneModdingHelper) | Applies community mods to the Zune software; firmware/mod territory, out of scope (hardware N-A). |
 | [`zunes/zunes.me`](https://github.com/zunes/zunes.me) | Community hub/site; provenance and docs reference. |
 | [`syntax-tm/zunesoftware`](https://github.com/syntax-tm/zunesoftware) | Chocolatey package source; packaging/preservation reference. |
+| [AcoustID](https://acoustid.org) / [Chromaprint](https://acoustid.org/chromaprint) (`fpcalc`) | Fingerprint service + tool used by `AcoustIdService`/`FpcalcFingerprintProvider` for scan-time metadata and acoustic dedup. Public API + MIT-style tooling; not a code source. |
 
 ---
 
@@ -48,8 +49,11 @@ Dorado phase it informs, and the licensing constraints on reuse.
 | **13 — Listening intelligence** | rune | Per-track audio-feature vectors (BPM/key/energy/spectral), similarity search, auto-updating dynamic Mixes ("similar to album", "top 100", "similar to favorites"). |
 | **14 — Podcast modernization** | zune-podcasts | Feed normalization + redirect resolution + enclosure sanitation before library ingest. |
 | **15 — MTP transport seam** | android-file-transfer-linux | MTP object enumeration/transfer semantics; validated against an in-repo virtual MTP target. |
-| **16 — Fidelity polish** | Xune, Zune-Research, spune | Iris-style motion/easing, art-frame animation, visualizer behavior. |
+| **16 — Fidelity polish** | Xune, Zune-Research, spune | Iris-style motion/easing, visualizer behavior (the authentic art-frame animation was replaced by the clean-room `IrisArtControl`). |
 | **17 — i18n** | rune | Resource-extraction discipline, locale config, translation workflow. |
+
+> **Status (2026-09-10):** Phases 12–23 have shipped. This table records *what each source
+> informed*; the remaining open fidelity items live in `deferred_registry.md`.
 
 ---
 
@@ -66,5 +70,6 @@ Dorado phase it informs, and the licensing constraints on reuse.
 ## 5. Maintenance
 
 - Add a row when a new community project materially informs a phase.
-- Update the **informs** column when a phase ships.
-- Re-verify licenses before any code-level consultation.
+- Update the **informs** column when a phase ships (applied through Phase 23).
+- Re-verify licenses before any code-level consultation; rows marked *verify* are
+  treated as all-rights-reserved (ideas only) until confirmed.

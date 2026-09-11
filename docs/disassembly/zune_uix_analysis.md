@@ -1,5 +1,12 @@
 # Microsoft Zune Desktop 4.8 Disassembly & Iris UI Analysis
 
+> **Provenance & clean-room note.** Recorded from a local reverse-engineering pass
+> over the Zune 4.8 desktop package. The corpus is **not** distributed with Dorado
+> (kept external at `../zune-disassembly/`), and none of the referenced Microsoft
+> binary assets or fonts are bundled. Where a token or metric is used in code it is
+> re-created clean-room (OFL Selawik for Segoe-metric type; procedural vector art
+> for glyphs).
+
 ## 1. Overview & Architecture
 
 We disassembled the official Microsoft Zune Desktop 4.8 package (`ZunePackage.exe`), extracted the core installer payload `Zune-x86.msi`, and unpacked its primary presentation libraries:
@@ -28,13 +35,13 @@ Zune's UI was engineered using Microsoft's **Iris UI Framework** (originally cre
 ### Window Constraints
 - Minimum Window Width: **734 px** (`Shell.c_minimumWindowWidth`)
 - Minimum Window Height: **500 px** (`Shell.c_minimumWindowHeight`)
-- Default Window Canvas: Matte Pitch Black `#11090F` (RGB: 17, 9, 15) with subtle warmth for Quickplay / Collection, or `#111111` matte charcoal.
+- Default Window Canvas: Matte Pitch Black `#11090F` (RGB: 17, 9, 15) with subtle warmth for Quickplay / Collection, or `#161616` charcoal.
 - Light Theme Background: `#F3EFF1` (RGB: 243, 239, 241).
 
-### Typography Metrics (`SEGOEZ-LIGHT.TTC`)
-- Authentic Font: **Segoe Zune Light** (`SEGOEZ-LIGHT.TTC`, TrueType Collection containing 4 font variations).
+### Typography Metrics
+- Authentic typeface: **Segoe Zune Light** (a `SEGOEZ-LIGHT.TTC` TrueType Collection in the original software). Dorado ships **OFL Selawik** as the metric stand-in and bundles no Microsoft font.
 - Hero Titles: 42pt – 54pt Light, tight tracking.
-- Primary Panoramic Pivots: 32pt Light, uppercase (`QUICKPLAY`, `COLLECTION`, `DEVICE`).
+- Primary Panoramic Pivots: 34pt Light, uppercase (`QUICKPLAY`, `COLLECTION`, `DEVICE`).
 - Sub-Pivots: 18pt – 20pt Light, lowercase (`artists`, `albums`, `songs`, `genres`).
 - Content Headers: 14pt – 16pt SemiBold.
 - Body Text: 11pt Regular.
@@ -45,27 +52,16 @@ Zune's UI was engineered using Microsoft's **Iris UI Framework** (originally cre
   - Inactive: 40% white (`#666666`)
   - Ambient Watermark: 8% white (`#181818`)
 
-### Extracted Authentic Graphics (`src/Dorado.UI/Assets/Zune/`)
-- **Transport Bar**:
-  - `TRANSPORT.PLAY.PNG` (35x35 32-bit RGBA)
-  - `TRANSPORT.PAUSE.PNG` (35x35 32-bit RGBA)
-  - `TRANSPORT.BACK.PNG` (Previous track)
-  - `TRANSPORT.FORWARD.PNG` (Next track)
-  - `TRANSPORT.SHUFFLE.ON.PNG`, `TRANSPORT.SHUFFLE.OFF.PNG`
-  - `TRANSPORT.REPEAT.ON.PNG`, `TRANSPORT.REPEAT.OFF.PNG`
-  - `TRANSPORT.MUTE.ON.PNG`, `TRANSPORT.MUTE.OFF.PNG`
-- **Ratings**:
-  - `RATING.LIKEIT.PNG` (17x15 Heart glyph)
-  - `RATING.HATEIT.PNG` (17x15 Broken Heart glyph)
-  - `RATING.NOTRATED.PNG`
-- **Branding & Logos**:
-  - `ZUNELOGO.PNG` (36x38)
-  - `ZUNECOLORLOGO.PNG`
-  - `ZUNELOGOTEXT.PNG`
-  - `QUICKMIXICON.PNG`
-  - `ZUNEHDDEVICES.PNG`
-- **Window Controls**:
-  - `WINDOW.CLOSE.PNG` (14x15)
-  - `WINDOW.MINIMIZE.PNG`
-  - `WINDOW.MAXIMIZE.PNG`
-  - `WINDOW.RESTORE.PNG`
+### Extracted Authentic Graphics (historical — not bundled)
+
+> The original extraction catalogue listed Zune-named PNG glyphs (transport, ratings,
+> window controls, logos) under `src/Dorado.UI/Assets/Zune/`. Per the P0 IP
+> remediation those Microsoft assets are **no longer in the repository**. The current
+> `src/Dorado.UI/Assets/` holds only the OFL **Selawik** fonts and clean-room
+> `DORADO-*` backgrounds/sounds; all transport/rating/window glyphs are re-created as
+> procedural vectors in code. The catalogue below is retained for reference only.
+
+- **Transport Bar**: `TRANSPORT.PLAY/PAUSE/BACK/FORWARD/SHUFFLE/REPEAT/MUTE` (35x35 RGBA)
+- **Ratings**: `RATING.LIKEIT` (heart), `RATING.HATEIT` (broken heart), `RATING.NOTRATED`
+- **Branding**: `ZUNELOGO`, `ZUNECOLORLOGO`, `ZUNELOGOTEXT`, `QUICKMIXICON`, `ZUNEHDDEVICES`
+- **Window Controls**: `WINDOW.CLOSE/MINIMIZE/MAXIMIZE/RESTORE`

@@ -1,7 +1,12 @@
 # Deferred Registry (documented, not scheduled)
 
-Items consciously deferred after the true-parity program (Phases 5–9) with rationale.
+Items consciously deferred after the true-parity program (Phases 5–23) with rationale.
 Each is a possible future work item; none blocks the Zune 4.8 experience Dorado delivers.
+
+Items that **shipped** and were removed from this set: real DSP audio analysis
+(`DspFeatureExtractor`), Mixview external related-artist satellites (MusicBrainz),
+AcoustID scan-time metadata + acoustic dedup, and procedural chevron scroll
+affordances.
 
 | Item | Origin | Rationale for deferral |
 |---|---|---|
@@ -15,9 +20,8 @@ Each is a possible future work item; none blocks the Zune 4.8 experience Dorado 
 | **CD Land real pipeline (Phase 10)** | Capability-gated phase | No optical drive is available on the development machine; the DISC view stays in its manual/simulated mode. Implementation should be done blind against platform tooling (`cdparanoia`/`cdrdao`/IMAPI2) only if explicitly requested. |
 | **A–Z type-ahead — remaining lists** | `SHORTCUTKEYS.UIX` KeyCommandA–Z + JumpInList | Phase 19c shipped the `TypeAheadBuffer`/`TypeAheadSearch` jump across Collection (artists/albums/songs/genres), Podcasts, Videos, and Playlists. Remaining secondary lists (e.g. Smart-playlist detail, device contents) can adopt the same helper incrementally. |
 | **Real OS file associations (FILETYPES.UIX)** | `FileTypes` settings page | Zune's file-types page wired the Windows registry / Linux `mimeapps.list` for `.mp3/.m4a/.mp4` etc. Dorado's file-types page ships an in-app ingest-extension editor; OS-level registration is invasive (Windows assoc writes require elevation on some installs, Linux MIME registration is per-desktop-environment) and would need a per-platform installer hook. Left as a future cross-platform integration. |
-| **Chevron scroll-arrow overlay on the pivot strip** | `PIVOTLIST.UIX` | Phase 16b shipped pointer drag-to-pan with friction inertia (plus wheel-pan); the decorative chevron scroll-arrow assets remain deferred (assets absent post IP move). |
+| **Authentic chevron PNG assets on the pivot strip** | `PIVOTLIST.UIX` | Phase 16b shipped pointer drag-to-pan with friction inertia; Phase 22 shipped procedural vector chevron scroll affordances. The original decorative PNG chevron art remains absent post IP move.|
 | **Settings "sharing" page** (UPnP / `ZuneNSS` / `ZuneShareEXE`) | Software settings list (Zune 4.8) | The UPnP/media-sharing server target is covered under the existing UPnP row above. The standalone settings page that toggled per-device "music/video/photos can be shared" can be added once a sharing transport exists; today the equivalent rule surface lives on the device sync-options page. |
 | **OS media integration — MPRIS2 (Linux) / SMTC (Windows) + hardware media keys** | Desktop player expectation (not Zune-specific) | Not implemented. `GEMINI.md` formerly claimed these; corrected in Phase 18. Native D-Bus/WinRT dependencies are acceptable behind capability guards, so this is a candidate future track, not a dead end. |
-| **Real DSP audio analysis** | Phase 13 caveat | ✅ Implemented (`DspFeatureExtractor`: STFT centroid, RMS, ZCR, onset-autocorrelation tempo over decoded PCM via `IPcmDecoder`/`BassPcmDecoder`); the metadata prior remains the fallback when decoding is unavailable. |
 
-Last updated: 2026-09-10 (post Phases 12–17 + Phase 18 reconciliation).
+Last updated: 2026-09-10 (post Phase 23; program complete).

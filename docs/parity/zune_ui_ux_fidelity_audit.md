@@ -12,13 +12,20 @@ The Microsoft Zune Desktop client (versions 1.0 through 4.8) remains one of the 
 
 **Dorado** has achieved remarkable foundational engineering: a cross-platform .NET 8 / Avalonia client with real ManagedBass audio decoding, gapless playback, ReplayGain, FTS5 searching, libVLC video, TagLib metadata editing, and local Zune Card analytics.
 
-However, when held under microscopic comparison against the authentic Zune 4.8 disassembly corpus and Iris UI architecture, **significant UI/UX fidelity gaps and architectural divergences emerge**. While Dorado looks "Zune-inspired" at a casual glance, its navigation hierarchy, component borders, motion physics, iconographic fidelity, and micro-interactions deviate from the real client.
+However, when held under microscopic comparison against the authentic Zune 4.8 disassembly corpus and Iris UI architecture, significant fidelity gaps and architectural divergences emerged at the time of this audit. While Dorado looked "Zune-inspired" at a casual glance, its navigation hierarchy, component borders, motion physics, iconographic fidelity, and micro-interactions deviated from the real client.
+
+> **Status (2026-09-10, refreshed).** This audit drove Phases A–I; the framework, layout
+> and micro-interaction remediation shipped. The "Phase A–I target" column records the
+> Phase targets, **not** a claim of literal 100% parity — residual gaps remain (Smart DJ
+> timeout tuning, CD rip/burn, real MTPZ hardware, i18n, playlists search) and are tracked
+> in [`deferred_registry.md`](deferred_registry.md) and the `README.md` scorecard
+> (weighted parity **~88%**).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                       OVERALL FIDELITY SCORECARD                          │
 ├────────────────────────┬─────────────┬──────────────┬──────────────────────┤
-│ Domain                 │ Dorado Pre  │ Authentic 4.8│ Status After Audit   │
+│ Domain                 │ Dorado Pre  │ Authentic 4.8│ Phase A–I Target     │
 ├────────────────────────┼─────────────┼──────────────┼──────────────────────┤
 │ 1. Typography & Tokens │ 82%         │ 100%         │ 100% (A/I)           │
 │ 2. Borderless Geometry │ 65%         │ 100%         │ 100% (A)             │
@@ -90,17 +97,19 @@ AUTHENTIC ZUNE 4.8 HIERARCHY:
     ├── SOFTWARE ────► collection | playback | podcasts | file types | privacy | photos | rip | burn | metadata | display | general | about
     └── DEVICE ──────► sync options | space reservation | wireless sync | device info
 
-CURRENT DORADO HIERARCHY:
+SHIPPED DORADO HIERARCHY (two-tier, Phases A–C):
 ├── Header Pivot Strip:
 │   QUICKPLAY | COLLECTION | DEVICE | DISC | SOCIAL
 │   (DISC and SOCIAL are surfaced as permanent top-level pivots)
-└── Inside Collection:
-    artists | albums | songs | genres | podcasts | playlists | videos | pictures
-    (Flattened single strip mixing music view modes with entire media classes)
+└── Inside Collection (media groups → sub-pivots):
+    music    → artists | albums | songs | genres
+    videos   → all | movies | tv | music videos
+    pictures → all | albums | date taken | favorites
+    podcasts → audio | video | subscriptions | episodes
 ```
 
 #### Discrepancy Analysis:
-1. **Flattening of Media Classes:** In authentic Zune, `videos`, `pictures`, and `podcasts` are peer sub-hubs of `music` under `COLLECTION`. In Dorado, `CollectionView.axaml` lumps `podcasts`, `videos`, and `pictures` onto the same level as `artists`, `albums`, and `songs`.
+1. **Flattening of Media Classes — RESOLVED (Phase B):** authentic Zune nests `videos`, `pictures`, and `podcasts` as peer media classes under `COLLECTION`; Dorado's `CollectionView` now uses a two-tier `CollectionMediaGroup` → `CollectionSubPivot` model instead of one flattened strip.
 2. **Artificial Top-Level Pivots:** `DISC` and `SOCIAL` should not be permanent top-level pivots. In Zune 4.8:
    - When a CD is inserted, a disc icon illuminates in the quick dock / title bar.
    - `SOCIAL` was part of Zune Social / Zune Card, accessible via the top-right user tile or Marketplace.
@@ -140,7 +149,7 @@ Authentic Zune 4.8 Window Header:
 
 #### Findings & Parity Updates:
 1. **Cropped Header Back Affordance:**
-   - *Authentic Behavior:* When drilled into an artist, album, or playlist, the current item title appears at `Margin="-32, 0, 0, 0"` in 34pt Segoe Zune Light with a subtle left chevron (`←`). Clicking anywhere on that cropped title pops the navigation stack.
+   - *Authentic Behavior:* When drilled into an artist, album, or playlist, the current item title appears at `Margin="-32, 0, 0, 0"` in 34pt Segoe-metric type (Selawik) with a subtle left chevron (`←`). Clicking anywhere on that cropped title pops the navigation stack.
    - *Normalized:* Upgraded from raw Unicode arrow to `ZuneGlyphs.ArrowBack` vector geometry inside a proper hit-tested container.
 2. **Iconographic Normalization:**
    - Replaced all raw Unicode characters (`✕`, `⤢`, `♫`) with clean-room vector glyphs from `ZuneGlyphs.cs` (`Cross`, `FullscreenExpand`, `MusicNote`).
@@ -199,7 +208,7 @@ Authentic Zune 4.8 Artist Discography View:
 2. **Discography Actions:**
    - Replaced raw characters with `ZuneGlyphs.Play` and `ZuneGlyphs.Shuffle`.
 3. **Alphabet Quick-Jump (A–Z Index):**
-   - Type-ahead search is functional; next step is rendering the visual quick-jump headers.
+   - ✅ Shipped (Phase F/19): the A–Z jump rail and type-ahead search across Collection, Podcasts, Videos and Playlists (`TypeAheadBuffer`/`TypeAheadSearch`, `ZuneJumpListControl`).
 
 ---
 
@@ -227,7 +236,7 @@ Authentic Zune 4.8 Now Playing (Artist Canvas Mode):
 1. **Mode Transition:**
    - Added `ZuneGlyphs.GridMosaic` for mosaic wall toggle and `ZuneGlyphs.QueueLines` for lyrics/bio drawer.
 2. **Ken-Burns Drift Cadence:**
-   - Pacing adjustment from 8s to 20s planned for smooth cinematic drift.
+   - 8s drift is implemented; the 20s cinematic variant was not adopted (the authentic cadence is not definitively documented).
 3. **devkanro FFT Ballistics:**
    - Mathematical model with 24 logarithmic bands and 0.82 decay per frame identified for visualizer timing.
 
@@ -312,6 +321,6 @@ Authentic Zune 4.8 Now Playing (Artist Canvas Mode):
 ## 6. Verification
 
 `dotnet build -c Release` completes with **0 warnings / 0 errors**; `dotnet test -c Release`
-passes **375 tests** (14 Domain + 361 Application), including the new
+passes **393 tests** (14 Domain + 379 Application), including the new
 `PageStackNavigationTests`, `TransportControlsParityTests`, `CollectionJumpListTests`,
 `ThemeSwapTests` and storage-gauge coverage.

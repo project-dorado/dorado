@@ -10,7 +10,7 @@
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
 ![Tests](https://img.shields.io/badge/tests-393%20passing-4c1?logo=xunit&logoColor=white)
-![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
+![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~88--brightgreen)
 
 </div>
 
@@ -43,8 +43,9 @@ src/
 ├── Dorado.Infrastructure.Persistence/   # SQLite database & EF Core (WAL journaling)
 ├── Dorado.Infrastructure.Audio/         # BASS engine: gapless chaining, equal-power crossfade, ReplayGain, FFT visualizer
 ├── Dorado.Infrastructure.Video/         # libVLCSharp (playback + now-playing clips)
-├── Dorado.Infrastructure.Devices/       # IDeviceTransport abstraction + SimulatedDeviceTransport (real MTPZ hardware-N/A)
-├── Dorado.Infrastructure.External/      # MusicBrainz, Fanart.tv, Last.fm, LRCLIB metadata aggregators
+├── Dorado.Infrastructure.Devices/       # device transports: SimulatedDeviceTransport, MTP seam (libusb + virtual), LAN sync server + mDNS advertiser (MTPZ hardware-N-A)
+├── Dorado.Infrastructure.External/      # MusicBrainz, Cover Art Archive, Fanart.tv, LRCLIB, AcoustID, Wikipedia aggregators
+├── Dorado.Infrastructure.Emulator/      # bridge to the Dorado-EMU CLI (JSON-RPC over stdio)
 ├── Dorado.Plugins.Protocol/             # Shared JSON-RPC message contracts + RPC channel
 ├── Dorado.Plugins.Sdk/                  # Plugin SDK + runtime (stdio transport, host context)
 ├── Dorado.Plugins.Host/                 # Out-of-process plugin host, .znp loader, event bridge
@@ -97,7 +98,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Real MTP transport seam** (`MtpTransport` + `IMtpDeviceClient`): a libusb-backed client (`LibUsbMtpDeviceClient`, USB product-ID detection) and an in-memory `VirtualMtpDeviceClient` share one contract; the sync engine is transport-agnostic (real MTPZ session layer remains hardware-N-A)
 - **FirstConnect wizard** (per-serial device arrival: name → media-type sync → privacy → done; Tier 4)
 - **Per-device sync rules** (music/podcasts/video/pictures)
-- **Wireless sync** stub (real wireless is hardware-N-A)
+- **LAN sync endpoint** (`SyncEndpointHost` + `SyncTcpServer`): the desktop is the server for the phone sync protocol, advertised over mDNS (`_dorado-sync._tcp`) for Dorado-HD pairing; Zune-native wireless sync remains hardware-N-A
 - **MTPZ firmware update/restore/rollback** — documented as N-A (no hardware)
 
 ### Now Playing
@@ -147,8 +148,8 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 
 ### Visual & Motion
 - **Authentic Zune 4.8 color palette** extracted from shipped PNG pixels + decompiled UIX corpus
-- **Segoe Z Light / ZUC Light / ZLC Light** font family bundle (real `SEGOEZ-LIGHT.TTC`) with Selawik/Inter fallbacks
-- **Ken-Burns** pan/zoom on backdrop photo (20s drift)
+- **Segoe-metric typography**: the Zune `Segoe Z` / `Zegoe` families resolve through the bundled OFL **Selawik** metrics (no Microsoft font is bundled)
+- **Ken-Burns** pan/zoom on backdrop photo (8s drift)
 - **Parallax 3D pivot slide** with Quickplay-specific variant
 - **Drawer slide-in / fade animations** for Bio, Showlist, SyncToast
 - **Idle screensaver** with 3D Y-axis album rotation + text drift
@@ -172,20 +173,19 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Smaller polish
 - ✅ **MusicBrainz + AcoustID auto-metadata + dedup** at scan time (AcoustID via `fpcalc` + API key; recording-level acoustic dedup)
+- ✅ **On-the-fly transcoding** during device sync (`FfmpegTranscodeService`, when FFmpeg is on PATH)
 - **Direct device playback** from desktop (play tracks off the device)
-- **On-the-fly WMA Lossless transcoding** during sync
 
 ### Hard / large (Tier C2 / D1)
-- **Tier C2 — Mixview visual mosaic** (the unique discovery UI fans repeatedly cite)
+- **Mixview authentic Iris mosaic** — the local mosaic, audio-similarity ranking and external MusicBrainz artist satellites ship; the authentic Iris mosaic art remains
 - **Tier D1 — Real CD rip/burn pipeline** (capability-gated — needs optical-drive access)
 - **Zune Card + Friends social layer** (the most-requested missing feature, but the Zune Social servers are dead; local-only substitute)
 - **Wireless song squirt** (device-to-device peer-to-peer)
-- **Chevron scroll-arrow overlay** on the pivot strip (drag-inertia pan already shipped)
 
 ### Hardware-N-A (documented in `deferred_registry.md`)
 - **Real MTPZ device sync** (`ZuneWmduDLL` parity) — needs physical Zune hardware
 - **Windows shell integration** (explorer context menus, jump lists, taskbar previews)
-- **i18n — 26 Zune locales**
+- **i18n — remaining 24 locales** (en/fr shipped)
 - **UPnP media sharing** (`ZuneNSS` / `ZuneShareEXE`)
 
 ### Known internal bugs being triaged
@@ -244,15 +244,15 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | Domain | Parity | Status |
 |---|---|---|
 | A. Shell & Navigation | **~92%** | Authentic chrome, cropped-header back, panoramic pivot, parallax + drag-inertia pan |
-| B. Quickplay | **~85%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; artwork maps pending |
-| C. Collection (music) | **~92%** | Artists/Albums/Songs/Genres/Playlists/Smart Playlists + Find Album Info + FTS5 search |
+| B. Quickplay | **~85%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; procedural hub map shipped (authentic PNG artwork maps remain) |
+| C. Collection (music) | **~92%** | Two-tier collection (media groups → sub-pivots), smart playlists, Find Album Info, FTS5 search |
 | D. Now Playing | **~90%** | 3 modes + Ken-Burns + idle screensaver + bio/lyrics/showlist drawers |
 | E. Mixview | **~72%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
 | F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
 | G. CD Land | **~40%** | Full UI, simulated rip/burn (no optical drive) |
-| H. Device sync | **~70%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam |
+| H. Device sync | **~70%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam, LAN sync + mDNS |
 | I. Podcasts | **~85%** | Subscribe + normalization + mark-all-played + stream playback |
-| J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute; reputation-badge taxonomy pending |
+| J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute; tiered reputation badges + local reviews shipped |
 | K. Settings & Management | **~88%** | 13 software pages + 4 device pages + plugins + language + dark/light theme |
 | L. First-launch & onboarding | **~90%** | First-launch wizard + What's New + FirstConnect wizard |
 | M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis persistence; UPnP/share/MUI deferred |
@@ -264,17 +264,15 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 ## 📜 Recent Notable Commits
 
 ```
-52c630e feat(ui/playlists): drag-and-drop + hover-swap-icon (Tier B2) — Zune 4.8 fan-loved playlist flow
-351d756 feat(smartdj): heart-aware Smart DJ shuffle (Tier B1) — hearts prioritized, broken hearts always excluded
-d612da8 feat(ui/motion): Tier A motion batch — Zune 4.8 cropped-header back, parallax pivot slide, idle screensaver, drawer slide-in animations
-3a4318a docs(parity): add comprehensive gap inventory vs disassembly (input to next-batch roadmap)
-481c363 fix(ui/shell): Settings pivot-gating bug + Now Playing button hover/pressed states + CDView disc art + mini-player showlist/volume + cross-collection search + real About panel
-9476c0b feat(ui/theme): Zune 4.8 light theme parity — runtime dark/light swap (default light is #F3EFF1 per Shell.cs:668)
-1993588 feat(ui/device): FirstConnect wizard parity — per-serial device-arrival onboarding (FIRSTCONNECT.UIX)
-429e322 feat(ui/settings): Zune 4.8 settings parity — file types, privacy, photos, general pages (and FirstConnect serials persisted)
-1e935ee feat(ui/podcasts): mark-all-played/unplayed commands + podcasts settings page (keep episodes, auto-download)
-c3c530e feat(ui/playback): Zune 4.8 keyboard-shortcut parity — Ctrl+S stop, Ctrl+Left/Right seek, F1 about, / search-focus; gas-gauge category colors bound to dynamic tokens
-6da7bb8 feat(ui/theme): authentic Zune 4.8 visual parity verified against disassembly corpus
+6b2d800 feat(scan): AcoustID scan-time metadata enrichment and acoustic dedup
+e4d4d58 feat(analysis): real DSP audio features over decoded PCM (STFT/RMS/ZCR/tempo)
+6aab7f0 feat(mixview): external MusicBrainz related-artist satellites
+9b8873f feat(device): LAN sync settings and mDNS advertising for Dorado-HD pairing
+1b70888 feat(cloud): settings-aware client, silent token refresh, startup update check
+51062fa feat(ui): settings selection ring & window chrome (Phase I)
+00fca95 feat(ui): A-Z jump-list & collection library parity (Phase F)
+7ec70e1 feat(ui): now-playing peak-hold visualizer & drawer (Phase E)
+ca01a3e feat(ui): design system, PageStack, two-tier collection & kinetic quickplay (Phases A–C)
 ```
 
 ---

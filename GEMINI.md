@@ -24,9 +24,9 @@ All user interfaces in this project MUST strictly follow the authentic Zune desi
      - Subtitle / Caption: 9pt Regular, 60% opacity.
    - Opacity establishes depth: Active text is 100% white (`#FFFFFF`), hover is 85%, inactive/unselected is 35–40%.
 3. **Canvas & Surfaces:**
-   - Background Canvas: Matte Pitch Black (`#111111`) or Dark Charcoal (`#161616`).
+   - Background Canvas: Matte Pitch Black (`#11090F`) or Dark Charcoal (`#161616`).
    - Card/Tile Surface: `#202020` default, `#282828` hover.
-   - Light Theme alternate: `#ECECEC` background with `#1A1A1A` text.
+   - Light Theme alternate: `#F3EFF1` background with `#1A1A1A` text.
 4. **Signature Accent Colors:**
    - Zune Pink / Magenta (`#FA2A55` / `#E51400`) — signature default.
    - Zune Orange (`#F09609`).
@@ -36,7 +36,7 @@ All user interfaces in this project MUST strictly follow the authentic Zune desi
 5. **Iconic Navigation & Hubs:**
    - **Pivot Header:** Horizontal strip of section titles with smooth deceleration pan.
    - **Quickplay Hub:** Split layout with Smart DJ seed generator on the left, and an interactive horizontal deck of `Pins`, `History`, and `New` on the right.
-   - **Now Playing:** Dual modes:
+   - **Now Playing:** Three modes:
      - Dynamic Artist Canvas (Ken-Burns slow pan/zoom on high-res artist photography).
      - Album Art Mosaic Wall (3D/2D grid of collection album covers with active track centered).
    - **Heart Rating:** Tri-state rating: Heart (favorite), Broken Heart (dislike/skip), Neutral (unrated).
@@ -63,9 +63,11 @@ The codebase follows Clean Architecture with strict separation of concerns:
 - `src/Dorado.Infrastructure.Audio`: BASS playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, and a managed **10-band equalizer** (BASS DSP). *System media controls (Linux MPRIS / Windows SMTC) are **not** implemented yet.*
 - `src/Dorado.Infrastructure.Devices`: Zune device integration:
   - USB product-ID detection (`ZuneUsbDeviceProbe`, VID `045e`) and the `MtpTransport` / `IMtpDeviceClient` seam.
-  - `LibUsbMtpDeviceClient` (detection skeleton). *The MTPZ session/handshake, ZMDB binary parser, and SSDP/PTP-IP wireless listener are **not** implemented (hardware N-A).*
+  - `LibUsbMtpDeviceClient` (detection skeleton) plus an in-memory `VirtualMtpDeviceClient` sharing one contract. *The MTPZ session/handshake, ZMDB binary parser, and SSDP/PTP-IP wireless listener are **not** implemented (hardware N-A).*
+  - `SyncEndpointHost` / `SyncTcpServer` (LAN sync server for Dorado-HD) and `SyncMdnsAdvertiser` (`_dorado-sync._tcp`).
   - `ZuneUsbHttpInterceptor` (USB-PPP reverse-HTTP placeholder).
-- `src/Dorado.Infrastructure.External`: Metadata aggregators (MusicBrainz, Cover Art Archive, Fanart.tv, LRCLIB, Wikipedia) and the podcast feed client.
+- `src/Dorado.Infrastructure.External`: Metadata aggregators (MusicBrainz, Cover Art Archive, Fanart.tv, LRCLIB, Wikipedia, **AcoustID**) + `CommunityArtistImageProvider` fallback and the podcast feed client.
+- `src/Dorado.Infrastructure.Emulator`: bridge to the Dorado-EMU CLI over JSON-RPC (stdio).
 - `src/Dorado.Plugins.Protocol` / `Dorado.Plugins.Sdk` / `Dorado.Plugins.Host`: Out-of-process JSON-RPC sandboxed plugin architecture (+ Last.fm and Discord reference plugins).
 - `src/Dorado.UI`: Shared Avalonia XAML views, view models, controls, animations, and theme resources.
 - `src/Dorado.Desktop`: Desktop host executable for Linux and Windows.

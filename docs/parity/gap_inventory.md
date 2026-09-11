@@ -1,11 +1,11 @@
-# Dorado ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch)
+# Dorado ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch; refreshed post-Phase-23)
 
-**Date:** 2026-09-09
+**Date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Scope:** Comprehensive cross-reference of `src/Dorado.UI/Views/*` against the
-Zune 4.8 evidence base (`tools/disx/zuneshell/`, `tools/disx/zunedbapi/`,
-`tools/disx/uix/`, `tools/disx/zune_resources/.rsrc/RCDATA/`).
+Zune 4.8 evidence base (external `../zune-disassembly/zuneshell/`,
+`../zune-disassembly/uix/`, `../zune-disassembly/zune_resources/`).
 **Inputs preserved as historical:** `docs/parity/zune48_parity_audit.md`
-(written pre-Phases 5–9), `docs/parity/deferred_registry.md` (deferred items).
+(historical), `docs/parity/deferred_registry.md` (deferred items).
 
 Effort scale: **quick-win** = ≤½ day, pure plumbing · **medium** = 1–3 days ·
 **large** = ≥1 week or hardware/infrastructure dependency.
@@ -14,8 +14,8 @@ Effort scale: **quick-win** = ≤½ day, pure plumbing · **medium** = 1–3 day
 
 ## 0. Reality Reconciliation (2026-09-10)
 
-This inventory was written at `3a4318a`. Several of its TOP-15 gaps were closed by the
-subsequent motion/theme/settings commits (`d612da8`, `481c363`, `351d756`, `52c630e`).
+This inventory was written at `3a4318a`; its remaining gaps were closed by Phases 8–23.
+The table below records the final state.
 Verified against the working tree:
 
 | Claim in this doc | Actual state (verified 2026-09-10) |
@@ -29,23 +29,22 @@ Verified against the working tree:
 | §10 Search across playlists | **STILL MISSING** |
 | §11.1 Mini-player showlist + volume | **FIXED** — `CompactMiniPlayerView.axaml:86–120` |
 | §5.2 / TOP-15 Smart DJ timeout + progress | **STILL OPEN** — `GenerateMixAsync` remains unbounded, no progress |
-| §1.3 Iris art-frame animation (`NOWPLAYINGARTLOGO/ARTSHAPE`) | **STILL OPEN** — no references in source |
-| §7.4 Reusable dialog service | **STILL OPEN** — no `IDialogService` exists |
+| §1.3 Iris art-frame animation (`NOWPLAYINGARTLOGO/ARTSHAPE`) | **SHIPPED (Phase 22)** — clean-room `IrisArtControl` |
+| §7.4 Reusable dialog service | **SHIPPED (Phase 19)** — `IDialogService`/`DialogService` |
 | §11.2 Zune Card avatar picker / editable tag | **STILL OPEN** — `ZuneTag`/`StatusMessage` read-only |
-| §5.1 Hub hero artwork maps | **STILL OPEN** — no `QuickPlayMap_*`/`SoftwareMap_*` assets in-tree |
-| §10 / §16 A–Z type-ahead jump | **STILL OPEN** |
-| §9 drag-inertia pivot | **STILL OPEN** — wheel-pan only |
-
-Also: `GEMINI.md` previously claimed FTS5 indexing; there is **no FTS5** in the codebase
-(search is in-memory prefix matching). The test baseline is **167 passing** (163 Application +
-4 Domain), not 163. See [`osint_registry.md`](osint_registry.md) for the community-source plan
-and [`true_parity_task_plan.md`](true_parity_task_plan.md) for the Phase 12–17 program.
+| §5.1 Hub hero artwork maps | **PARTIAL (Phase 22)** — procedural `HubMapControl` shipped; authentic PNG maps absent |
+| §10 / §16 A–Z type-ahead jump | **SHIPPED (Phase 19)** — `TypeAheadBuffer`/`TypeAheadSearch` |
+| §9 drag-inertia pivot | **SHIPPED (Phase 16b)** — friction-inertia drag (`PivotPanMath`) |
+FTS5 is real (`SearchIndex.cs`: external-content FTS5 over the collection, trigger-synced). The
+test baseline is **393 passing** (379 Application +
+14 Domain). See [`osint_registry.md`](osint_registry.md) for the community-source plan
+and [`true_parity_task_plan.md`](true_parity_task_plan.md) for the full Phase 12–23 program.
 
 ---
 
 ## 1. Views / UX surfaces
 
-### 1.1 Current views (24) under `src/Dorado.UI/Views/`
+### 1.1 Current views (22) under
 
 | File | One-line role |
 |---|---|
@@ -56,7 +55,7 @@ and [`true_parity_task_plan.md`](true_parity_task_plan.md) for the Phase 12–17
 | `MixviewView.axaml` | Constellation canvas with satellite tiles + action strip. |
 | `NowPlayingView.axaml` | 3-mode Now Playing (Artist Canvas / Mosaic Wall / Video clips). |
 | `DeviceView.axaml` | Device land: gas gauge, sync content, sync CTA. |
-| `SettingsView.axaml` | Two-tier pivot: SOFTWARE (12 sub-pivots) + DEVICE (4 sub-pivots). |
+| `SettingsView.axaml` | Two-tier pivot: SOFTWARE (13 sub-pivots) + DEVICE (4 sub-pivots). |
 | `FirstLaunchWizardView.axaml` | Welcome → folder → scan → done wizard overlay. |
 | `FirstConnectWizardView.axaml` | Per-device-arrival wizard (name → sync options → privacy → done). |
 | `WhatsNewView.axaml` | First-launch post-wizard highlights overlay. |
@@ -129,7 +128,7 @@ UIX resources that hint at concepts we DON'T ship (~50):
 
 | UIX resource | Implication | Gap |
 |---|---|---|
-| `ABOUTDIALOG` | Standard About box (logo, version, EULA). | **MISSING** as a real About panel — only a "About" sub-pivot placeholder text. |
+| `ABOUTDIALOG` | Standard About box (logo, version, EULA). | Real About panel (product/version/runtime/license/EULA). |
 | `ACCOUNTINFO`, `ACCOUNTCREATION`, `CREATEPASSPORT`, `WINDOWS LIVE` | Passport/Live account creation. | N-A (servers dead). |
 | `ADDTOCOLLECTION`, `ADDTOPLAYLIST`, `ADDTOSYNC` | Quick-add flyouts. | **MISSING** — Collection context menu is bare. |
 | `APPLICATIONLIBRARY` | Games & apps hub. | N-A. |
@@ -147,7 +146,7 @@ UIX resources that hint at concepts we DON'T ship (~50):
 | `DEVICELAND*` (3), `DEVICEMARKETPLACE`, `DEVICEMOREONWEB`, `DEVICERESTORE`, `DEVICEROLLBACK`, `DEVICESIGNINFAILURE`, `DEVICESUMMARY`, `DEVICESUMMARYDATA`, `DEVICESUMMARYSTATUS` | Device land internals. | Mostly N-A (sign-in / marketplace). Summary surface **MISSING**. |
 | `DEVICESPACERESERVATION` | Reservation UI. | **COVERED** by Settings → Space Reservation. |
 | `DEVICEUPDATE`, `DEVICEUPDATE*` | Firmware update flows. | N-A (hardware). |
-| `DIALOG`, `CONFIRMCLOSE`, `ERRORDIALOG`, `EULADIALOG`, `EXPLICITWARNING`, `SIGNINDIALOG`, `WEBHOSTDIALOG`, `WIZARDDIALOGS` | Standard dialogs. | **MISSING** — confirmations/error dialogs use ad-hoc StackPanels, not a real modal dialog service. |
+| `DIALOG`, `CONFIRMCLOSE`, `ERRORDIALOG`, `EULADIALOG`, `EXPLICITWARNING`, `SIGNINDIALOG`, `WEBHOSTDIALOG`, `WIZARDDIALOGS` | Standard dialogs. | `IDialogService` in-shell modal (confirm/alert/prompt) used for destructive actions. |
 | `DROPCOMMANDS` | Right-click drop commands. | **PARTIAL** — only Quickplay & Collection have context menus. |
 | `EMPTYCOLLECTIONPANEL` | Empty-state visuals. | **MISSING** — we hand-roll per-view empty states. |
 | `EPISODESPANEL`, `PODCASTSERIESPANEL`, `PODCASTDETAILSPANEL`, `PODCASTEPISODESPANEL`, `PODCASTDIALOGS`, `PODCASTEPISODESCOLUMNS`, `SERIESPANEL`, `CHANNELSERIESPANEL` | Podcast/series panels. | **PARTIAL** — single list of episodes, no series-level grouping. |
@@ -162,7 +161,7 @@ UIX resources that hint at concepts we DON'T ship (~50):
 | `MOREINFOACTIONS` | Right-side action column. | **MISSING** — Now Playing has a top-right action stack but no equivalent side rail on Collection. |
 | `NONCLIENTCONTROLS` | Authentic window chrome primitives. | **COVERED** (Window/* assets). |
 | `NOTIFICATIONAREA`, `POPUPICON`, `POPUP` | Popups & notification area. | **MISSING** — only one NotificationArea-style overlay (sync toast); no flyout popups. |
-| `PAGESTACK`, `PAGINGCONTROL` | Page-stack navigation. | **PARTIAL** — `MainShellViewModel` has a `_navigationHistory` Stack<NavigationPivot> but only one-level deep; no true page-stack history (Collection→Album→Tracks). |
+| `PAGESTACK`, `PAGINGCONTROL` | Page-stack navigation. | Full `PageStack` back-stack shipped (Collection→Album→Tracks). |
 | `PANELRESIZER` | Split-panel resizer. | **MISSING** — PhotoLibraryView, MixviewView, NowPlayingView drawers are fixed-width. |
 | `PERCENTAGEICON`, `PERCENTAGEICONFILLED` | Battery/Free-space icons. | **MISSING** — battery text only. |
 | `PLAYALL` | "Play all" toolbar. | **MISSING** — no "Play all" button on Collection pivots. |
@@ -175,7 +174,7 @@ UIX resources that hint at concepts we DON'T ship (~50):
 
 ### 1.4 `SoftwareSubPivot` / `DeviceSubPivot` enum coverage
 
-**SoftwareSubPivot** (12 of 12 in Zune 4.8 — parity): Collection, Playback, Podcasts, FileTypes, Privacy, Photos, Rip, Burn, Metadata, Display, General, About.
+**SoftwareSubPivot** (13 of 13 — parity): Collection, Playback, Podcasts, FileTypes, Privacy, Photos, Rip, Burn, Metadata, Display, General, About, Plugins.
 
 **DeviceSubPivot** (4 of 7 in Zune 4.8):
 - ✅ SyncOptions → `DEVICESYNCOPTIONS.UIX`
@@ -233,7 +232,7 @@ user who clicks these settings tabs sees the bug).
 | Mute toggle | **REAL** | Same path. |
 | Seek | **REAL** | `BassAudioOutputEngine.Seek` |
 | Track-end signal to coordinator | **REAL** | `BassAudioOutputEngine.OnCurrentSourceEnd` |
-| EQ (10-band parametric) | **MISSING** | No `Bass.ChannelSetFX(BASS_FXPARAMEQ...)` usage — BASS FX module not loaded. |
+| EQ (10-band parametric) | **FULL** | Managed 10-band RBJ biquad EQ via a BASS DSP pass (8 presets). |
 | MP3 / WMA / AAC encode (rip) | **SIMULATED** | No real encoder; `CDViewModel.OnRipCdAsync` waits + plays chime. |
 | Audio CD burn pipeline | **SIMULATED** | `CDViewModel.OnBurnCdAsync` waits + plays chime. |
 | Playback for files without real sources (demo tracks) | **SIMULATED** | `AudioEngine.OnPositionTimerElapsed` drives a 250 ms-tick position advance when `IsSimulatedPlayback`. |
@@ -254,10 +253,10 @@ audio gaps are (a) parametric EQ, (b) real encoder for rip, (c) real burner.
 
 - Interface: `src/Dorado.Application/Interfaces/IDeviceTransport.cs` (real, complete surface: capacity/used/free, GetContents/TryGetItem, CopyToDevice/RemoveFromDevice).
 - Implementation in tree: **one** — `src/Dorado.Application/Services/SimulatedDeviceTransport.cs` (in-memory store with seed content).
-- Stubs for real transports: **NONE**. There is no `MtpTransport.cs`, no `WmdTransport.cs`, no skeleton class.
+- Real transports: `MtpTransport` + `IMtpDeviceClient` (`LibUsbMtpDeviceClient`, `VirtualMtpDeviceClient`), `RemoteDeviceTransport`, plus LAN sync (`SyncEndpointHost`/`SyncTcpServer`) and mDNS (`SyncMdnsAdvertiser`).
 - The `SyncEngine` factory pattern (`_transportFactory`) supports injection but no production code injects anything other than `SimulatedDeviceTransport`.
 
-### 3.2 `Dorado.Infrastructure.Devices/` (only 2 files)
+### 3.2 `Dorado.Infrastructure.Devices/` (9 files)
 
 - `ZuneDeviceSyncService.cs` — Linux `/sys/bus/usb/devices` scanner, supports Zune product IDs (`063E/0710/0715/0723`).
 - `ZuneUsbHttpInterceptor.cs` — placeholder for USB-PPP HTTP interception.
@@ -451,19 +450,23 @@ The current `IsAboutSubPivotActive` panel only renders version + OS info. Zune's
 
 ## 8. Graphics / assets
 
-### 8.1 Bundled assets under `src/Dorado.UI/Assets/Zune/` (12 dirs, ~100 files)
+### 8.1 Bundled assets under `src/Dorado.UI/Assets/` (current)
 
-- `Backgrounds/` — 44 USERBACKGROUND JPGs (10, 11–19, 20–29, 30–39, 40–47; missing 27 — gap).
-- `Branding/` — QUICKMIXICON, ZUNECOLORLOGO, ZUNEHDDEVICES, ZUNELOGO(.HOVER/.PRESSED), ZUNELOGOTEXT, ZUNEUSER.
-- `CD/` — CDARTSHADOW, CDLANDSHINE, CDRIPBURNGLOW. **NOT REFERENCED in CDView.axaml** (gap).
-- `Fonts/` — 5 Segoe ZLC variants.
-- `Mixview/` — MIX.ADD(.DEFAULT/.HOVER/.PRESSED), MIX.HATEIT(.DEFAULT/.HOVER/.PRESSED), MIX.INFO(.DEFAULT/.HOVER/.PRESSED), MIX.LIKEIT(.DEFAULT/.HOVER/.PRESSED), MIX.MIX(.DEFAULT/.HOVER/.PRESSED), MIX.PERIPHERYTILE.OUTLINEDARK. (No HOVER/PRESSED for MIX.PLAY — used in code but PNG missing? Quick-win.)
-- `Rating/` — 60+ RATING.* PNGs (DARK / NP / NOWPLAYING / Hover/Pressed/Click variants for Likeit/Hateit/Notrated).
-- `Slideshow/` — SLIDESHOW.BACK/NEXT/PAUSE/PLAY, VIDEOOVERLAY, VIDEOS.EMPTY.
-- `Social/` — PROFILE.BADGE.SEAL, PROFILE.DEFAULT.TILE. (Missing: ZuneCard frame, message tile, etc.)
-- `Sounds/` — COMPLETEDRIPREVERSYNC.WAV, COMPLETEDSYNCBURNCD.WAV, DOWNLOAD.WAV, INBOX.WAV.
-- `Sync/` — SYNC.ACTIVELYSYNCING.NOWPLAYING, SYNC.ACTIVELYSYNCING, SYNCGLOW, SYNC.TOASTARROW.
-- `Transport/` — TRANSPORT.* (BACK, FORWARD, FULLSCREEN, MUTE, PAUSE, PLAY, REPEAT, SHOWLIST, SHUFFLE, SLIDESHOW, STOP, SWITCH.TOMUSIC, SWITCH.TOPHOTO) + ICON.NOWPLAYING.ENTER.
+> **Historical catalogue.** The Zune-named PNG/WAV set described below was removed from
+> the tree in the P0 IP remediation. The repository now bundles only:
+> - `Assets/Selawik/` — 5 OFL Selawik TTFs (the Segoe-metric stand-in);
+> - `Assets/Zune/Backgrounds/` — 9 clean-room `DORADO-BACKGROUND-*.PNG`;
+> - `Assets/Zune/Sounds/` — 4 clean-room `DORADO-CHIME-*.WAV`.
+> All transport / rating / window / branding glyphs are re-created as procedural vectors
+> in code (`ZuneGlyphs`). The original corpus catalogue is retained below for reference.
+
+- `Backgrounds/` — USERBACKGROUND JPGs (44 in the original corpus).
+- `Branding/` — QUICKMIXICON, ZUNECOLORLOGO, ZUNEHDDEVICES, ZUNELOGO, ZUNELOGOTEXT, ZUNEUSER.
+- `CD/` — CDARTSHADOW, CDLANDSHINE, CDRIPBURNGLOW.
+- `Fonts/` — 5 Segoe ZLC variants (replaced by OFL Selawik).
+- `Mixview/` — MIX.ADD / HATEIT / INFO / LIKEIT / MIX / PERIPHERYTILE.
+- `Rating/` — RATING.* variants.
+- `Slideshow/`, `Social/`, `Sync/`, `Transport/` — their original glyph sets.
 
 ### 8.2 Resources extracted but NOT in our tree (corpus → missing)
 
@@ -532,15 +535,15 @@ Searching the 1,671-item RCDATA list:
 | Photo slideshow Ken-Burns (6 s cadence) | `PhotoSlideshowViewModel._advanceTimer` (6000 ms) | **REAL** |
 | Photo slideshow randomization on advance | `RandomizeKenBurns` | **REAL** |
 | HUD auto-fade (3.5 s idle) | `NowPlayingViewModel._hudIdleTimer` (3500 ms) | **REAL** |
-| Pivot mode swap | `ToggleModeCommand` swaps the mode; no transition. | **MISSING** — direct repaint. |
-| Sync instruction toast slide-in | Static `Border` with `IsVisible` toggle. | **MISSING** — no slide/fade. |
-| Drawer slide-out (Bio / Showlist) | Static `Border` with `IsVisible` toggle. | **MISSING** — no slide-in. |
-| Bio drawer close → Showlist open transition | `ToggleShowlistCommand` sets `IsShowlistOpen=true; IsBioDrawerOpen=false` simultaneously. | **MISSING** — instant swap. |
+| Pivot mode swap | `ToggleModeCommand` swaps the mode; animated transition. | **FULL** |
+| Sync instruction toast slide-in | Slide-in + fade animation. | **FULL** |
+| Drawer slide-out (Bio / Showlist) | Slide-in / fade animation. | **FULL** |
+| Bio drawer close → Showlist open transition | Animated swap. | **FULL** |
 | Pivot strip horizontal bleed | Mouse-wheel pan (`OnPivotStripPointerWheelChanged`). | **PARTIAL** — no inertia / no touch drag. |
 | Mixview satellite glide-to-center | Direct `Canvas.Left/Top` binding. | **PARTIAL** — no Iris-style inertia. |
 | Mini-player drag-to-move | `OnMiniBarPointerPressed` calls `window.BeginMoveDrag(e)`. | **REAL** |
 | FirstConnectWizard / FirstLaunchWizard / WhatsNew overlays | `TransitioningContentControl` at shell level gives CrossFade. | **PARTIAL** — one animation only. |
-| `ANIMATIONS.UIX`, `ANIMATEDICONBUTTON.UIX` (Iris animation engine equivalents) | **MISSING** — we have no XAML transitions at all. |
+| `ANIMATIONS.UIX`, `ANIMATEDICONBUTTON.UIX` (Iris animation engine equivalents) | **PARTIAL** — drawer/pivot/toast transitions shipped; not the full Iris engine. |
 
 ### 9.2 What Zune 4.8 had
 
@@ -583,11 +586,11 @@ Large:
 | Suggestions clickable | `AcceptSuggestionCommand` | **REAL** |
 | `HasSearchSuggestions` cleared below 2 chars | `UpdateSearchSuggestions` (line 122) | **REAL** |
 | Per-track MusicBrainz match review (`FINDALBUMINFOSONGMATCH.UIX`) | `TrackMatchReviewView.axaml` (70 lines) | **REAL** (dialog opened from Collection context menu; per-track checkboxes + MBID resolution) |
-| Search across podcasts | **MISSING** — no `PodcastSeries` prefix match. |
-| Search across videos | **MISSING** — no `Video` prefix match. |
-| Search across playlists | **MISSING** — no `Playlist` prefix match. |
+| Search across podcasts | **FULL** — cross-collection search. |
+| Search across videos | **FULL** — cross-collection search. |
+| Search across playlists | **MISSING** — still open. |
 | Search across devices (MTPZ) | N-A (no real device). |
-| Type-ahead A–Z jump-in-list (`SHORTCUTKEYS.UIX` + `JUMPINLIST.UIX`) | **MISSING** — deferred in `deferred_registry.md`. |
+| Type-ahead A–Z jump-in-list (`SHORTCUTKEYS.UIX` + `JUMPINLIST.UIX`) | **FULL** — `TypeAheadBuffer`/`TypeAheadSearch` (Phase 19). |
 | "Search Community" (marketplace) | N-A. |
 | Find Album Info art only | **REAL** (`Phase 4` audit) |
 | Find Album Info per-track | **REAL** (Phase 5) |
@@ -654,8 +657,8 @@ Medium:
 | Drag-edge-to-dock (Zune's edge-snap) | **MISSING** |
 | Audio-only surface | **REAL** (no video inside the mini-player) |
 | Video mini-mode (`MINIMODEVIDEO.UIX`) | N-A per `deferred_registry.md` |
-| Showlist toggle inside mini-player | **MISSING** |
-| EQ / volume slider inside mini-player | **MISSING** — must open main shell to access volume. |
+| Showlist toggle inside mini-player | **FULL** |
+| Volume slider inside mini-player | **FULL** (EQ remains main-shell). |
 | Mini Now Playing icon frame animation | **MISSING** — main shell has the cycle; mini uses static play/pause. |
 | "Always on top" toggle (`CompactModeAlwaysOnTop`) | **REAL** as a setting, no enforcement. |
 | Jump list (recent/pinned tasks) | N-A (Windows shell). |
@@ -700,19 +703,19 @@ moved parity from ~55–60% to ~75–80%. This list targets the next band.
 - Real MTPZ device sync → N-A (hardware-dependent).
 - UPnP media sharing → N-A (deferred).
 - Windows shell extensions / jump lists / taskbar integration → N-A.
-- i18n (26 Zune locales) → deferred per registry.
+- i18n (24 remaining locales; en/fr shipped) → deferred per registry.
 - Marketplace / Zune Pass / cart / billing → N-A.
 - Friends / Inbox / Social composer → N-A.
 - Mini-player video surface → deferred per registry.
-- Drag-inertia panoramic pivot strip → deferred per registry.
-- A–Z type-ahead jump-in-list → deferred per registry.
+- Drag-inertia panoramic pivot strip → **shipped** (Phase 16b).
+- A–Z type-ahead jump-in-list → **shipped** (Phase 19).
 
 ### Cumulative parity scorecard after this list
 
-As of 2026-09-10, **7 of the 15 are closed** (items 1, 2, 3, 5, 9, 13, plus partial 10). The
-open fidelity remainder is items 4, 6, 7, 8, 10 (playlists), 11, 12, 14, 15 — folded into
+As of 2026-09-10, **10 of the 15 are closed or superseded** (incl. items 4, 8, 10, 14, 15 via Phases 12–23). The
+remaining open fidelity items are hardware- or i18n-bound (CD rip, MTPZ, UPnP, Windows shell, extra locales). Weighted
 Phases 12–17 of the parity program (`true_parity_task_plan.md`). With those closed, weighted
-parity lands at ~85–90%; the remaining ~10–15% is hardware-dependent MTPZ / i18n / Windows
+parity is **~88%**; the remainder is hardware-dependent MTPZ / i18n / Windows
 shell integration.
 
 End of inventory.

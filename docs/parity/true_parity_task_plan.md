@@ -4,7 +4,7 @@ Derived from the audit in [`zune48_parity_audit.md`](zune48_parity_audit.md). Sc
 
 Cross-cutting convention per phase: unit tests for every new service · design-invariants audit (0 violations) · Release build 0 warnings/0 errors · walkthrough section · milestone commit.
 
-## Status Snapshot (updated after Phase 8)
+## Status Snapshot (updated after Phase 23 — program complete)
 
 | Phase | Status | Commit |
 |---|---|---|
@@ -12,11 +12,13 @@ Cross-cutting convention per phase: unit tests for every new service · design-i
 | 6 — Collection Parity | ✅ **COMPLETE** | `ead9a07` |
 | 7 — Onboarding & Shell Parity | ✅ **COMPLETE** | `f3d95aa` |
 | 8 — Video & Photos | ✅ **COMPLETE** | `833b5ef` |
-| 9 — Device Sync Architecture | **NEXT** | — |
+| 9 — Device Sync Architecture | ✅ **COMPLETE** | Phase 9 tables below |
 | 10 — CD Land Real Pipeline | Optional (no drive to test) | — |
-| 11 — Final Parity Sweep | Final | — |
+| 11 — Final Parity Sweep | ✅ **COMPLETE** | Phase 11 tables below |
 
-Tests: **99 passing** · Design audit: **24 files, 0 violations** · Estimated audit parity after Phase 8: **~80%** (re-measure in Phase 11).
+Tests: **393 passing** · Design audit: **26 files, 0 violations** · Weighted parity: **~88%**
+(re-measured after Phase 18; Phases 19–23 then shipped interaction fidelity, badges,
+artist fallback, clean-room visuals and plugin maturity).
 
 ---
 
@@ -49,16 +51,17 @@ Goal: replace the simulated sync blob with a genuine sync-group engine so that (
 | # | Task | Status |
 |---|---|---|
 | 11.1 | **CI/release packaging for native audio+video.** Add `apt-get install -y libvlc` (linux-x64/arm64 jobs) so published Linux builds get video; verify Bass natives ship in archives (they do — vendored); document the win-arm64 Bass limitation (simulated audio fallback) in release notes. | ✅ Done — `.github/workflows/ci.yml` (build+test+audit with libvlc installed) and `release.yml` (4-RID self-contained publish, natives verification, platform notes); README Platform Notes added |
-| 11.2 | **Re-run the parity audit** against `docs/parity/zune48_parity_audit.md` — update every status column, measure the delta from ~55%, refresh the executive summary. | ✅ Done — dated re-audit snapshot added; ≈55–60% → ≈75–80% |
+| 11.2 | **Re-run the parity audit** against `docs/parity/zune48_parity_audit.md` — update every status column, measure the delta from ~55%, refresh the executive summary. | ✅ Done — dated re-audit snapshot (≈55–60% → ≈75–80%); superseded by the Phase 18 re-measure to **~88%** |
 | 11.3 | **Performance pass:** startup (deferred service init), large-library scan responsiveness, artwork decode caching, slideshow memory. | ✅ Done — startup was already lazy (pivot loads on navigation); SQLite WAL journaling for scan/sync responsiveness; artwork decode cache (600 tiles / 48 hi-res slideshow frames, bounded) |
-| 11.4 | **Polish backlog triage:** mini-player video surface (currently text-only), Mixview external related-artist satellites (currently local-only), notification-area tray icon. Fold in or move to deferred. | ✅ Done — all three triaged to the deferred registry with rationale |
-| 11.5 | **Deferred registry (documented, not scheduled):** i18n (26 locales), UPnP media sharing (ZuneNSS parity), Explorer/taskbar shell integration, MTPZ firmware update/restore/rollback (hardware N-A), Windows jump lists. | ✅ Done — `docs/parity/deferred_registry.md` (9 items incl. the 11.4 triage) |
+| 11.4 | **Polish backlog triage:** mini-player video surface (text-only), Mixview external related-artist satellites (local-only), notification-area tray icon. | ✅ Done — triaged to the deferred registry; the Mixview satellites were subsequently **shipped** (`6aab7f0`) |
+| 11.5 | **Deferred registry (documented, not scheduled):** i18n (24 remaining locales), UPnP media sharing (ZuneNSS parity), Explorer/taskbar shell integration, MTPZ firmware update/restore/rollback (hardware N-A), Windows jump lists. | ✅ Done — `docs/parity/deferred_registry.md` |
 
 ## Execution Order
 
-**9 ✅ → 11 → (10 only if blind-implementing CD is desired)**
+**9 ✅ → 11 ✅ → (10 only if blind-implementing CD is desired)**
 
-Phase 9 ✅ complete (all sync semantics + transport abstraction + guest/reverse sync). Remaining: Phase 11 (CI packaging, measured re-audit, performance pass, deferred registry) and the optional capability-gated Phase 10.
+The Phase 5–11 program is complete. Phase 10 (CD rip/burn) remains capability-gated
+(no optical drive); everything else is shipped.
 
 ---
 
@@ -81,8 +84,8 @@ refresh · milestone commit.
 | **13 — Listening intelligence** | Audio-feature analysis (BPM/energy/valence/acousticness/danceability/spectral-centroid) persisted per track; cosine similarity; `DynamicMix` rules surfaced on Quickplay. | ✅ Done |
 | **14 — Podcast modernization** | Feed normalization (namespace-agnostic parsing, iTunes durations, media/enclosure fallbacks, HTML-page discovery, dedupe). | ✅ Done |
 | **15 — MTP transport** | `MtpTransport` + `IMtpDeviceClient` seam; `LibUsbMtpDeviceClient` (product-ID detection) + `VirtualMtpDeviceClient`; shared contract tests. Real MTPZ session layer remains hardware-N-A. | ✅ Done |
-| **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅; A–Z type-ahead deferred (needs a list-control scroll-into-view refactor). | 🟡 EQ+FTS5 done |
-| **16b — Fidelity medium** | Drag-inertia pivot strip ✅; Quickplay hub hero maps + Iris art-frame animation deferred (assets absent post IP move — need clean-room recreation). | 🟡 Partial |
+| **16a — Fidelity quick wins** | 10-band managed-biquad EQ ✅, FTS5 search ✅, A–Z type-ahead ✅ (shipped Phase 19). | ✅ Done |
+| **16b — Fidelity medium** | Drag-inertia pivot strip ✅; Quickplay hub hero map + Iris art-frame ✅ (recreated clean-room as `HubMapControl`/`IrisArtControl`, Phase 22). | ✅ Done |
 | **17 — i18n first pass** | `ILocalizationService` + catalog, `en` + `fr`, language selector in Settings → General, persisted. Remaining string extraction/locales incremental (see deferred registry). | ✅ Done |
 
 ---
