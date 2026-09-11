@@ -16,7 +16,13 @@
     <!-- ============================================== -->
     <!-- MODE 1: DYNAMIC ARTIST CANVAS                  -->
     <!-- ============================================== -->
-    <Grid IsVisible="{Binding IsArtistCanvasMode}">
+    <Grid Opacity="{Binding ArtistCanvasOpacity}"
+          IsHitTestVisible="{Binding IsArtistCanvasMode}">
+      <Grid.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+        </Transitions>
+      </Grid.Transitions>
       <!-- Ken-Burns Pan/Zoom Animated Backdrop Photo -->
       <Grid ClipToBounds="True">
         <Image Source="{Binding CurrentBackdropImage}" 
@@ -279,7 +285,14 @@
     <!-- ============================================== -->
     <!-- MODE 2: ALBUM ART MOSAIC WALL                  -->
     <!-- ============================================== -->
-    <Grid IsVisible="{Binding IsMosaicWallMode}" Background="#0C0C0C">
+    <Grid Opacity="{Binding MosaicWallOpacity}"
+          IsHitTestVisible="{Binding IsMosaicWallMode}"
+          Background="#0C0C0C">
+      <Grid.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+        </Transitions>
+      </Grid.Transitions>
       <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding MosaicWallAlbums}" Margin="32">
           <ItemsControl.ItemsPanel>
@@ -298,12 +311,18 @@
                       Margin="8">
                 <Grid>
                   <Border Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
-                    <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" 
-                          Stretch="Uniform" 
-                          Width="32" Height="32" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center" 
-                          Fill="{DynamicResource ZuneTextDimmedBrush}" />
+                    <Grid>
+                      <!-- Typographic fallback, visible whenever the album has no decodable artwork. -->
+                      <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" 
+                            Stretch="Uniform" 
+                            Width="32" Height="32" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" 
+                            Fill="{DynamicResource ZuneTextDimmedBrush}" />
+                      <!-- Real album art; ArtworkSourceConverter returns null for missing sources. -->
+                      <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}"
+                             Stretch="UniformToFill" />
+                    </Grid>
                   </Border>
                   <!-- Overlay Album Title at Bottom -->
                   <Border VerticalAlignment="Bottom" Background="#DD111111" Padding="6,4">

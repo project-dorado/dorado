@@ -280,6 +280,8 @@
                       <MultiBinding Converter="{x:Static design:EqualizerGeometryConverter.Instance}">
                         <Binding Path="NowPlayingIconFrame" />
                         <Binding Path="NowPlayingIconPlaying" />
+                        <Binding Path="NowPlayingIconHovered" />
+                        <Binding Path="NowPlayingIconPressed" />
                       </MultiBinding>
                     </Path.Data>
                   </Path>

@@ -20,6 +20,8 @@ public sealed class EqualizerGeometryConverter : IMultiValueConverter
     {
         var frame = values.Count > 0 && values[0] is int f ? f : 1;
         var playing = values.Count > 1 && values[1] is bool p && p;
-        return ZuneGlyphs.Equalizer(frame, playing);
+        var hovered = values.Count > 2 && values[2] is bool h && h;
+        var pressed = values.Count > 3 && values[3] is bool pr && pr;
+        return ZuneGlyphs.Equalizer(frame, playing, hovered, pressed);
     }
 }

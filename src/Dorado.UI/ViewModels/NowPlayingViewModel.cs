@@ -132,6 +132,9 @@ public class NowPlayingViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsArtistCanvasMode));
                 OnPropertyChanged(nameof(IsMosaicWallMode));
                 OnPropertyChanged(nameof(IsVideoMode));
+                OnPropertyChanged(nameof(ArtistCanvasOpacity));
+                OnPropertyChanged(nameof(MosaicWallOpacity));
+                OnPropertyChanged(nameof(VideoOpacity));
 
                 if (value == NowPlayingMode.Video)
                 {
@@ -144,6 +147,13 @@ public class NowPlayingViewModel : ViewModelBase
     public bool IsArtistCanvasMode => _mode == NowPlayingMode.ArtistCanvas;
     public bool IsMosaicWallMode => _mode == NowPlayingMode.MosaicWall;
     public bool IsVideoMode => _mode == NowPlayingMode.Video;
+
+    // Mode crossfade (250ms DoubleTransition in the view): the two artwork modes
+    // overlay and fade, while the video surface stays an instant swap (mounting a
+    // live libVLC surface at opacity 0 would keep decoding frames off-screen).
+    public double ArtistCanvasOpacity => IsArtistCanvasMode ? 1 : 0;
+    public double MosaicWallOpacity => IsMosaicWallMode ? 1 : 0;
+    public double VideoOpacity => IsVideoMode ? 1 : 0;
 
     private readonly IVideoLibraryService? _videoLibraryService;
     private readonly IVideoPlaybackEngine? _videoEngine;

@@ -112,6 +112,12 @@ public class SeedLibrary : IMediaLibraryService
         {
             var artist = new Artist { Name = names[i], SortName = names[i] };
             var album = new Album { Title = albums[i], ArtistName = names[i], ArtistId = artist.Id, Year = 1990 + i, Genre = "Alternative" };
+            // Exercise the mosaic Image path on alternating albums; the rest fall
+            // back to the typographic glyph.
+            if (i % 2 == 0)
+            {
+                album.ArtworkUri = $"avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-0{(i % 6) + 1}.PNG";
+            }
             for (int t = 1; t <= 6; t++)
             {
                 album.Tracks.Add(new Track

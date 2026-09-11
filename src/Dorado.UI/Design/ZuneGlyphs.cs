@@ -152,14 +152,18 @@ public static class ZuneGlyphs
     /// <paramref name="frame"/> cycles the bar heights; when
     /// <paramref name="playing"/> is false the bars are even ("idle").
     /// </summary>
-    public static Geometry Equalizer(int frame, bool playing) => BuildEqualizer(frame, playing);
+    public static Geometry Equalizer(int frame, bool playing, bool hovered = false, bool pressed = false)
+        => BuildEqualizer(frame, playing, hovered, pressed);
 
-    private static Geometry BuildEqualizer(int frame, bool playing)
+    private static Geometry BuildEqualizer(int frame, bool playing, bool hovered, bool pressed)
     {
-        const double width = 3.0;
+        // Hover widens the bars slightly; press compresses them (the authentic
+        // ENTER/HOVER/PRESSED frame families recreated as vector variants).
         const double gap = 1.6;
         const double startX = 1.0;
         const double baseline = 20.0;
+        double width = hovered ? 3.5 : 3.0;
+        double pressScale = pressed ? 0.6 : 1.0;
         double[] weights = { 0.55, 1.0, 0.7, 0.9 };
 
         var path = new System.Text.StringBuilder();
@@ -173,8 +177,10 @@ public static class ZuneGlyphs
             }
             else
             {
-                height = 4.0 + (weights[i] * 4.0);
+                height = 4.0 + (weights[i] * (hovered ? 6.0 : 4.0));
             }
+
+            height *= pressScale;
 
             double x = startX + (i * (width + gap));
             double y = baseline - height;

@@ -130,6 +130,12 @@ public class MainShellViewModel : ViewModelBase
 
     public bool NowPlayingIconPlaying => _isNowPlayingPlaying;
 
+    /// <summary>Pointer hover state of the Now Playing button (drives the HOVER icon variant).</summary>
+    public bool NowPlayingIconHovered => _isNowPlayingButtonHovered;
+
+    /// <summary>Pointer pressed state of the Now Playing button (drives the PRESSED icon variant).</summary>
+    public bool NowPlayingIconPressed => _isNowPlayingButtonPressed;
+
     /// <summary>Tier A3: 0..1 idle progress in Now Playing (1 = fully idle, controls faded).</summary>
     public double NowPlayingIdleProgress => _nowPlayingIdleProgress;
 
@@ -173,6 +179,8 @@ public class MainShellViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(NowPlayingIconFrame));
         OnPropertyChanged(nameof(NowPlayingIconPlaying));
+        OnPropertyChanged(nameof(NowPlayingIconHovered));
+        OnPropertyChanged(nameof(NowPlayingIconPressed));
     }
 
     private string _headerSearchQuery = string.Empty;

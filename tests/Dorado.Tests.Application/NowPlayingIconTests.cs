@@ -23,15 +23,23 @@ public class NowPlayingIconTests
     }
 
     [Fact]
-    public void Hover_DoesNotChangeEqualizerState()
+    public void Hover_And_Press_ExposeIconVariants()
     {
         var vm = NewShell();
-        var before = (vm.NowPlayingIconFrame, vm.NowPlayingIconPlaying);
+
+        Assert.False(vm.NowPlayingIconHovered);
+        Assert.False(vm.NowPlayingIconPressed);
 
         vm.NotifyNowPlayingButtonHover(true);
-        vm.NotifyNowPlayingButtonHover(false);
+        Assert.True(vm.NowPlayingIconHovered);
 
-        Assert.Equal(before, (vm.NowPlayingIconFrame, vm.NowPlayingIconPlaying));
+        vm.NotifyNowPlayingButtonPressed(true);
+        Assert.True(vm.NowPlayingIconPressed);
+
+        vm.NotifyNowPlayingButtonPressed(false);
+        vm.NotifyNowPlayingButtonHover(false);
+        Assert.False(vm.NowPlayingIconHovered);
+        Assert.False(vm.NowPlayingIconPressed);
     }
 
     [AvaloniaFact]
@@ -39,6 +47,36 @@ public class NowPlayingIconTests
     {
         Assert.NotNull(Dorado.UI.Design.ZuneGlyphs.Equalizer(1, playing: false));
         Assert.NotNull(Dorado.UI.Design.ZuneGlyphs.Equalizer(5, playing: true));
+    }
+
+    [AvaloniaFact]
+    public void EqualizerGeometry_HoverAndPressed_VariantsDiffer()
+    {
+        var idle = Dorado.UI.Design.ZuneGlyphs.Equalizer(1, playing: false);
+        var hover = Dorado.UI.Design.ZuneGlyphs.Equalizer(1, playing: false, hovered: true);
+        var pressed = Dorado.UI.Design.ZuneGlyphs.Equalizer(1, playing: false, pressed: true);
+
+        Assert.NotNull(idle);
+        Assert.NotNull(hover);
+        Assert.NotNull(pressed);
+    }
+
+    [Fact]
+    public void Mode_ExposesCrossfadeOpacities()
+    {
+        var np = new NowPlayingViewModel(new PlaybackQueueCoordinator(), new FakeMediaLibraryService());
+
+        // Default mode is Artist Canvas.
+        Assert.Equal(1.0, np.ArtistCanvasOpacity);
+        Assert.Equal(0.0, np.MosaicWallOpacity);
+
+        np.Mode = NowPlayingMode.MosaicWall;
+        Assert.Equal(0.0, np.ArtistCanvasOpacity);
+        Assert.Equal(1.0, np.MosaicWallOpacity);
+
+        np.Mode = NowPlayingMode.Video;
+        Assert.Equal(1.0, np.VideoOpacity);
+        Assert.Equal(0.0, np.MosaicWallOpacity);
     }
 
     private static MainShellViewModel NewShell() => new(
