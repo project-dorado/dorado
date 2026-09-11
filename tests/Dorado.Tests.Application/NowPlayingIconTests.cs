@@ -77,6 +77,8 @@ public class NowPlayingIconTests
         np.Mode = NowPlayingMode.Video;
         Assert.Equal(1.0, np.VideoOpacity);
         Assert.Equal(0.0, np.MosaicWallOpacity);
+        // Video mode is active, but no video is loaded, so the live surface stays unmounted.
+        Assert.False(np.IsVideoSurfaceActive);
     }
 
     private static MainShellViewModel NewShell() => new(

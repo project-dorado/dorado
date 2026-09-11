@@ -135,6 +135,7 @@ public class NowPlayingViewModel : ViewModelBase
                 OnPropertyChanged(nameof(ArtistCanvasOpacity));
                 OnPropertyChanged(nameof(MosaicWallOpacity));
                 OnPropertyChanged(nameof(VideoOpacity));
+                OnPropertyChanged(nameof(IsVideoSurfaceActive));
 
                 if (value == NowPlayingMode.Video)
                 {
@@ -154,6 +155,13 @@ public class NowPlayingViewModel : ViewModelBase
     public double ArtistCanvasOpacity => IsArtistCanvasMode ? 1 : 0;
     public double MosaicWallOpacity => IsMosaicWallMode ? 1 : 0;
     public double VideoOpacity => IsVideoMode ? 1 : 0;
+
+    /// <summary>
+    /// True only while the Video mode is active *and* a video is loaded. The video
+    /// chrome crossfades with the other modes, but the live libVLC surface is only
+    /// mounted when visible so it never decodes frames off-screen.
+    /// </summary>
+    public bool IsVideoSurfaceActive => IsVideoMode && HasVideoPlayback;
 
     private readonly IVideoLibraryService? _videoLibraryService;
     private readonly IVideoPlaybackEngine? _videoEngine;
@@ -182,6 +190,7 @@ public class NowPlayingViewModel : ViewModelBase
             if (SetProperty(ref _videoPlaybackVM, value))
             {
                 OnPropertyChanged(nameof(HasVideoPlayback));
+                OnPropertyChanged(nameof(IsVideoSurfaceActive));
             }
         }
     }

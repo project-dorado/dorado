@@ -376,7 +376,14 @@
     </StackPanel>
 
     <!-- MODE 3: NOW PLAYING VIDEO CLIPS (NOWPLAYINGCLIPS parity) -->
-    <Panel IsVisible="{Binding IsVideoMode}" Background="#FF070707">
+    <Panel Opacity="{Binding VideoOpacity}"
+           IsHitTestVisible="{Binding IsVideoMode}"
+           Background="#FF070707">
+      <Panel.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+        </Transitions>
+      </Panel.Transitions>
       <Grid RowDefinitions="Auto,*" Margin="40,20,40,80">
         <StackPanel Grid.Row="0" Spacing="10">
           <TextBlock Text="now playing clips" Classes="hero" FontSize="30" />
@@ -399,7 +406,7 @@
               </ListBox.ItemTemplate>
             </ListBox>
             <Panel Grid.Column="1">
-              <views:VideoPlaybackView DataContext="{Binding VideoPlaybackVM}" IsVisible="{Binding HasVideoPlayback}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+              <views:VideoPlaybackView DataContext="{Binding VideoPlaybackVM}" IsVisible="{Binding IsVideoSurfaceActive}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
               <TextBlock Text="Select a video from your library to play it right here."
                          Classes="body" Foreground="{DynamicResource ZuneTextDimmedBrush}"
                          HorizontalAlignment="Center" VerticalAlignment="Center"
