@@ -41,9 +41,23 @@ jobs:
             name: Windows-arm64
             archive: zip
 
+    # Sibling-checkout layout so the relative ProjectReference from
+    # Dorado.Infrastructure.External to ../dorado-cloud resolves (see AGENTS.md).
+    defaults:
+      run:
+        working-directory: dorado
+
     steps:
-      - name: Checkout Source
+      - name: Checkout Dorado
         uses: actions/checkout@v4
+        with:
+          path: dorado
+
+      - name: Checkout Dorado Cloud (sibling project reference)
+        uses: actions/checkout@v4
+        with:
+          repository: project-dorado/dorado-cloud
+          path: dorado-cloud
 
       - name: Setup .NET 8.0 SDK
         uses: actions/setup-dotnet@v4
@@ -83,7 +97,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dorado-${{ matrix.name }}
-          path: Dorado-${{ matrix.name }}.${{ matrix.archive }}
+          # upload-artifact resolves relative to the workspace root, not the job
+          # working-directory, so account for the `dorado/` checkout prefix.
+          path: dorado/Dorado-${{ matrix.name }}.${{ matrix.archive }}
           retention-days: 14
 
   publish:

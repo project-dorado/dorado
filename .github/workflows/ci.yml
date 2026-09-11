@@ -9,8 +9,24 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-24.04
+    # The workspace uses sibling checkouts, and Dorado.Infrastructure.External
+    # references ../dorado-cloud/clients/DoradoCloud.Client via a relative
+    # ProjectReference. Run all commands from the dorado checkout so that
+    # relative path resolves (see the workspace AGENTS.md).
+    defaults:
+      run:
+        working-directory: dorado
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Dorado
+        uses: actions/checkout@v4
+        with:
+          path: dorado
+
+      - name: Checkout Dorado Cloud (sibling project reference)
+        uses: actions/checkout@v4
+        with:
+          repository: project-dorado/dorado-cloud
+          path: dorado-cloud
 
       - name: Install libVLC (video playback smoke test parity)
         run: sudo apt-get update && sudo apt-get install -y libvlc5 libvlccore9 vlc-plugin-base
