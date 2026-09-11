@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,44 @@ public class MediaLibraryAndSettingsTests : IDisposable
         private readonly DbContextOptions<AppDbContext> _options;
         public TestDbContextFactory(DbContextOptions<AppDbContext> options) => _options = options;
         public AppDbContext CreateDbContext() => new AppDbContext(_options);
+    }
+
+    [Fact]
+    public async Task ScanDirectory_WithAcoustId_SkipsDuplicateRecordings()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), $"dorado_scan_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(dir);
+        try
+        {
+            await File.WriteAllBytesAsync(Path.Combine(dir, "a.mp3"), Array.Empty<byte>());
+            await File.WriteAllBytesAsync(Path.Combine(dir, "b.mp3"), Array.Empty<byte>());
+
+            var acoustId = new FakeAcoustIdService();
+            var service = new MediaLibraryService(_dbFactory, acoustId);
+
+            await service.ScanDirectoryAsync(dir);
+
+            using var ctx = _dbFactory.CreateDbContext();
+            Assert.Equal(1, ctx.Tracks.Count());
+            Assert.Equal(2, acoustId.Lookups); // both fingerprinted; second deduped
+        }
+        finally
+        {
+            try { Directory.Delete(dir, true); } catch { }
+        }
+    }
+
+    private sealed class FakeAcoustIdService : IAcoustIdService
+    {
+        public bool IsConfigured => true;
+        public int Lookups { get; private set; }
+
+        public Task<AcoustIdMatch?> LookupAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            Lookups++;
+            return Task.FromResult<AcoustIdMatch?>(
+                new AcoustIdMatch("rec-1", "Same Song", "Same Artist", "Same Album", 95));
+        }
     }
 
     private class FakeFolderPickerService : IFolderPickerService

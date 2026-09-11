@@ -13,12 +13,14 @@ namespace Dorado.Infrastructure.Persistence;
 public class MediaLibraryService : IMediaLibraryService
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
+    private readonly IAcoustIdService? _acoustId;
 
     public event EventHandler? LibraryUpdated;
 
-    public MediaLibraryService(IDbContextFactory<AppDbContext> contextFactory)
+    public MediaLibraryService(IDbContextFactory<AppDbContext> contextFactory, IAcoustIdService? acoustId = null)
     {
         _contextFactory = contextFactory;
+        _acoustId = acoustId;
     }
 
     public async Task<IReadOnlyList<Track>> GetAllTracksAsync()
@@ -241,6 +243,11 @@ public class MediaLibraryService : IMediaLibraryService
             .ToListAsync())
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        // Acoustic dedup within this scan: two files that resolve to the same
+        // AcoustID recording are the same track. (Recording ids are not persisted,
+        // so this is a per-scan guard.)
+        var seenRecordings = new HashSet<string>(StringComparer.Ordinal);
+
         int total = files.Count;
         int current = 0;
 
@@ -299,6 +306,42 @@ public class MediaLibraryService : IMediaLibraryService
                 {
                     artistName = parts[0].Trim();
                     title = parts[1].Trim();
+                }
+            }
+
+            // AcoustID enrichment (optional): fill missing tag metadata and skip
+            // acoustic duplicates. Failure is non-fatal.
+            if (_acoustId is { IsConfigured: true })
+            {
+                try
+                {
+                    var match = await _acoustId.LookupAsync(file).ConfigureAwait(false);
+                    if (match is not null)
+                    {
+                        if (match.RecordingId is { Length: > 0 } recordingId && !seenRecordings.Add(recordingId))
+                        {
+                            continue; // same recording already imported this scan
+                        }
+
+                        if (artistName == "Unknown Artist" && !string.IsNullOrWhiteSpace(match.Artist))
+                        {
+                            artistName = match.Artist!.Trim();
+                        }
+
+                        if (albumTitle == "Unknown Album" && !string.IsNullOrWhiteSpace(match.Album))
+                        {
+                            albumTitle = match.Album!.Trim();
+                        }
+
+                        if (title == Path.GetFileNameWithoutExtension(file) && !string.IsNullOrWhiteSpace(match.Title))
+                        {
+                            title = match.Title!.Trim();
+                        }
+                    }
+                }
+                catch
+                {
+                    // enrichment is optional
                 }
             }
 

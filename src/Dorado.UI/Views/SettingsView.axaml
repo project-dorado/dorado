@@ -402,6 +402,15 @@
           </StackPanel>
 
           <StackPanel Spacing="10">
+            <TextBlock Text="ACOUSTID API KEY" Classes="section-header" />
+            <TextBlock Text="Optional. With the Chromaprint fpcalc tool on your PATH, AcoustID enriches missing tags at scan time and detects the same recording filed twice." Classes="caption" TextWrapping="Wrap" />
+            <TextBox Text="{Binding AcoustIdApiKey}"
+                     Watermark="Paste your AcoustID application key here"
+                     CornerRadius="0"
+                     FontSize="12" />
+          </StackPanel>
+
+          <StackPanel Spacing="10">
             <TextBlock Text="DORADO CLOUD" Classes="section-header" />
             <TextBlock Text="Community services for catalog, artwork, podcasts, updates and the live Zune Card. Self-hostable; the key-free local providers remain the fallback when disabled."
                        Classes="caption" TextWrapping="Wrap" />

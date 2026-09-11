@@ -1058,6 +1058,19 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    private string _acoustIdApiKey = string.Empty;
+    public string AcoustIdApiKey
+    {
+        get => _acoustIdApiKey;
+        set
+        {
+            if (SetProperty(ref _acoustIdApiKey, value?.Trim() ?? string.Empty))
+            {
+                SaveCurrentSettings();
+            }
+        }
+    }
+
     // ---- Dorado Cloud (community services) ------------------------------
 
     /// <summary>Whether the Dorado Cloud services are enabled for this client.</summary>
@@ -1632,6 +1645,8 @@ public class SettingsViewModel : ViewModelBase
             OnPropertyChanged(nameof(LrcLibEnabled));
             _fanartTvApiKey = settings.FanartTvApiKey;
             OnPropertyChanged(nameof(FanartTvApiKey));
+            _acoustIdApiKey = settings.AcoustIdApiKey;
+            OnPropertyChanged(nameof(AcoustIdApiKey));
 
             _cloudEnabled = settings.CloudEnabled;
             OnPropertyChanged(nameof(CloudEnabled));
@@ -1792,6 +1807,7 @@ public class SettingsViewModel : ViewModelBase
             LastFmEnabled = LastFmEnabled,
             LrcLibEnabled = LrcLibEnabled,
             FanartTvApiKey = FanartTvApiKey,
+            AcoustIdApiKey = AcoustIdApiKey,
             SpaceReservationPercent = SpaceReservationPercent,
             MusicSyncRule = MusicSyncRule,
             PodcastSyncRule = PodcastSyncRule,

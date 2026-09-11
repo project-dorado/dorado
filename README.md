@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-389%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-393%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -160,7 +160,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **389 unit tests** passing (XUnit + Avalonia headless harness)
+- **393 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 
@@ -171,7 +171,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 ### Medium-priority features (Tiers C / D)
 
 ### Smaller polish
-- **MusicBrainz + AcoustID auto-metadata + dedup** at scan time
+- ✅ **MusicBrainz + AcoustID auto-metadata + dedup** at scan time (AcoustID via `fpcalc` + API key; recording-level acoustic dedup)
 - **Direct device playback** from desktop (play tracks off the device)
 - **On-the-fly WMA Lossless transcoding** during sync
 

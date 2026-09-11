@@ -42,6 +42,12 @@ public class AppSettings
     public bool LrcLibEnabled { get; set; } = true;
     public string FanartTvApiKey { get; set; } = string.Empty;
 
+    // AcoustID (scan-time metadata enrichment + acoustic duplicate detection).
+    // Requires the external `fpcalc` (Chromaprint) tool on PATH; disabled when
+    // the API key is empty.
+    public string AcoustIdApiKey { get; set; } = string.Empty;
+    public string AcoustIdFpcalcPath { get; set; } = "fpcalc";
+
     // Dorado Cloud — community cloud services (catalog, artwork CDN, identity,
     // OTA updates, social). When enabled and reachable, the cloud becomes the
     // authoritative source for catalog/artwork; the direct MusicBrainz/Cover Art

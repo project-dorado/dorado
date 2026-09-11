@@ -143,6 +143,13 @@ public partial class App : Avalonia.Application
         services.AddSingleton<ISettingsStore, JsonSettingsStore>();
         services.AddSingleton<IArtworkCacheService, ArtworkCacheService>();
         services.AddSingleton<ExternalMetadataService>();
+        // AcoustID scan-time enrichment (fpcalc + AcoustID); hidden behind an API
+        // key and gracefully absent when fpcalc is not installed.
+        services.AddSingleton<IFingerprintProvider>(sp =>
+            new FpcalcFingerprintProvider(sp.GetRequiredService<ISettingsStore>().Load().AcoustIdFpcalcPath));
+        services.AddSingleton<IAcoustIdService>(sp => new AcoustIdService(
+            () => sp.GetRequiredService<ISettingsStore>().Load(),
+            sp.GetRequiredService<IFingerprintProvider>()));
         // Dorado Cloud client — centralized auth via the SDK. The credential
         // store persists access/refresh tokens in settings; CloudClientProvider
         // rebuilds the client when the base URL changes, and the SDK auth handler
