@@ -161,7 +161,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **430 tests** passing (14 Domain + 415 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
+- **431 tests** passing (14 Domain + 416 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
 
 ---
 
@@ -177,7 +177,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 - **Direct device playback** from desktop (play tracks off the device)
 
 ### Hard / large (Tier C2 / D1)
-- **Mixview authentic Iris mosaic** — the local mosaic, audio-similarity ranking and external MusicBrainz artist satellites ship; the authentic Iris mosaic art remains
+- ✅ **Mixview clean-room Iris mosaic** — tiled collection artwork behind the constellation (procedural recreation; no Microsoft art); audio-similarity ranking + external MusicBrainz artist satellites ship
 - ✅ **Real CD rip/burn pipeline** (`ProcessOpticalDriveService`, capability-gated on `cdparanoia`/`ffmpeg`/`cdrdao`; auto-detected, honest simulated fallback when no drive is present)
 - **Zune Card + Friends social layer** (the most-requested missing feature, but the Zune Social servers are dead; local-only substitute)
 - **Wireless song squirt** (device-to-device peer-to-peer)
@@ -257,7 +257,7 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | B. Quickplay | **~87%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; procedural hub map; Smart DJ 5s timeout + Quick Mix progress shipped |
 | C. Collection (music) | **~89%** | Two-tier collection (media groups → sub-pivots), smart playlists, Find Album Info, FTS5 search; playlist search shipped |
 | D. Now Playing | **~85%** | 3 modes + Ken-Burns + idle screensaver + drawers; real mosaic album art with glyph fallback; all-mode crossfade (canvas↔mosaic↔video); hover/pressed icon variants |
-| E. Mixview | **~70%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
+| E. Mixview | **~78%** | Clean-room Iris mosaic (tiled collection artwork) + audio-feature similarity engine + external MusicBrainz related-artist satellites |
 | F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
 | G. CD Land | **~60%** | Full UI with an honest no-disc state; **real capability-gated rip/burn** (`cdparanoia` + `ffmpeg` + `cdrdao`) auto-detected by drive/toolchain, with the simulated path (clearly labelled) as fallback |
 | H. Device sync | **~62%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam, LAN sync + mDNS; device info projects a real device or a disconnected state |

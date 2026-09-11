@@ -29,6 +29,31 @@ public class MixviewViewModel : ViewModelBase
 
     public ObservableCollection<MixNode> Satellites { get; } = new();
 
+    /// <summary>
+    /// Clean-room Iris mosaic: collection album tiles tiled behind the relational
+    /// constellation (recreated procedurally from the local library, no Microsoft art).
+    /// </summary>
+    public ObservableCollection<Album> MosaicTiles { get; } = new();
+    public bool HasMosaicTiles => MosaicTiles.Count > 0;
+
+    private async Task LoadMosaicAsync()
+    {
+        try
+        {
+            var albums = await _libraryService.GetAllAlbumsAsync();
+            MosaicTiles.Clear();
+            foreach (var album in albums.Take(24))
+            {
+                MosaicTiles.Add(album);
+            }
+            OnPropertyChanged(nameof(HasMosaicTiles));
+        }
+        catch
+        {
+            // Mosaic is decorative; failures must not break the constellation.
+        }
+    }
+
     private MixNode? _hoveredNode;
     public MixNode? HoveredNode
     {
@@ -100,6 +125,8 @@ public class MixviewViewModel : ViewModelBase
         InfoNodeCommand = new AsyncRelayCommand<MixNode>(OnInfoNodeAsync);
         AddNodeCommand = new AsyncRelayCommand<MixNode>(OnAddNodeAsync);
         CloseInfoCardCommand = new RelayCommand(() => InfoCardText = null);
+
+        _ = LoadMosaicAsync();
     }
 
     public async Task InitializeSeedAsync(string seedName, MixNodeType seedType = MixNodeType.Artist, Guid? seedId = null)

@@ -278,7 +278,7 @@ public partial class App : Avalonia.Application
 
         // OS media integration (MPRIS2/SMTC). Null fallback keeps the wiring
         // unconditional; the platform implementation is selected by capability.
-        services.AddSingleton<ISystemMediaControls>(NullSystemMediaControls.Instance);
+        services.AddSingleton<ISystemMediaControls>(_ => SystemMediaControlsFactory.Create());
         services.AddSingleton<SystemMediaControlsCoordinator>();
 
         // 4. ViewModels

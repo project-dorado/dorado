@@ -5,11 +5,37 @@
              xmlns:vm="clr-namespace:Dorado.UI.ViewModels;assembly=Dorado.UI"
              xmlns:design="clr-namespace:Dorado.UI.Design;assembly=Dorado.UI"
              xmlns:models="clr-namespace:Dorado.Domain.Models;assembly=Dorado.Domain"
+             xmlns:conv="clr-namespace:Dorado.UI.Converters;assembly=Dorado.UI"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="Dorado.UI.Views.MixviewView"
              x:DataType="vm:MixviewViewModel">
 
   <Grid Background="#101010" ClipToBounds="True">
+
+    <!-- Clean-room Iris mosaic: tiled collection artwork behind the constellation. -->
+    <ItemsControl ItemsSource="{Binding MosaicTiles}"
+                  IsVisible="{Binding HasMosaicTiles}"
+                  IsHitTestVisible="False"
+                  Opacity="0.85">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="models:Album">
+          <Border Width="128" Height="128" Margin="3" Background="{DynamicResource ZuneCardBrush}" CornerRadius="0">
+            <Grid>
+              <Path Data="{x:Static design:ZuneGlyphs.MusicNote}" Stretch="Uniform" Width="30" Height="30"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{DynamicResource ZuneTextDimmedBrush}" />
+              <Image Source="{Binding ArtworkUri, Converter={x:Static conv:ArtworkSourceConverter.Instance}}" Stretch="UniformToFill" />
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <!-- Scrim keeps the constellation legible over the mosaic. -->
+    <Border Background="{DynamicResource ZuneBackgroundBrush}" Opacity="0.20" IsHitTestVisible="False" />
 
     <!-- Top Left Breadcrumb / Back Navigation -->
     <StackPanel Orientation="Horizontal" 
