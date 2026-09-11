@@ -233,7 +233,7 @@ dotnet publish src/Dorado.Desktop -r win-arm64 -c Release
 - **Windows x64:** full audio + video out of the box (VLC natives bundled via `VideoLAN.LibVLC.Windows`).
 - **Windows arm64:** BASS publishes no ARM64 natives, so audio playback runs in simulated (silent) mode; video is unaffected.
 
-Continuous integration (`.github/workflows/ci.yml`) builds the solution Release with a zero-warnings policy, runs the full test suite, and re-runs the design-invariants audit on every push. Tagging `dorado-v*` (or `.github/workflows/release.yml` → Run workflow) publishes self-contained archives for linux-x64, linux-arm64, win-x64, and win-arm64.
+Continuous integration (`.github/workflows/ci.yml`) builds the solution Release with a zero-warnings policy, runs the full test suite, and re-runs the design-invariants audit on every push. `.github/workflows/build.yml` publishes self-contained archives for linux-x64, linux-arm64, win-x64, and win-arm64: every push to `main` gets a `dorado-<sha>` prerelease tagged with the short commit hash, and pushing a `dorado-v*` tag produces a normal versioned release.
 
 ---
 
