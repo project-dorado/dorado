@@ -6,5 +6,5 @@ LIBRARY scan dirs=/home/john/Projects/project-dorado/test-media tracks=5 albums=
   track: "Scary and Naked" | Schaffer the Darklord | Pumpkin + Scary and Naked | 03:16 | Music
 AUDIO engineIsAvailable=False coordinatorSimulated=True
 PLAYBACK PlayTrackAsync completedWithin5s=True state=Playing hasSource=True simulated=False
-PLAYBACK file="Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 01 Da Doo" state=Playing position=1.98s
+PLAYBACK file="Epic Win Burlesque - Epic Win Burlesque- The Musical - Original Cast Recording Soundtrack - 01 Da Doo" state=Playing position=1.99s
 PLAYBACK stopIssued state=Stopped
