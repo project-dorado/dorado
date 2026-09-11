@@ -10,7 +10,7 @@ affordances.
 
 | Item | Origin | Rationale for deferral |
 |---|---|---|
-| **i18n — remaining 24 Zune locales + full string extraction** | Zune shipped localized UIs (ZuneShellResources `.UIX` per locale) | Phase 17 shipped the localization service + catalog (`en`/`fr`) and a live language selector. Extracting every remaining view string and translating the other 24 Zune locales is mechanical but touches every view; deferred as incremental follow-up. |
+| **i18n — full string extraction across every view** | Zune shipped localized UIs (ZuneShellResources `.UIX` per locale) | Phase 17 shipped the localization service + catalog and the 2026-09-11 follow-on expanded it to **20 locales** (en, fr, de, es, it, pt, nl, sv, da, nb, fi, pl, cs, hu, tr, ru, ja, ko, zh-Hans, zh-Hant) with a live language selector. Extracting the remaining view strings into the catalog is mechanical but touches every view; deferred as incremental follow-up. |
 | **UPnP media sharing (ZuneNSS / `ZuneShareEXE` parity)** | Native component map: network sharing services | Zune's social sharing servers are dead; a local UPnP/DLNA renderer/server has no Zune-visible counterpart to validate against. |
 | **Explorer / taskbar shell integration (`ZuneShellExt_Dll`, `ZuneTaskbar_Dll`, `ZuneLauncherEXE`)** | Native component map | Windows-only, shell-level (context menus, taskbar previews). Cross-platform app; value is cosmetic. |
 | **MTPZ firmware update / restore / rollback (`ZuneWmduDLL` parity)** | Device lifecycle | Hardware N-A. Phase 15 landed the `MtpTransport`/`IMtpDeviceClient` seam, USB product-ID detection, and a virtual MTP contract harness; the MTPZ session layer and firmware flows remain deferred until hardware is available. |

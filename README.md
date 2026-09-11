@@ -121,7 +121,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Episode playback** via streams
 
 ### Localization
-- **Runtime localization** (`ILocalizationService` + `LocalizationCatalog`): English + French catalog with per-locale fallback, live locale switch from Settings → General, persisted language preference
+- **Runtime localization** (`ILocalizationService` + `LocalizationCatalog`): **20 locales** (en, fr, de, es, it, pt, nl, sv, da, nb, fi, pl, cs, hu, tr, ru, ja, ko, zh-Hans, zh-Hant) with per-locale English fallback, live locale switch from Settings → General, persisted language preference
 
 ### Settings
 - **13 software pages** (Collection, Playback, Podcasts, File Types, Privacy, Photos, Rip, Burn, Metadata, Display, General, About, Plugins) + 4 device pages (Sync Options, Space Reservation, Wireless Sync, Device Info)
@@ -185,7 +185,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 ### Hardware-N-A (documented in `deferred_registry.md`)
 - **Real MTPZ device sync** (`ZuneWmduDLL` parity) — needs physical Zune hardware
 - **Windows shell integration** (explorer context menus, jump lists, taskbar previews)
-- **i18n — remaining 24 locales** (en/fr shipped)
+- **i18n — remaining locales + full string extraction** (20 locales of the shell/pivot strings shipped; extracting every view string remains incremental)
 - **UPnP media sharing** (`ZuneNSS` / `ZuneShareEXE`)
 
 ### Open findings (audited 2026-09-11; remediated M1–M3)

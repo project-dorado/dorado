@@ -46,6 +46,39 @@ public class LocalizationTests
     }
 
     [Fact]
+    public void Expanded_locales_are_available_and_translate()
+    {
+        var catalog = LocalizationCatalog.Default;
+
+        // Expanded toward the Zune locale set (>= 20 locales including en/fr).
+        Assert.True(catalog.Locales.Count >= 20, $"only {catalog.Locales.Count} locales");
+        foreach (var code in new[] { "de", "es", "it", "pt", "nl", "sv", "pl", "ru", "ja", "ko", "zh-Hans", "zh-Hant" })
+        {
+            Assert.Contains(code, catalog.Locales);
+            // Every shipped locale has a selector display name.
+            Assert.NotEqual($"language.{code}", catalog.Get($"language.{code}", "en"));
+        }
+
+        Assert.Equal("GERÄT", catalog.Get("pivot.device", "de"));
+        Assert.Equal("再生", catalog.Get("sub.playback", "ja"));
+        Assert.Equal("播放", catalog.Get("sub.playback", "zh-Hans"));
+        Assert.Equal("Русский", catalog.Get("language.ru", "en"));
+
+        // Untranslated keys still fall back to English for a new locale.
+        Assert.Equal("podcasts", catalog.Get("sub.podcasts", "de"));
+    }
+
+    [Fact]
+    public void Service_switches_to_an_expanded_locale()
+    {
+        var service = new LocalizationService();
+        service.SetLocale("de");
+        Assert.Equal("de", service.CurrentLocale);
+        Assert.Equal("GERÄT", service["pivot.device"]);
+        Assert.Equal("sammlung", service["sub.collection"]);
+    }
+
+    [Fact]
     public void Settings_language_selection_applies_localization()
     {
         var localization = new LocalizationService();
