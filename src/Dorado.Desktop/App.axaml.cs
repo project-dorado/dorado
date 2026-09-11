@@ -79,6 +79,10 @@ public partial class App : Avalonia.Application
             };
         }
 
+        // Signed update check (opt-in). Runs off the UI thread; surfaces a verified
+        // release through the in-shell dialog. Never blocks startup, never throws.
+        _ = CheckForUpdatesAsync(_serviceProvider);
+
         base.OnFrameworkInitializationCompleted();
     }
 
@@ -132,28 +136,17 @@ public partial class App : Avalonia.Application
         services.AddSingleton<ISettingsStore, JsonSettingsStore>();
         services.AddSingleton<IArtworkCacheService, ArtworkCacheService>();
         services.AddSingleton<ExternalMetadataService>();
-        // Dorado Cloud client — always registered (cheap), but only consulted by
-        // CloudBackedMetadataService when settings.CloudEnabled is true and the
-        // configured base URL is non-empty.
-        services.AddSingleton(sp =>
-        {
-            var settingsStore = sp.GetRequiredService<ISettingsStore>();
-            var settings = settingsStore.Load();
-            var baseUrl = string.IsNullOrWhiteSpace(settings.CloudBaseUrl)
-                ? new Uri("https://cloud.invalid/")
-                : new Uri(settings.CloudBaseUrl);
-            var http = new HttpClient { BaseAddress = baseUrl, Timeout = TimeSpan.FromSeconds(15) };
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("Dorado/1.0 (+https://github.com/project-dorado/dorado)");
-            if (!string.IsNullOrWhiteSpace(settings.CloudAccessToken))
-            {
-                http.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.CloudAccessToken);
-            }
-            return new DoradoCloudClient(http);
-        });
+        // Dorado Cloud client — centralized auth via the SDK. The credential
+        // store persists access/refresh tokens in settings; CloudClientProvider
+        // rebuilds the client when the base URL changes, and the SDK auth handler
+        // refreshes tokens on expiry. All gated by settings.CloudEnabled.
+        services.AddSingleton<ICloudCredentialStore, SettingsCloudCredentialStore>();
+        services.AddSingleton(sp => new CloudClientProvider(
+            () => sp.GetRequiredService<ISettingsStore>().Load(),
+            sp.GetRequiredService<ICloudCredentialStore>()));
         services.AddSingleton<IExternalMetadataService>(sp => new CloudBackedMetadataService(
             sp.GetRequiredService<ExternalMetadataService>(),
-            sp.GetRequiredService<DoradoCloudClient>(),
+            () => sp.GetRequiredService<CloudClientProvider>().Get(),
             () => sp.GetRequiredService<ISettingsStore>().Load()));
 
         // Emulator bridge: lazily spawns `dorado --ipc` on first use and drives
@@ -251,6 +244,43 @@ public partial class App : Avalonia.Application
 
         // 4. ViewModels
         services.AddSingleton<MainShellViewModel>();
+    }
+
+    /// <summary>
+    /// Best-effort background update check: honours <c>AutoCheckForUpdates</c>,
+    /// consults <see cref="ICloudUpdateService"/>, and only ever surfaces a
+    /// release whose detached signature verified.
+    /// </summary>
+    private static async Task CheckForUpdatesAsync(IServiceProvider provider)
+    {
+        try
+        {
+            if (!provider.GetRequiredService<ISettingsStore>().Load().AutoCheckForUpdates)
+            {
+                return;
+            }
+
+            var updates = provider.GetRequiredService<ICloudUpdateService>();
+            if (!updates.IsEnabled)
+            {
+                return;
+            }
+
+            var info = await updates.CheckAsync("dorado").ConfigureAwait(false);
+            if (info is not { SignatureVerified: true })
+            {
+                return;
+            }
+
+            var dialog = provider.GetRequiredService<IDialogService>();
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => dialog.AlertAsync(
+                "Update available",
+                $"Dorado {info.Version} is available.\n\n{info.Notes}\n\n{info.Url}")).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
+        }
     }
 
     private static void InitializeDatabase(IServiceProvider provider)

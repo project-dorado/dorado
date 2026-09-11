@@ -19,17 +19,30 @@ namespace Dorado.Infrastructure.External;
 /// <see cref="FindAlbumArtworkAsync"/> through <c>GET /v1/artwork/front/{mbid}</c>.
 /// Everything else (track matches, lyrics, fallback artist backgrounds) keeps
 /// using the inner service — the cloud does not (yet) back those.
+///
+/// When <see cref="AppSettings.CloudPreferCloud"/> is false the order inverts:
+/// the inner (direct-provider) result is preferred and the cloud is consulted
+/// only as a fallback.
 /// </summary>
 public sealed class CloudBackedMetadataService : IExternalMetadataService
 {
     private readonly IExternalMetadataService _inner;
-    private readonly DoradoCloudClient _cloud;
+    private readonly Func<DoradoCloudClient?> _cloud;
     private readonly Func<AppSettings> _settings;
     private readonly ILogger<CloudBackedMetadataService> _logger;
 
     public CloudBackedMetadataService(
         IExternalMetadataService inner,
         DoradoCloudClient cloud,
+        Func<AppSettings> settings,
+        ILogger<CloudBackedMetadataService>? logger = null)
+        : this(inner, () => cloud, settings, logger)
+    {
+    }
+
+    public CloudBackedMetadataService(
+        IExternalMetadataService inner,
+        Func<DoradoCloudClient?> cloud,
         Func<AppSettings> settings,
         ILogger<CloudBackedMetadataService>? logger = null)
     {
@@ -43,41 +56,14 @@ public sealed class CloudBackedMetadataService : IExternalMetadataService
         string artistName,
         CancellationToken cancellationToken = default)
     {
-        var (enabled, _) = ResolveCloud();
-        if (enabled)
+        if (_settings().CloudPreferCloud)
         {
-            try
-            {
-                var hit = await _cloud.CatalogSearchAsync(artistName, "artist", limit: 1, cancellationToken)
-                    .ConfigureAwait(false);
-                var first = hit?.Items.FirstOrDefault();
-                if (first is { Mbid: { Length: > 0 } })
-                {
-                    var detail = await _cloud.CatalogArtistAsync(first.Mbid, cancellationToken)
-                        .ConfigureAwait(false);
-                    if (detail is not null)
-                    {
-                        return new ArtistMetadataResult
-                        {
-                            Name = string.IsNullOrWhiteSpace(detail.Name) ? artistName : detail.Name,
-                            MusicBrainzId = detail.Mbid,
-                            Biography = detail.Disambiguation,
-                            BiographySource = "Dorado Cloud (MusicBrainz via Catalog)",
-                            ThumbnailUrl = detail.CoverArtUrl,
-                            BackgroundImageUrls = detail.CoverArtUrl is null
-                                ? new List<string>()
-                                : new List<string> { detail.CoverArtUrl },
-                        };
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Cloud catalog lookup failed for {Artist}; falling back.", artistName);
-            }
+            return await TryCloudArtistAsync(artistName, cancellationToken).ConfigureAwait(false)
+                ?? await _inner.FetchArtistMetadataAsync(artistName, cancellationToken).ConfigureAwait(false);
         }
 
-        return await _inner.FetchArtistMetadataAsync(artistName, cancellationToken).ConfigureAwait(false);
+        var local = await _inner.FetchArtistMetadataAsync(artistName, cancellationToken).ConfigureAwait(false);
+        return local ?? await TryCloudArtistAsync(artistName, cancellationToken).ConfigureAwait(false);
     }
 
     public Task<IReadOnlyList<string>> FetchArtistBackgroundUrlsAsync(
@@ -91,39 +77,14 @@ public sealed class CloudBackedMetadataService : IExternalMetadataService
     public async Task<AlbumArtworkResult?> FindAlbumArtworkAsync(
         string artistName, string albumTitle, int? year = null, CancellationToken cancellationToken = default)
     {
-        var (enabled, _) = ResolveCloud();
-        if (enabled)
+        if (_settings().CloudPreferCloud)
         {
-            try
-            {
-                var hit = await _cloud.CatalogSearchAsync($"{artistName} {albumTitle}", "release-group", limit: 5, cancellationToken)
-                    .ConfigureAwait(false);
-                var candidate = hit?.Items.FirstOrDefault(i =>
-                    string.Equals(i.Artist, artistName, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(i.Title, albumTitle, StringComparison.OrdinalIgnoreCase));
-                if (candidate is { Mbid: { Length: > 0 } })
-                {
-                    var bytes = await _cloud.ArtworkFrontAsync(candidate.Mbid, size: 500, cancellationToken)
-                        .ConfigureAwait(false);
-                    if (bytes is { Length: > 0 })
-                    {
-                        return new AlbumArtworkResult
-                        {
-                            AlbumTitle = albumTitle,
-                            ArtistName = artistName,
-                            MusicBrainzReleaseGroupId = candidate.Mbid,
-                            ArtworkUrl = $"https://dorado-cloud.example/v1/artwork/front/{candidate.Mbid}?size=500",
-                        };
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Cloud artwork lookup failed for {Artist}/{Album}; falling back.", artistName, albumTitle);
-            }
+            return await TryCloudArtworkAsync(artistName, albumTitle, cancellationToken).ConfigureAwait(false)
+                ?? await _inner.FindAlbumArtworkAsync(artistName, albumTitle, year, cancellationToken).ConfigureAwait(false);
         }
 
-        return await _inner.FindAlbumArtworkAsync(artistName, albumTitle, year, cancellationToken).ConfigureAwait(false);
+        var local = await _inner.FindAlbumArtworkAsync(artistName, albumTitle, year, cancellationToken).ConfigureAwait(false);
+        return local ?? await TryCloudArtworkAsync(artistName, albumTitle, cancellationToken).ConfigureAwait(false);
     }
 
     public Task<IReadOnlyList<TrackMatchCandidate>> FindTrackMatchesAsync(
@@ -134,10 +95,84 @@ public sealed class CloudBackedMetadataService : IExternalMetadataService
         string artistName, string trackTitle, TimeSpan? duration = null, CancellationToken cancellationToken = default)
         => _inner.FetchLyricsAsync(artistName, trackTitle, duration, cancellationToken);
 
-    private (bool Enabled, AppSettings Snapshot) ResolveCloud()
+    private async Task<ArtistMetadataResult?> TryCloudArtistAsync(string artistName, CancellationToken cancellationToken)
     {
-        var snapshot = _settings();
-        var enabled = snapshot.CloudEnabled && !string.IsNullOrWhiteSpace(snapshot.CloudBaseUrl);
-        return (enabled, snapshot);
+        var client = _cloud();
+        if (client is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var hit = await client.CatalogSearchAsync(artistName, "artist", limit: 1, cancellationToken)
+                .ConfigureAwait(false);
+            var first = hit?.Items.FirstOrDefault();
+            if (first is { Mbid: { Length: > 0 } })
+            {
+                var detail = await client.CatalogArtistAsync(first.Mbid, cancellationToken).ConfigureAwait(false);
+                if (detail is not null)
+                {
+                    return new ArtistMetadataResult
+                    {
+                        Name = string.IsNullOrWhiteSpace(detail.Name) ? artistName : detail.Name,
+                        MusicBrainzId = detail.Mbid,
+                        Biography = detail.Disambiguation,
+                        BiographySource = "Dorado Cloud (MusicBrainz via Catalog)",
+                        ThumbnailUrl = detail.CoverArtUrl,
+                        BackgroundImageUrls = detail.CoverArtUrl is null
+                            ? new List<string>()
+                            : new List<string> { detail.CoverArtUrl },
+                    };
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cloud catalog lookup failed for {Artist}; falling back.", artistName);
+        }
+
+        return null;
+    }
+
+    private async Task<AlbumArtworkResult?> TryCloudArtworkAsync(
+        string artistName, string albumTitle, CancellationToken cancellationToken)
+    {
+        var client = _cloud();
+        if (client is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var hit = await client.CatalogSearchAsync($"{artistName} {albumTitle}", "release-group", limit: 5, cancellationToken)
+                .ConfigureAwait(false);
+            var candidate = hit?.Items.FirstOrDefault(i =>
+                string.Equals(i.Artist, artistName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.Title, albumTitle, StringComparison.OrdinalIgnoreCase));
+            if (candidate is { Mbid: { Length: > 0 } })
+            {
+                var bytes = await client.ArtworkFrontAsync(candidate.Mbid, size: 500, cancellationToken)
+                    .ConfigureAwait(false);
+                if (bytes is { Length: > 0 })
+                {
+                    var baseUrl = _settings().CloudBaseUrl.TrimEnd('/');
+                    return new AlbumArtworkResult
+                    {
+                        AlbumTitle = albumTitle,
+                        ArtistName = artistName,
+                        MusicBrainzReleaseGroupId = candidate.Mbid,
+                        ArtworkUrl = $"{baseUrl}/v1/artwork/front/{candidate.Mbid}?size=500",
+                    };
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cloud artwork lookup failed for {Artist}/{Album}; falling back.", artistName, albumTitle);
+        }
+
+        return null;
     }
 }

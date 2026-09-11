@@ -53,6 +53,8 @@ public class AppSettings
     /// <summary>Bearer token issued by the OIDC flow; persisted after PKCE sign-in.</summary>
     public string CloudAccessToken { get; set; } = string.Empty;
     public DateTime? CloudAccessTokenExpiresAtUtc { get; set; }
+    /// <summary>OIDC refresh token (offline_access); used to renew the access token silently.</summary>
+    public string CloudRefreshToken { get; set; } = string.Empty;
     /// <summary>When true (default), the cloud response wins on a conflict; the inner service is only consulted on cloud failure.</summary>
     public bool CloudPreferCloud { get; set; } = true;
 

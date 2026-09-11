@@ -69,6 +69,7 @@ public sealed class CloudSignInServiceTests
         Assert.True(settings.Current.CloudEnabled);
         Assert.Equal("access-123", settings.Current.CloudAccessToken);
         Assert.NotNull(settings.Current.CloudAccessTokenExpiresAtUtc);
+        Assert.Equal("rt", settings.Current.CloudRefreshToken);
     }
 
     [Fact]
@@ -83,13 +84,14 @@ public sealed class CloudSignInServiceTests
     [Fact]
     public void SignOut_ClearsToken()
     {
-        var settings = new FakeSettingsStore(new AppSettings { CloudEnabled = true, CloudAccessToken = "tok" });
+        var settings = new FakeSettingsStore(new AppSettings { CloudEnabled = true, CloudAccessToken = "tok", CloudRefreshToken = "rt" });
         var service = new CloudSignInService(settings, new OAuthPkceService());
 
         service.SignOut();
 
         Assert.Equal(string.Empty, settings.Current.CloudAccessToken);
         Assert.Null(settings.Current.CloudAccessTokenExpiresAtUtc);
+        Assert.Equal(string.Empty, settings.Current.CloudRefreshToken);
     }
 
     private static string Param(string query, string key) =>

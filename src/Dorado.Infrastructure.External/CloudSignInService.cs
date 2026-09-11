@@ -71,6 +71,7 @@ public sealed class CloudSignInService : ICloudSignInService
         settings.CloudEnabled = true;
         settings.CloudAccessToken = tokens.AccessToken;
         settings.CloudAccessTokenExpiresAtUtc = DateTime.UtcNow.AddSeconds(tokens.ExpiresIn);
+        settings.CloudRefreshToken = tokens.RefreshToken ?? string.Empty;
         _settings.Save(settings);
         return true;
     }
@@ -80,6 +81,7 @@ public sealed class CloudSignInService : ICloudSignInService
         var settings = _settings.Load();
         settings.CloudAccessToken = string.Empty;
         settings.CloudAccessTokenExpiresAtUtc = null;
+        settings.CloudRefreshToken = string.Empty;
         _settings.Save(settings);
     }
 
