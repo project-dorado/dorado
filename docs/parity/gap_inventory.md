@@ -1,10 +1,16 @@
 # Dorado ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch; refreshed post-Phase-23)
 
 > **Audit supersession (2026-09-11):** an independent re-audit found this
-> inventory's status column and the "10 of 15 closed" summary to be overstated.
-> The verified tally is **7 closed / 4 partial / 4 open**. See
-> [`audit-2026-09-11.md`](audit-2026-09-11.md) for the evidence and corrected
-> per-item verdicts (items 3, 4, 6, 10 are partial; 7, 11, 12, 15 are open).
+> inventory's status column and the "10 of 15 closed" summary to be overstated
+> (verified then: **7 closed / 4 partial / 4 open**). See
+> [`audit-2026-09-11.md`](audit-2026-09-11.md) for the evidence.
+>
+> **Remediation (M1–M3, commits `c99f3e1`/`e8824ce`/`31780fa`):** items **3**
+> (hover/pressed icon variants), **7** (Smart DJ timeout/progress), **10**
+> (playlist search), **11** (Quick Mix notification) and **12** (editable Zune
+> Card) are now closed; **6** is partially improved (canvas↔mosaic crossfade;
+> video remains an instant swap). Current tally: **12 closed / 2 partial / 1
+> open** (only #15, real CD rip/burn, remains).
 
 **Date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Scope:** Comprehensive cross-reference of `src/Dorado.UI/Views/*` against the
@@ -718,11 +724,14 @@ moved parity from ~55–60% to ~75–80%. This list targets the next band.
 
 ### Cumulative parity scorecard after this list
 
-**Corrected 2026-09-11 (audit):** the verified tally is **7 closed (1, 2, 5, 8, 9,
-13, 14) / 4 partial (3, 4, 6, 10) / 4 open (7, 11, 12, 15)**. The earlier "10 of
-15 closed incl. 4, 8, 10, 14, 15" claim was wrong: item 15 (real CD rip/burn) is
-open, and items 4 (Iris art) and 10 (search) are partial. Independently measured
-weighted parity is **~80–84%**, not ~88%. Evidence:
+**Corrected 2026-09-11 (audit):** the verified tally was **7 closed (1, 2, 5, 8, 9,
+13, 14) / 4 partial (3, 4, 6, 10) / 4 open (7, 11, 12, 15)** — the earlier "10 of
+15 closed incl. 4, 8, 10, 14, 15" claim was wrong. Independently measured
+weighted parity was **~80–84%**, not ~88%. Evidence:
 [`audit-2026-09-11.md`](audit-2026-09-11.md).
+
+**Remediation 2026-09-11 (M1–M3):** items 3, 7, 10, 11, 12 are now closed and 6
+is partially improved (canvas↔mosaic crossfade). Current tally: **12 closed / 2
+partial (4, 6) / 1 open (15)**; the verified band is **~85–87%**.
 
 End of inventory.
