@@ -8,6 +8,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Interfaces;
 using Dorado.Application.Models;
+using Dorado.Domain.Models;
 using Dorado.Plugins.Host;
 
 namespace Dorado.UI.ViewModels;
@@ -1258,17 +1259,35 @@ public class SettingsViewModel : ViewModelBase
     // ==========================================
     // DEVICE SETTINGS (SYNC & SPACE RESERVATION)
     // ==========================================
-    public bool IsDeviceConnected => _deviceSyncService?.ConnectedDevices.Count > 0;
-    public string DeviceModelName => IsDeviceConnected 
-        ? _deviceSyncService!.ConnectedDevices[0].ModelName 
-        : "Zune HD (Simulated Standby)";
-    public string DeviceSerialNumber => IsDeviceConnected 
-        ? _deviceSyncService!.ConnectedDevices[0].SerialNumber 
-        : "0001020304050607";
-    public string FirmwareVersion => "v4.5 (3084)";
-    public string DeviceBatteryText => "88% (Charging)";
+    private ZuneDevice? ActiveDevice =>
+        _deviceSyncService?.ConnectedDevices.Count > 0 ? _deviceSyncService.ConnectedDevices[0] : null;
 
-    public double TotalCapacityGb => 32.0;
+    public bool IsDeviceConnected => ActiveDevice is not null;
+
+    // Device Info is a live projection of the connected device. With no device it shows
+    // an honest disconnected state instead of fabricated standby constants.
+    public string DeviceModelName => ActiveDevice?.ModelName ?? "No device connected";
+    public string DeviceSerialNumber => ActiveDevice?.SerialNumber ?? "—";
+    public string FirmwareVersion => ActiveDevice?.FirmwareVersion ?? "—";
+    public string DeviceBatteryText => ActiveDevice is null ? "—" : "— (not reported)";
+
+    public double TotalCapacityGb => ActiveDevice is null
+        ? 0.0
+        : ActiveDevice.CapacityBytes / (1024.0 * 1024 * 1024);
+
+    /// <summary>Re-projects the device-info fields (called when a device connects/disconnects).</summary>
+    public void RefreshDeviceInfo()
+    {
+        OnPropertyChanged(nameof(IsDeviceConnected));
+        OnPropertyChanged(nameof(DeviceModelName));
+        OnPropertyChanged(nameof(DeviceSerialNumber));
+        OnPropertyChanged(nameof(FirmwareVersion));
+        OnPropertyChanged(nameof(DeviceBatteryText));
+        OnPropertyChanged(nameof(TotalCapacityGb));
+        OnPropertyChanged(nameof(ReservedGbText));
+        OnPropertyChanged(nameof(SyncSpaceGbText));
+        OnPropertyChanged(nameof(SpaceReservationSummaryText));
+    }
 
     private int _spaceReservationPercent = 10;
     public int SpaceReservationPercent
@@ -1484,6 +1503,11 @@ public class SettingsViewModel : ViewModelBase
         _libraryService = libraryService;
         _playerCoordinator = playerCoordinator;
         _deviceSyncService = deviceSyncService;
+        if (_deviceSyncService is not null)
+        {
+            _deviceSyncService.DeviceConnected += (_, _) => RefreshDeviceInfo();
+            _deviceSyncService.DeviceDisconnected += (_, _) => RefreshDeviceInfo();
+        }
         _settingsStore = settingsStore;
         _pluginManager = pluginManager;
         _dialogService = dialogService;

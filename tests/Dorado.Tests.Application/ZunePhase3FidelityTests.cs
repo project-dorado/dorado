@@ -187,8 +187,11 @@ public class ZunePhase3FidelityTests
 
         vm.SpaceReservationPercent = 20;
         Assert.Equal(20, vm.SpaceReservationPercent);
-        Assert.Contains("6.4 GB", vm.ReservedGbText);
-        Assert.Contains("25.6 GB", vm.SyncSpaceGbText);
+        // No device is connected in this construction, so capacity is honestly 0.
+        // The proportional math with a real device capacity is covered in
+        // DeviceAndDiscHonestyTests.SettingsViewModel_DeviceInfo_ProjectsConnectedDevice.
+        Assert.Contains("0.0 GB", vm.ReservedGbText);
+        Assert.Contains("0.0 GB", vm.SyncSpaceGbText);
 
         // Switch back to Software
         vm.SelectTopLevelPivotCommand.Execute("Software");
@@ -222,14 +225,26 @@ public class ZunePhase3FidelityTests
 
         Assert.True(vm.IsRipMode);
         Assert.False(vm.IsBurnMode);
+
+        // No disc: honest no-op, no false success.
+        Assert.False(vm.HasDisc);
+        vm.RipCdCommand.Execute(null);
+        await Task.Delay(50);
+        Assert.Equal("No disc detected.", vm.RipStatusText);
+        Assert.Equal(0.0, vm.RipProgress);
+        Assert.Equal(0, sound.RipCount);
+
+        // Load the simulated session, then rip: executes but is labelled as simulated.
+        vm.LoadSimulatedDisc();
+        Assert.True(vm.HasDisc);
         Assert.True(vm.DiscTracks.Count > 0);
 
-        // Execute Rip
         vm.RipCdCommand.Execute(null);
         await WaitForCompletionAsync(() => vm.RipProgress);
 
         Assert.Equal(1.0, vm.RipProgress);
         Assert.Equal(1, sound.RipCount);
+        Assert.Contains("Simulation complete", vm.RipStatusText);
 
         // Switch to Burn mode
         vm.SwitchModeCommand.Execute("Burn");
@@ -241,6 +256,7 @@ public class ZunePhase3FidelityTests
 
         Assert.Equal(1.0, vm.BurnProgress);
         Assert.Equal(1, sound.BurnCount);
+        Assert.Contains("Simulation complete", vm.BurnStatusText);
     }
 
     /// <summary>

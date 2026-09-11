@@ -23,6 +23,7 @@
 
     <!-- Disc Session Summary Box -->
     <Border Grid.Row="1"
+            IsVisible="{Binding HasDisc}"
             Background="{DynamicResource ZuneSurfaceElevatedBrush}"
             BorderBrush="{DynamicResource ZuneBorderBrush}"
             BorderThickness="1"
@@ -87,33 +88,53 @@
           <Button Command="{Binding RipCdCommand}"
                   Classes="zune-action"
                   IsVisible="{Binding IsRipMode}"
-                  IsEnabled="{Binding !IsRipping}">
+                  IsEnabled="{Binding CanRip}">
             <TextBlock Text="START RIP" Classes="section-header" FontWeight="Bold" />
           </Button>
 
           <Button Command="{Binding BurnCdCommand}"
                   Classes="zune-action"
                   IsVisible="{Binding IsBurnMode}"
-                  IsEnabled="{Binding !IsBurning}">
+                  IsEnabled="{Binding CanBurn}">
             <TextBlock Text="START BURN" Classes="section-header" FontWeight="Bold" />
           </Button>
         </StackPanel>
       </Grid>
     </Border>
 
+    <!-- No-disc state: honest empty surface (no optical drive detection in this build). -->
+    <Border Grid.Row="1"
+            IsVisible="{Binding HasNoDisc}"
+            Background="{DynamicResource ZuneSurfaceElevatedBrush}"
+            BorderBrush="{DynamicResource ZuneBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="0"
+            Padding="24,16"
+            Margin="0,0,0,24">
+      <StackPanel Spacing="4">
+        <TextBlock Text="NO DISC DETECTED" Classes="section-header" />
+        <TextBlock Text="Insert an audio CD to rip or burn. This build has no optical-drive access, so rip and burn are unavailable."
+                   Classes="caption"
+                   Foreground="{DynamicResource ZuneTextSecondaryBrush}"
+                   TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+
     <!-- Content Area: Track List and Progress -->
     <Grid Grid.Row="2" RowDefinitions="Auto,*">
 
-      <!-- Progress Section -->
-      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding IsRipping}">
-        <TextBlock Text="{Binding RipStatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+      <!-- Progress / status Section (status persists after a blocked or completed attempt) -->
+      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding HasRipMessage}">
+        <TextBlock Text="{Binding RipStatusText}" Classes="caption" TextWrapping="Wrap" Foreground="{DynamicResource ZuneAccentBrush}" />
         <ProgressBar Value="{Binding RipProgress}" Minimum="0.0" Maximum="1.0" Height="4" CornerRadius="0"
+                     IsVisible="{Binding IsRipping}"
                      Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
       </StackPanel>
 
-      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding IsBurning}">
-        <TextBlock Text="{Binding BurnStatusText}" Classes="caption" Foreground="{DynamicResource ZuneAccentBrush}" />
+      <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="6" IsVisible="{Binding HasBurnMessage}">
+        <TextBlock Text="{Binding BurnStatusText}" Classes="caption" TextWrapping="Wrap" Foreground="{DynamicResource ZuneAccentBrush}" />
         <ProgressBar Value="{Binding BurnProgress}" Minimum="0.0" Maximum="1.0" Height="4" CornerRadius="0"
+                     IsVisible="{Binding IsBurning}"
                      Foreground="{DynamicResource ZuneAccentBrush}" Background="{DynamicResource ZuneSurfaceElevatedBrush}" />
       </StackPanel>
 

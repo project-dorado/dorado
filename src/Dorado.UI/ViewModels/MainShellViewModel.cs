@@ -46,7 +46,7 @@ public class MainShellViewModel : ViewModelBase
     private ViewModelBase _currentView = null!;
 
     public PageStack NavigationStack { get; } = new();
-    public bool HasDisc => CDVM != null && (CDVM.DiscTracks.Count > 0 || IsDiscActive);
+    public bool HasDisc => CDVM != null && (CDVM.HasDisc || IsDiscActive);
 
     private bool _isCompactMode;
     private string? _selectedBackgroundArt = "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG";
@@ -839,7 +839,13 @@ public class MainShellViewModel : ViewModelBase
         });
 
         CDVM = new CDViewModel(libraryService, playerCoordinator, _soundEffectService);
-        CDVM.DiscTracks.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDisc));
+        CDVM.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(CDViewModel.HasDisc))
+            {
+                OnPropertyChanged(nameof(HasDisc));
+            }
+        };
 
         OpenCDCommand = new RelayCommand(() =>
         {

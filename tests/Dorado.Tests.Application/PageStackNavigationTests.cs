@@ -181,19 +181,17 @@ public class PageStackNavigationTests
     {
         var shell = NewShell();
 
-        // Fresh: CDVM initializes with default sample disc tracks, so HasDisc is true
-        Assert.True(shell.HasDisc);
-
-        // When disc is removed/cleared and not on Disc pivot -> false
-        shell.CDVM.DiscTracks.Clear();
+        // Fresh: no disc is seeded (no optical-drive detection in this build), so the
+        // DISC pivot stays ephemeral and is hidden.
         Assert.False(shell.HasDisc);
 
-        // Add track -> true
-        shell.CDVM.DiscTracks.Add(new Track { Title = "Audio Track 1" });
+        // Loading a session -> true
+        shell.CDVM.LoadSimulatedDisc();
         Assert.True(shell.HasDisc);
+        Assert.True(shell.CDVM.DiscTracks.Count > 0);
 
-        // Clear tracks again -> false
-        shell.CDVM.DiscTracks.Clear();
+        // Ejecting -> false
+        shell.CDVM.EjectDisc();
         Assert.False(shell.HasDisc);
 
         // Activating Disc pivot forces HasDisc to true so UI doesn't lose context

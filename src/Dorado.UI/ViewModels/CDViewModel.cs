@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
@@ -37,9 +38,34 @@ public class CDViewModel : ViewModelBase
     public bool IsRipMode => Mode == CDViewMode.Rip;
     public bool IsBurnMode => Mode == CDViewMode.Burn;
 
-    public string DiscTitle { get; set; } = "Audio CD (Track Session)";
-    public string DiscArtist { get; set; } = "Compact Disc Digital Audio";
-    public string TotalDurationText => "43:28";
+    /// <summary>
+    /// True when the loaded tracks came from the built-in simulated session rather
+    /// than a real optical disc. Rip/burn remain simulated in that case and must say so.
+    /// </summary>
+    public bool IsSimulatedDisc { get; private set; }
+
+    /// <summary>
+    /// True when a disc session is loaded. There is no optical-drive detection in this
+    /// build, so this is false until <see cref="LoadSimulatedDisc"/> (or a future real
+    /// TOC loader) populates the track list — which keeps the DISC pivot ephemeral.
+    /// </summary>
+    public bool HasDisc => DiscTracks.Count > 0;
+    public bool HasNoDisc => !HasDisc;
+
+    public string DiscTitle { get; set; } = string.Empty;
+    public string DiscArtist { get; set; } = string.Empty;
+
+    public string TotalDurationText
+    {
+        get
+        {
+            var total = TimeSpan.FromSeconds(DiscTracks.Sum(t => t.Duration.TotalSeconds));
+            return total.TotalHours >= 1
+                ? $"{(int)total.TotalHours}:{total.Minutes:00}:{total.Seconds:00}"
+                : $"{total.Minutes}:{total.Seconds:00}";
+        }
+    }
+
     public int TrackCount => DiscTracks.Count;
 
     public ObservableCollection<Track> DiscTracks { get; } = new();
@@ -49,7 +75,13 @@ public class CDViewModel : ViewModelBase
     public bool IsRipping
     {
         get => _isRipping;
-        set => SetProperty(ref _isRipping, value);
+        set
+        {
+            if (SetProperty(ref _isRipping, value))
+            {
+                OnPropertyChanged(nameof(CanRip));
+            }
+        }
     }
 
     private double _ripProgress;
@@ -63,14 +95,28 @@ public class CDViewModel : ViewModelBase
     public string? RipStatusText
     {
         get => _ripStatusText;
-        set => SetProperty(ref _ripStatusText, value);
+        set
+        {
+            if (SetProperty(ref _ripStatusText, value))
+            {
+                OnPropertyChanged(nameof(HasRipMessage));
+            }
+        }
     }
+
+    public bool HasRipMessage => !string.IsNullOrEmpty(RipStatusText);
 
     private bool _isBurning;
     public bool IsBurning
     {
         get => _isBurning;
-        set => SetProperty(ref _isBurning, value);
+        set
+        {
+            if (SetProperty(ref _isBurning, value))
+            {
+                OnPropertyChanged(nameof(CanBurn));
+            }
+        }
     }
 
     private double _burnProgress;
@@ -84,8 +130,19 @@ public class CDViewModel : ViewModelBase
     public string? BurnStatusText
     {
         get => _burnStatusText;
-        set => SetProperty(ref _burnStatusText, value);
+        set
+        {
+            if (SetProperty(ref _burnStatusText, value))
+            {
+                OnPropertyChanged(nameof(HasBurnMessage));
+            }
+        }
     }
+
+    public bool HasBurnMessage => !string.IsNullOrEmpty(BurnStatusText);
+
+    public bool CanRip => HasDisc && !IsRipping;
+    public bool CanBurn => HasDisc && !IsBurning;
 
     public ICommand RipCdCommand { get; }
     public ICommand BurnCdCommand { get; }
@@ -101,7 +158,46 @@ public class CDViewModel : ViewModelBase
         _playerCoordinator = playerCoordinator;
         _soundService = soundService;
 
-        // Initialize sample Audio CD session tracks
+        DiscTracks.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(HasDisc));
+            OnPropertyChanged(nameof(HasNoDisc));
+            OnPropertyChanged(nameof(TrackCount));
+            OnPropertyChanged(nameof(TotalDurationText));
+            OnPropertyChanged(nameof(CanRip));
+            OnPropertyChanged(nameof(CanBurn));
+        };
+
+        RipCdCommand = new AsyncRelayCommand(OnRipCdAsync);
+        BurnCdCommand = new AsyncRelayCommand(OnBurnCdAsync);
+        PlayTrackCommand = new AsyncRelayCommand<Track>(async track =>
+        {
+            if (track != null)
+            {
+                await _playerCoordinator.PlayTrackAsync(track, DiscTracks);
+            }
+        });
+        SwitchModeCommand = new RelayCommand<string>(modeStr =>
+        {
+            if (Enum.TryParse<CDViewMode>(modeStr, true, out var m))
+            {
+                Mode = m;
+            }
+        });
+    }
+
+    /// <summary>
+    /// Loads the built-in simulated Audio CD session. Only ever invoked explicitly
+    /// (tests / the DEBUG staging path) — the constructor no longer seeds a disc, so
+    /// the DISC pivot stays hidden until a session is actually present.
+    /// </summary>
+    public void LoadSimulatedDisc()
+    {
+        IsSimulatedDisc = true;
+        DiscTitle = "Audio CD (Simulated Session)";
+        DiscArtist = "Compact Disc Digital Audio";
+        DiscTracks.Clear();
+
         var sampleTitles = new[]
         {
             ("Track 01 - Prologue", 215),
@@ -129,43 +225,70 @@ public class CDViewModel : ViewModelBase
             });
         }
 
-        RipCdCommand = new AsyncRelayCommand(OnRipCdAsync);
-        BurnCdCommand = new AsyncRelayCommand(OnBurnCdAsync);
-        PlayTrackCommand = new AsyncRelayCommand<Track>(async track =>
+        OnPropertyChanged(nameof(DiscTitle));
+        OnPropertyChanged(nameof(DiscArtist));
+        OnPropertyChanged(nameof(IsSimulatedDisc));
+    }
+
+    /// <summary>Clears the loaded session (disc ejected).</summary>
+    public void EjectDisc()
+    {
+        DiscTracks.Clear();
+        BurnQueue.Clear();
+        IsSimulatedDisc = false;
+        DiscTitle = string.Empty;
+        DiscArtist = string.Empty;
+        RipStatusText = null;
+        BurnStatusText = null;
+        RipProgress = 0;
+        BurnProgress = 0;
+        OnPropertyChanged(nameof(DiscTitle));
+        OnPropertyChanged(nameof(DiscArtist));
+        OnPropertyChanged(nameof(IsSimulatedDisc));
+    }
+
+    private bool TryBeginSession(out string? blockedReason)
+    {
+        if (!HasDisc)
         {
-            if (track != null)
-            {
-                await _playerCoordinator.PlayTrackAsync(track, DiscTracks);
-            }
-        });
-        SwitchModeCommand = new RelayCommand<string>(modeStr =>
+            blockedReason = "No disc detected.";
+            return false;
+        }
+        if (!IsSimulatedDisc)
         {
-            if (Enum.TryParse<CDViewMode>(modeStr, true, out var m))
-            {
-                Mode = m;
-            }
-        });
+            blockedReason = "Optical-drive access is not implemented in this build.";
+            return false;
+        }
+        blockedReason = null;
+        return true;
     }
 
     private async Task OnRipCdAsync()
     {
         if (IsRipping) return;
 
+        if (!TryBeginSession(out var blocked))
+        {
+            RipStatusText = blocked;
+            RipProgress = 0;
+            return;
+        }
+
         IsRipping = true;
         RipProgress = 0.0;
-        RipStatusText = "Reading Audio CD table of contents...";
+        RipStatusText = "Reading Audio CD table of contents (simulated)...";
 
         try
         {
             for (int i = 0; i < DiscTracks.Count; i++)
             {
                 var track = DiscTracks[i];
-                RipStatusText = $"Ripping Track {i + 1} of {DiscTracks.Count}: {track.Title} (FLAC 100% fidelity)...";
+                RipStatusText = $"Simulating rip — Track {i + 1} of {DiscTracks.Count}: {track.Title} (no optical drive; no files will be written)...";
                 await Task.Delay(350);
                 RipProgress = (i + 1.0) / DiscTracks.Count;
             }
 
-            RipStatusText = "Ripping complete. Media cataloged into collection.";
+            RipStatusText = "Simulation complete. No audio files were written (no optical drive available).";
             _soundService?.PlayRipComplete();
         }
         finally
@@ -178,9 +301,16 @@ public class CDViewModel : ViewModelBase
     {
         if (IsBurning) return;
 
+        if (!TryBeginSession(out var blocked))
+        {
+            BurnStatusText = blocked;
+            BurnProgress = 0;
+            return;
+        }
+
         IsBurning = true;
         BurnProgress = 0.0;
-        BurnStatusText = "Calibrating CD laser and preparing audio buffer...";
+        BurnStatusText = "Preparing audio buffer (simulated)...";
 
         try
         {
@@ -189,10 +319,10 @@ public class CDViewModel : ViewModelBase
             {
                 await Task.Delay(300);
                 BurnProgress = (double)i / steps;
-                BurnStatusText = $"Writing Audio CD (16x track lead-in): {i * 10}%";
+                BurnStatusText = $"Simulating burn: {i * 10}% (no optical drive; no disc will be written)";
             }
 
-            BurnStatusText = "Burn complete. Closing disc session.";
+            BurnStatusText = "Simulation complete. No disc was written (no optical drive available).";
             _soundService?.PlayBurnComplete();
         }
         finally
