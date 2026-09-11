@@ -61,6 +61,7 @@ The codebase follows Clean Architecture with strict separation of concerns:
 - `src/Dorado.Application`: Application use cases, playback coordinator, smart-DJ / audio-analysis / dynamic-mix services, library services, sync orchestrators, plugin interfaces, localization, and an `IDialogService` contract.
 - `src/Dorado.Infrastructure.Persistence`: SQLite database (EF Core, WAL journaling) plus an **FTS5 full-text index** over the collection (external-content `TrackSearch`, trigger-synced, `SearchIndex`).
 - `src/Dorado.Infrastructure.Audio`: BASS playback pipeline, gapless voice transitions, ReplayGain normalization, FFT spectrum analyzer, and a managed **10-band equalizer** (BASS DSP). *System media controls (Linux MPRIS / Windows SMTC) are **not** implemented yet.*
+- `src/Dorado.Infrastructure.Video`: libVLC-backed video playback surface (Linux loads system VLC at runtime; Windows bundles `VideoLAN.LibVLC.Windows`).
 - `src/Dorado.Infrastructure.Devices`: Zune device integration:
   - USB product-ID detection (`ZuneUsbDeviceProbe`, VID `045e`) and the `MtpTransport` / `IMtpDeviceClient` seam.
   - `LibUsbMtpDeviceClient` (detection skeleton) plus an in-memory `VirtualMtpDeviceClient` sharing one contract. *The MTPZ session/handshake, ZMDB binary parser, and SSDP/PTP-IP wireless listener are **not** implemented (hardware N-A).*

@@ -22,11 +22,11 @@ Dorado is built on the purest tenets of the original Microsoft Zune Desktop soft
 
 - **Content Before Chrome:** Zero rounded corners (`CornerRadius = 0`), no drop shadows, no skeuomorphic gradients or faux-leather textures.
 - **Typography as Art:** Sized and kerned with Segoe UI / Selawik metrics across Display, Pivot, Sub-pivot, and Caption hierarchies. Opacity communicates state (Active: 100%, Hover: 85%, Inactive: 40%).
-- **Iconic Pivot Navigation:** Fluid deceleration panning across `QUICKPLAY`, `COLLECTION`, `DEVICE`, and `SETTINGS` — with pannable right-edge bleed at the authentic 734×500 minimum window size.
+- **Iconic Pivot Navigation:** Fluid deceleration panning across `QUICKPLAY`, `COLLECTION`, `DEVICE`, `DISC` (ephemeral — only while a disc session is loaded) and `SOCIAL`, plus `SETTINGS` docked at the right — with pannable right-edge bleed at the authentic 734×500 minimum window size.
 - **Quickplay Hub:** Split layout featuring an interactive Smart DJ seed generator on the left, and an interactive sliding ribbon of `Pins`, `History`, and `New` on the right.
 - **Dynamic Now Playing Canvas:**
   - *Dynamic Artist Canvas:* High-resolution artist photography with Ken-Burns drift, slow idle-screensaver Y-axis rotation, and bold typographic overlays that drift off-screen. Artwork comes from Fanart.tv, with a configurable **community-mirror fallback** (clean-room; no bundled assets).
-  - *Album Art Mosaic Wall:* Continuous 2D/3D tapestry of album art tiles from your collection.
+  - *Album Art Mosaic Wall:* Continuous 2D/3D tapestry of collection tiles. Tiles currently render a typographic music-note fallback; binding per-album artwork into the grid is a tracked gap (see audit M-1).
 - **Tri-State Heart Rating:** Favorite (❤️ / Heart), Disliked/Skip (💔 / Broken Heart), and Neutral. Hearts are **prioritized** in Smart DJ shuffles; broken hearts are **always excluded**.
 - **Signature Accent Colors:** Authentic Zune 4.8 magenta family — transport ON `#F10DA2`, accent hover `#FA6EC9`, accent pressed `#B9077B`. Plus Orange/Cyan/Lime/Purple user-selectable accents.
 
@@ -66,7 +66,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Panoramic pivot strip** with wheel-pan + pointer drag-to-pan with friction inertia + pannable right-edge bleed (left pivots slide in from `QUIC…`, right pivots bleed `…ING`)
 - **Tap-the-cut-off-header-to-go-back** (Tier A1 — the Zune 4.8 fan-loved navigation signature)
 - **Parallax 3D pivot slide** (`PivotParallaxTransition`, 420ms cubic ease-out, scale 0.92; Quickplay variant 320ms/0.85)
-- **Compact mini-player** with drag-to-move, showlist toggle, volume slider (480×110)
+- **Compact mini-player** with drag-to-move, showlist toggle, volume slider (340×96)
 - **8-zone edge resize handles** for window drag-resize
 - **In-shell modal dialog service** (`IDialogService`) for confirmations/alerts, migrating destructive actions (playlist delete, clear library)
 - **A–Z type-ahead jump** across the Collection, Podcasts, Videos, and Playlists lists
@@ -75,7 +75,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 ### Audio Playback (REAL)
 - **BASS engine** with gapless transitions, equal-power crossfade, ReplayGain volume leveling
 - **Seek**, play/pause/stop/next/previous, shuffle, repeat, volume/mute, rated-track skip
-- **FFT spectrum visualizer** (75ms refresh)
+- **FFT spectrum visualizer** (33ms refresh; falls back to a procedural spectrum when no audio source is active)
 - **10-band equalizer** (managed RBJ peaking biquads via a BASS DSP pass; 8 presets, applied live from Settings)
 - **Podcast streams** with episode playback
 - **Smart DJ** that **prioritizes hearts, skips broken hearts** (Tier B1 — fan-favorite Zune differentiator)
@@ -102,7 +102,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **MTPZ firmware update/restore/rollback** — documented as N-A (no hardware)
 
 ### Now Playing
-- **Three modes:** Artist Canvas (Ken-Burns drift), Album Art Mosaic Wall, Video clips (libVLC)
+- **Three modes:** Artist Canvas (Ken-Burns drift), Mosaic Wall (collection grid; placeholder glyph tiles pending artwork binding), Video clips (libVLC)
 - **Bio + lyrics + showlist drawers** with slide-in animations (Tier A4)
 - **Idle screensaver:** controls fade, text drifts left, artist watermark rotates Y-axis slowly (Tier A3)
 - **Transport overlay** with hairline seek line, tri-state heart, showlist toggle
@@ -161,7 +161,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **393 unit tests** passing (XUnit + Avalonia headless harness)
+- **402 tests** passing (14 Domain + 387 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
 
 ---
 
@@ -188,8 +188,9 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 - **i18n — remaining 24 locales** (en/fr shipped)
 - **UPnP media sharing** (`ZuneNSS` / `ZuneShareEXE`)
 
-### Known internal bugs being triaged
-- The Settings pivot-gating bug (5 missing `OnPropertyChanged` notifications on the Phase 3 sub-pivots) was fixed in `c3c530e` — re-verify on every release
+### Open findings (audited 2026-09-11)
+- See [`docs/parity/audit-2026-09-11.md`](docs/parity/audit-2026-09-11.md) for the full severity-ranked list. Quick view: Now-Playing mosaic artwork binding, per-mode crossfade, Smart DJ timeout/progress, playlist search, and the deferred CD/MTPZ hardware paths.
+- The Settings pivot-gating bug was re-verified **fixed** in the 2026-09-11 audit (all sub-pivot notifications fire) — no longer a triage item.
 
 ---
 
@@ -241,23 +242,30 @@ Continuous integration (`.github/workflows/ci.yml`) builds the solution Release 
 
 Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell/`, 1,030 in `zunedbapi/`, 241 `.UIX` resources, 1,857 binary assets). For IP reasons the corpus is **not** committed here; it is kept outside the repository at `../zune-disassembly/` for reference only.
 
+> **Audit 2026-09-11:** the figures below were independently re-measured in
+> [`docs/parity/audit-2026-09-11.md`](docs/parity/audit-2026-09-11.md). The
+> claimed ~88% was overstated; the verified band is **~80–84%**, driven by the
+> Now Playing mosaic/crossfade gaps, the CD Land surface, and the Device
+> surfaces. Countable claims (393→402 tests, 13+4 settings pages, FTS5, EQ,
+> plugins, badges) were confirmed.
+
 | Domain | Parity | Status |
 |---|---|---|
-| A. Shell & Navigation | **~92%** | Authentic chrome, cropped-header back, panoramic pivot, parallax + drag-inertia pan |
-| B. Quickplay | **~85%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; procedural hub map shipped (authentic PNG artwork maps remain) |
-| C. Collection (music) | **~92%** | Two-tier collection (media groups → sub-pivots), smart playlists, Find Album Info, FTS5 search |
-| D. Now Playing | **~90%** | 3 modes + Ken-Burns + idle screensaver + bio/lyrics/showlist drawers |
-| E. Mixview | **~72%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
+| A. Shell & Navigation | **~88%** | Authentic chrome, cropped-header back, panoramic pivot, parallax + drag-inertia pan; DISC is ephemeral and hidden without a disc session |
+| B. Quickplay | **~82%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; procedural hub map shipped; Smart DJ timeout/progress still open |
+| C. Collection (music) | **~87%** | Two-tier collection (media groups → sub-pivots), smart playlists, Find Album Info, FTS5 search; playlist search absent |
+| D. Now Playing | **~76%** | 3 modes + Ken-Burns + idle screensaver + bio/lyrics/showlist drawers; mosaic tiles use placeholder glyphs, no per-mode crossfade |
+| E. Mixview | **~70%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
 | F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
-| G. CD Land | **~40%** | Full UI, simulated rip/burn (no optical drive) |
-| H. Device sync | **~70%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam, LAN sync + mDNS |
+| G. CD Land | **~30%** | Full UI with an honest no-disc state; rip/burn are simulated and say so (no optical drive) |
+| H. Device sync | **~62%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam, LAN sync + mDNS; device info projects a real device or a disconnected state |
 | I. Podcasts | **~85%** | Subscribe + normalization + mark-all-played + stream playback |
 | J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute; tiered reputation badges + local reviews shipped |
-| K. Settings & Management | **~88%** | 13 software pages + 4 device pages + plugins + language + dark/light theme |
+| K. Settings & Management | **~85%** | 13 software pages + 4 device pages + plugins + language + dark/light theme |
 | L. First-launch & onboarding | **~90%** | First-launch wizard + What's New + FirstConnect wizard |
 | M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis persistence; UPnP/share/MUI deferred |
 
-**Weighted overall parity: ~88%** (UI presentation strongly, hardware-dependent features neutrally; measured 2026-09-10 after Phases 12–23).
+**Weighted overall parity: ~80–84%** (independently audited 2026-09-11; supersedes the earlier ~88% self-measure).
 
 ---
 

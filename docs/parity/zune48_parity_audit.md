@@ -1,5 +1,10 @@
 # Dorado ↔ Microsoft Zune 4.8 Parity Audit
 
+> **Historical.** Superseded by the independent
+> [`audit-2026-09-11.md`](audit-2026-09-11.md), which re-measured weighted parity
+> at **~80–84%** (not ~88%) and corrected several status claims and dimensions
+> (e.g. mini-player is **340×96**, not 420×130).
+
 **Audit date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Method:** Systematic comparison of the decompiled Microsoft Zune Desktop 4.8 component stack against the current Dorado implementation.
 
@@ -109,7 +114,7 @@ Statuses: **FULL** (implemented, real) · **PARTIAL** (subset) · **SIMULATED** 
 | Search box with autocomplete | `AUTOCOMPLETEBOX.UIX` | Async search autocomplete across collections/podcasts/videos | FULL |
 | Global keyboard shortcuts | `SHORTCUTKEYS.UIX` | Ctrl+P/B/F/H/T/M/E, F7–F9, Esc | FULL |
 | Min window 734×500 | `Shell.c_minimumWindowWidth/Height` | `MainWindow.axaml` | FULL |
-| Compact mini-player (audio) | `MINIMODE.UIX`, `MINIMODEAUDIO.UIX`, `MINIMODEJUMPLIST.UIX` | `CompactMiniPlayerView` (420×130, Ctrl+M) | PARTIAL (no jump-list hook, no video mini-mode) |
+| Compact mini-player (audio) | `MINIMODE.UIX`, `MINIMODEAUDIO.UIX`, `MINIMODEJUMPLIST.UIX` | `CompactMiniPlayerView` (340×96, Ctrl+M) | PARTIAL (no jump-list hook, no video mini-mode) |
 | Notification area / taskbar integration | `NOTIFICATIONAREA.UIX`, `ZuneTaskbar_Dll` | None (platform-specific) | N-A |
 | Jump lists (recent/pinned tasks) | `JUMPLIST.UIX`, `JUMPINLIST.UIX` | None (Windows shell feature) | N-A |
 | "What's New" hub tile | `WHATSNEW.UIX` | What's New dialog on version change | FULL |

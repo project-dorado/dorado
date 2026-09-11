@@ -1,5 +1,11 @@
 # Dorado ↔ Zune 4.8 Gap Inventory (post-Phase-5 batch; refreshed post-Phase-23)
 
+> **Audit supersession (2026-09-11):** an independent re-audit found this
+> inventory's status column and the "10 of 15 closed" summary to be overstated.
+> The verified tally is **7 closed / 4 partial / 4 open**. See
+> [`audit-2026-09-11.md`](audit-2026-09-11.md) for the evidence and corrected
+> per-item verdicts (items 3, 4, 6, 10 are partial; 7, 11, 12, 15 are open).
+
 **Date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Scope:** Comprehensive cross-reference of `src/Dorado.UI/Views/*` against the
 Zune 4.8 evidence base (external `../zune-disassembly/zuneshell/`,
@@ -49,7 +55,7 @@ and [`true_parity_task_plan.md`](true_parity_task_plan.md) for the full Phase 12
 | File | One-line role |
 |---|---|
 | `MainShellView.axaml` | Outer shell, custom chrome, panoramic pivot strip, docked HUD, overlays. |
-| `CompactMiniPlayerView.axaml` | 420×130 compact mini-player (audio only). |
+| `CompactMiniPlayerView.axaml` | 340×96 compact mini-player (audio only). |
 | `QuickplayView.axaml` | 3-deck panorama (Pins / History / New) + Smart DJ launcher. |
 | `CollectionView.axaml` | Music library browser (artists / albums / songs / genres / playlists). |
 | `MixviewView.axaml` | Constellation canvas with satellite tiles + action strip. |
@@ -641,7 +647,7 @@ Medium:
 
 ## 12. Mini-player
 
-`CompactMiniPlayerView.axaml` (108 lines, 420×130).
+`CompactMiniPlayerView.axaml` (340×96; enforced by `MainWindow.axaml.cs`).
 
 | Feature | Status |
 |---|---|
@@ -712,10 +718,11 @@ moved parity from ~55–60% to ~75–80%. This list targets the next band.
 
 ### Cumulative parity scorecard after this list
 
-As of 2026-09-10, **10 of the 15 are closed or superseded** (incl. items 4, 8, 10, 14, 15 via Phases 12–23). The
-remaining open fidelity items are hardware- or i18n-bound (CD rip, MTPZ, UPnP, Windows shell, extra locales). Weighted
-Phases 12–17 of the parity program (`true_parity_task_plan.md`). With those closed, weighted
-parity is **~88%**; the remainder is hardware-dependent MTPZ / i18n / Windows
-shell integration.
+**Corrected 2026-09-11 (audit):** the verified tally is **7 closed (1, 2, 5, 8, 9,
+13, 14) / 4 partial (3, 4, 6, 10) / 4 open (7, 11, 12, 15)**. The earlier "10 of
+15 closed incl. 4, 8, 10, 14, 15" claim was wrong: item 15 (real CD rip/burn) is
+open, and items 4 (Iris art) and 10 (search) are partial. Independently measured
+weighted parity is **~80–84%**, not ~88%. Evidence:
+[`audit-2026-09-11.md`](audit-2026-09-11.md).
 
 End of inventory.

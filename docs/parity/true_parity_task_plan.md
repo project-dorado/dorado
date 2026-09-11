@@ -1,5 +1,10 @@
 # Dorado True-Parity Task Plan
 
+> **Audit note (2026-09-11):** the phase statuses below are historical. The
+> independent [`audit-2026-09-11.md`](audit-2026-09-11.md) re-verified the
+> Top-15 gaps at **7 closed / 4 partial / 4 open** and re-measured weighted parity
+> at **~80–84%** (the "~88%" figure on this page is superseded).
+
 Derived from the audit in [`zune48_parity_audit.md`](zune48_parity_audit.md). Scoping decisions: **ManagedBass** audio engine, **video/photos included**, **i18n deferred**.
 
 Cross-cutting convention per phase: unit tests for every new service · design-invariants audit (0 violations) · Release build 0 warnings/0 errors · walkthrough section · milestone commit.
