@@ -42,6 +42,11 @@ jobs:
         run: dotnet build Dorado.sln -c Release --no-restore /warnaserror
 
       - name: Test
+        # Includes tests/Dorado.Tests.Visual, the golden-image regression gate.
+        # A slightly looser tolerance than local defaults absorbs font rasterization
+        # differences between the Fedora dev host and the ubuntu runner.
+        env:
+          DORADO_VISUAL_TOLERANCE: '0.08'
         run: dotnet test Dorado.sln -c Release --no-build --nologo
 
       - name: Design invariants audit

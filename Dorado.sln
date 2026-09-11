@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dorado.Plugins.Discord", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dorado.Infrastructure.Emulator", "src\Dorado.Infrastructure.Emulator\Dorado.Infrastructure.Emulator.csproj", "{DF179166-16A8-467D-96C9-467C588B3930}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dorado.Tests.Visual", "tests\Dorado.Tests.Visual\Dorado.Tests.Visual.csproj", "{18A3553D-1025-4FE2-ADB0-EA36B974194F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{DF179166-16A8-467D-96C9-467C588B3930}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF179166-16A8-467D-96C9-467C588B3930}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF179166-16A8-467D-96C9-467C588B3930}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A3553D-1025-4FE2-ADB0-EA36B974194F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A3553D-1025-4FE2-ADB0-EA36B974194F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A3553D-1025-4FE2-ADB0-EA36B974194F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A3553D-1025-4FE2-ADB0-EA36B974194F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9C687BB5-6AE3-4C94-A12F-6D34C5DAAFFD} = {386DD2E6-7733-4758-9DEF-333286DDB86F}
@@ -137,5 +143,6 @@ Global
 		{3E65AD0C-764A-4A46-99F2-FC72AB4AFAB0} = {386DD2E6-7733-4758-9DEF-333286DDB86F}
 		{5EE18048-F1D9-43DA-8BBA-1015669FD795} = {386DD2E6-7733-4758-9DEF-333286DDB86F}
 		{DF179166-16A8-467D-96C9-467C588B3930} = {386DD2E6-7733-4758-9DEF-333286DDB86F}
+		{18A3553D-1025-4FE2-ADB0-EA36B974194F} = {89103A14-FD5B-4F9F-9AEF-803F5D97F55C}
 	EndGlobalSection
 EndGlobal
