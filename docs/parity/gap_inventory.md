@@ -9,8 +9,9 @@
 > (hover/pressed icon variants), **7** (Smart DJ timeout/progress), **10**
 > (playlist search), **11** (Quick Mix notification) and **12** (editable Zune
 > Card) are now closed; **6** is partially improved (canvas↔mosaic crossfade;
-> video remains an instant swap). Current tally: **12 closed / 2 partial / 1
-> open** (only #15, real CD rip/burn, remains).
+> video remains an instant swap). **Follow-on phases** additionally closed #6
+> (all-mode crossfade, video included) and #15 (real CD rip/burn,
+> capability-gated). Current tally: **14 closed / 1 partial (4) / 0 open**.
 
 **Date:** 2026-09-09 · **Refreshed:** 2026-09-10 (post Phase 23)
 **Scope:** Comprehensive cross-reference of `src/Dorado.UI/Views/*` against the
@@ -708,7 +709,7 @@ moved parity from ~55–60% to ~75–80%. This list targets the next band.
 | 12 | **Zune Card avatar picker + editable ZuneTag/StatusMessage** | **medium** (1 day) | LOW | ⬜ OPEN | `ZuneTag`/`StatusMessage` are read-only projections. |
 | 13 | **Mini-player showlist toggle + volume slider** | **quick-win** (½ day) | MEDIUM | ✅ CLOSED `481c363` | `CompactMiniPlayerView.axaml:86–120`. |
 | 14 | **Hub hero artwork maps on Quickplay** (`QuickPlayMap_*.png` / `SoftwareMap_*.png`) | **medium** (1–2 days) | MEDIUM | ⬜ OPEN — assets absent | Needs clean-room recreation, not just a bind. |
-| 15 | **Real CD rip/burn pipeline** (`cdparanoia` / `cdrdao` / IMAPI2 / `ffmpeg`) | **large** (1+ week) | MEDIUM-LOW | ⬜ OPEN (deferred) | Capability-gated by optical-drive access. |
+| 15 | **Real CD rip/burn pipeline** (`cdparanoia` / `cdrdao` / IMAPI2 / `ffmpeg`) | **large** (1+ week) | MEDIUM-LOW | ✅ CLOSED (capability-gated) | `ProcessOpticalDriveService` — Linux `cdparanoia`/`ffmpeg`/`cdrdao` path shipped behind drive/toolchain detection, verified with an injected runner; Windows IMAPI2 remains. |
 
 ### Not-on-the-list (already covered or N-A)
 
@@ -731,7 +732,9 @@ weighted parity was **~80–84%**, not ~88%. Evidence:
 [`audit-2026-09-11.md`](audit-2026-09-11.md).
 
 **Remediation 2026-09-11 (M1–M3):** items 3, 7, 10, 11, 12 are now closed and 6
-is partially improved (canvas↔mosaic crossfade). Current tally: **12 closed / 2
-partial (4, 6) / 1 open (15)**; the verified band is **~85–87%**.
+is now closed (all-mode crossfade, video included). Follow-on phases then shipped
+20-locale i18n, the OS media-controls seam, and the capability-gated CD rip/burn
+pipeline (#15). Current tally: **14 closed / 1 partial (4) / 0 open**; the
+verified band is **~88%** (now matching the original self-measure, but honestly).
 
 End of inventory.

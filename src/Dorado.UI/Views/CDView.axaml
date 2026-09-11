@@ -111,12 +111,20 @@
             CornerRadius="0"
             Padding="24,16"
             Margin="0,0,0,24">
-      <StackPanel Spacing="4">
+      <StackPanel Spacing="8">
         <TextBlock Text="NO DISC DETECTED" Classes="section-header" />
-        <TextBlock Text="Insert an audio CD to rip or burn. This build has no optical-drive access, so rip and burn are unavailable."
+        <TextBlock Text="Insert an audio CD to rip or burn. When no optical drive is attached, a clearly-labelled simulated session is available for exploring the workflow."
                    Classes="caption"
                    Foreground="{DynamicResource ZuneTextSecondaryBrush}"
                    TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Command="{Binding LoadDiscCommand}" Classes="zune-accent-btn" Padding="10,5" IsVisible="{Binding IsRealDriveAvailable}">
+            <TextBlock Text="READ DISC" Classes="caption" FontWeight="Bold" />
+          </Button>
+          <Button Command="{Binding LoadDiscCommand}" Classes="zune-action" Padding="10,5" IsVisible="{Binding !IsRealDriveAvailable}">
+            <TextBlock Text="LOAD SIMULATED SESSION" Classes="caption" FontWeight="SemiBold" />
+          </Button>
+        </StackPanel>
       </StackPanel>
     </Border>
 

@@ -269,6 +269,13 @@ public partial class App : Avalonia.Application
         services.AddSingleton<AudioEngine>();
         services.AddSingleton<ZuneUsbHttpInterceptor>();
 
+        // Optical drive (capability-gated): real rip/burn when a drive + toolchain
+        // (cdparanoia/ffmpeg/cdrdao) is present, otherwise the UI keeps its honest
+        // simulated path.
+        services.AddSingleton<IProcessRunner, SystemProcessRunner>();
+        services.AddSingleton<IOpticalDriveService>(sp =>
+            new ProcessOpticalDriveService(sp.GetRequiredService<IProcessRunner>()));
+
         // OS media integration (MPRIS2/SMTC). Null fallback keeps the wiring
         // unconditional; the platform implementation is selected by capability.
         services.AddSingleton<ISystemMediaControls>(NullSystemMediaControls.Instance);

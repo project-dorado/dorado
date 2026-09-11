@@ -161,7 +161,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **414 tests** passing (14 Domain + 399 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
+- **430 tests** passing (14 Domain + 415 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
 
 ---
 
@@ -178,7 +178,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Hard / large (Tier C2 / D1)
 - **Mixview authentic Iris mosaic** — the local mosaic, audio-similarity ranking and external MusicBrainz artist satellites ship; the authentic Iris mosaic art remains
-- **Tier D1 — Real CD rip/burn pipeline** (capability-gated — needs optical-drive access)
+- ✅ **Real CD rip/burn pipeline** (`ProcessOpticalDriveService`, capability-gated on `cdparanoia`/`ffmpeg`/`cdrdao`; auto-detected, honest simulated fallback when no drive is present)
 - **Zune Card + Friends social layer** (the most-requested missing feature, but the Zune Social servers are dead; local-only substitute)
 - **Wireless song squirt** (device-to-device peer-to-peer)
 
@@ -190,7 +190,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Open findings (audited 2026-09-11; remediated M1–M3)
 - See [`docs/parity/audit-2026-09-11.md`](docs/parity/audit-2026-09-11.md) for the full severity-ranked list. **Fixed since:** mosaic artwork binding, Artist-Canvas↔Mosaic-Wall crossfade, now-playing hover/pressed icon variants, Smart DJ timeout + Quick Mix progress, playlist search, and editable Zune Card profile.
-- **Still open:** Now-Playing video mode remains an instant swap (no crossfade), authentic Iris mosaic art, and the deferred hardware paths (real CD rip/burn, MTPZ, UPnP, extra locales).
+- **Still open:** authentic clean-room Iris mosaic art, the native MPRIS2/SMTC bindings on top of the shipped media-controls seam, Windows IMAPI2 for CD burn, and the hardware/i18n-extraction backlog (MTPZ, UPnP, full per-view string extraction).
 - The Settings pivot-gating bug was re-verified **fixed** in the 2026-09-11 audit (all sub-pivot notifications fire) — no longer a triage item.
 
 ---
@@ -256,10 +256,10 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | A. Shell & Navigation | **~88%** | Authentic chrome, cropped-header back, panoramic pivot, parallax + drag-inertia pan; DISC is ephemeral and hidden without a disc session |
 | B. Quickplay | **~87%** | Smart DJ hearts-aware, deck panorama, hubs, dynamic Mixes; procedural hub map; Smart DJ 5s timeout + Quick Mix progress shipped |
 | C. Collection (music) | **~89%** | Two-tier collection (media groups → sub-pivots), smart playlists, Find Album Info, FTS5 search; playlist search shipped |
-| D. Now Playing | **~83%** | 3 modes + Ken-Burns + idle screensaver + drawers; real mosaic album art with glyph fallback; canvas↔mosaic crossfade; hover/pressed icon variants; video mode still an instant swap |
+| D. Now Playing | **~85%** | 3 modes + Ken-Burns + idle screensaver + drawers; real mosaic album art with glyph fallback; all-mode crossfade (canvas↔mosaic↔video); hover/pressed icon variants |
 | E. Mixview | **~70%** | Local mosaic + audio-feature similarity engine + external MusicBrainz related-artist satellites |
 | F. Audio engine | **~88%** | Real BASS engine, gapless, crossfade, ReplayGain, FFT, 10-band EQ, podcasts |
-| G. CD Land | **~30%** | Full UI with an honest no-disc state; rip/burn are simulated and say so (no optical drive) |
+| G. CD Land | **~60%** | Full UI with an honest no-disc state; **real capability-gated rip/burn** (`cdparanoia` + `ffmpeg` + `cdrdao`) auto-detected by drive/toolchain, with the simulated path (clearly labelled) as fallback |
 | H. Device sync | **~62%** | Sync-group engine, dry-run, guest/reverse sync, FirstConnect, MTP transport seam, LAN sync + mDNS; device info projects a real device or a disconnected state |
 | I. Podcasts | **~85%** | Subscribe + normalization + mark-all-played + stream playback |
 | J. Social / Marketplace | **N-A** | Servers dead; local Zune Card substitute; tiered reputation badges + local reviews shipped |
@@ -267,7 +267,7 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | L. First-launch & onboarding | **~90%** | First-launch wizard + What's New + FirstConnect wizard |
 | M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis persistence; UPnP/share/MUI deferred |
 
-**Weighted overall parity: ~85–87%** (audited 2026-09-11 at ~80–84%, then raised by the M1–M3 remediation; supersedes the earlier ~88% self-measure).
+**Weighted overall parity: ~88%** (audited 2026-09-11 at ~80–84%, then raised by the M1–M3 remediation plus the follow-on phases — video-mode crossfade, 20-locale i18n, OS media-controls seam, and the capability-gated CD rip/burn pipeline).
 
 ---
 

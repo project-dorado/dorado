@@ -1,10 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Dorado.Application.Interfaces;
+using Dorado.Application.Models;
 using Dorado.Domain.Models;
 
 namespace Dorado.UI.ViewModels;
@@ -20,6 +22,8 @@ public class CDViewModel : ViewModelBase
     private readonly IMediaLibraryService _libraryService;
     private readonly IPlayerCoordinator _playerCoordinator;
     private readonly ISoundEffectService? _soundService;
+    private readonly IOpticalDriveService? _driveService;
+    private readonly List<OpticalTrack> _realTracks = new();
 
     private CDViewMode _mode = CDViewMode.Rip;
     public CDViewMode Mode
@@ -144,19 +148,25 @@ public class CDViewModel : ViewModelBase
     public bool CanRip => HasDisc && !IsRipping;
     public bool CanBurn => HasDisc && !IsBurning;
 
+    /// <summary>True when a real optical drive + toolchain is available (capability-gated).</summary>
+    public bool IsRealDriveAvailable => _driveService?.IsAvailable == true;
+
     public ICommand RipCdCommand { get; }
     public ICommand BurnCdCommand { get; }
     public ICommand PlayTrackCommand { get; }
     public ICommand SwitchModeCommand { get; }
+    public ICommand LoadDiscCommand { get; }
 
     public CDViewModel(
         IMediaLibraryService libraryService,
         IPlayerCoordinator playerCoordinator,
-        ISoundEffectService? soundService = null)
+        ISoundEffectService? soundService = null,
+        IOpticalDriveService? driveService = null)
     {
         _libraryService = libraryService;
         _playerCoordinator = playerCoordinator;
         _soundService = soundService;
+        _driveService = driveService;
 
         DiscTracks.CollectionChanged += (_, _) =>
         {
@@ -170,6 +180,7 @@ public class CDViewModel : ViewModelBase
 
         RipCdCommand = new AsyncRelayCommand(OnRipCdAsync);
         BurnCdCommand = new AsyncRelayCommand(OnBurnCdAsync);
+        LoadDiscCommand = new AsyncRelayCommand(OnLoadDiscAsync);
         PlayTrackCommand = new AsyncRelayCommand<Track>(async track =>
         {
             if (track != null)
@@ -247,6 +258,55 @@ public class CDViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsSimulatedDisc));
     }
 
+    /// <summary>
+    /// Loads the disc: reads a real TOC when an optical drive + toolchain is
+    /// available, otherwise stages the simulated session (clearly labelled).
+    /// </summary>
+    private async Task OnLoadDiscAsync()
+    {
+        if (!IsRealDriveAvailable)
+        {
+            LoadSimulatedDisc();
+            RipStatusText = "No optical drive available — loaded a simulated session.";
+            return;
+        }
+
+        try
+        {
+            var toc = await _driveService!.ReadTocAsync();
+            _realTracks.Clear();
+            _realTracks.AddRange(toc);
+
+            DiscTracks.Clear();
+            BurnQueue.Clear();
+            IsSimulatedDisc = false;
+            DiscTitle = "Audio CD";
+            DiscArtist = "Compact Disc Digital Audio";
+            foreach (var t in toc)
+            {
+                DiscTracks.Add(new Track
+                {
+                    Id = Guid.NewGuid(),
+                    Title = t.Title,
+                    ArtistName = DiscArtist,
+                    AlbumTitle = DiscTitle,
+                    TrackNumber = t.Number,
+                    Duration = t.Duration,
+                    Genre = "Audio CD"
+                });
+            }
+
+            OnPropertyChanged(nameof(DiscTitle));
+            OnPropertyChanged(nameof(DiscArtist));
+            OnPropertyChanged(nameof(IsSimulatedDisc));
+            RipStatusText = $"Read {DiscTracks.Count} tracks from the optical drive.";
+        }
+        catch (Exception ex)
+        {
+            RipStatusText = $"Could not read disc: {ex.Message}";
+        }
+    }
+
     private bool TryBeginSession(out string? blockedReason)
     {
         if (!HasDisc)
@@ -254,13 +314,20 @@ public class CDViewModel : ViewModelBase
             blockedReason = "No disc detected.";
             return false;
         }
-        if (!IsSimulatedDisc)
+        if (!IsSimulatedDisc && !IsRealDriveAvailable)
         {
             blockedReason = "Optical-drive access is not implemented in this build.";
             return false;
         }
         blockedReason = null;
         return true;
+    }
+
+    private sealed class InlineProgress : IProgress<double>
+    {
+        private readonly Action<double> _onReport;
+        public InlineProgress(Action<double> onReport) => _onReport = onReport;
+        public void Report(double value) => _onReport(value);
     }
 
     private async Task OnRipCdAsync()
@@ -276,10 +343,35 @@ public class CDViewModel : ViewModelBase
 
         IsRipping = true;
         RipProgress = 0.0;
-        RipStatusText = "Reading Audio CD table of contents (simulated)...";
 
         try
         {
+            if (IsRealDriveAvailable && !IsSimulatedDisc)
+            {
+                var destination = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Dorado Rips");
+                Directory.CreateDirectory(destination);
+
+                for (int i = 0; i < DiscTracks.Count; i++)
+                {
+                    var optical = i < _realTracks.Count
+                        ? _realTracks[i]
+                        : new OpticalTrack(i + 1, 0, 0, DiscTracks[i].Duration, DiscTracks[i].Title);
+                    RipStatusText = $"Ripping track {i + 1} of {DiscTracks.Count}: {DiscTracks[i].Title}...";
+                    var slice = 1.0 / DiscTracks.Count;
+                    var offset = i * slice;
+                    var progress = new InlineProgress(v => RipProgress = offset + (v * slice));
+
+                    await _driveService!.RipTrackAsync(optical, destination, "FLAC (Lossless Free Audio)", progress);
+                }
+
+                RipProgress = 1.0;
+                RipStatusText = $"Rip complete. {DiscTracks.Count} tracks written to {destination}.";
+                _soundService?.PlayRipComplete();
+                return;
+            }
+
+            RipStatusText = "Reading Audio CD table of contents (simulated)...";
             for (int i = 0; i < DiscTracks.Count; i++)
             {
                 var track = DiscTracks[i];
@@ -290,6 +382,10 @@ public class CDViewModel : ViewModelBase
 
             RipStatusText = "Simulation complete. No audio files were written (no optical drive available).";
             _soundService?.PlayRipComplete();
+        }
+        catch (Exception ex)
+        {
+            RipStatusText = $"Rip failed: {ex.Message}";
         }
         finally
         {
@@ -310,10 +406,28 @@ public class CDViewModel : ViewModelBase
 
         IsBurning = true;
         BurnProgress = 0.0;
-        BurnStatusText = "Preparing audio buffer (simulated)...";
 
         try
         {
+            if (IsRealDriveAvailable && !IsSimulatedDisc)
+            {
+                var files = BurnQueue.Select(t => t.FilePath).Where(File.Exists).ToList();
+                if (files.Count == 0)
+                {
+                    BurnStatusText = "Add tracks to the burn queue first (only on-disk files can be burned).";
+                    return;
+                }
+
+                BurnStatusText = $"Burning {files.Count} tracks to Audio CD...";
+                var progress = new InlineProgress(v => BurnProgress = v);
+                await _driveService!.BurnAsync(files, progress);
+                BurnProgress = 1.0;
+                BurnStatusText = $"Burn complete. Wrote {files.Count} tracks.";
+                _soundService?.PlayBurnComplete();
+                return;
+            }
+
+            BurnStatusText = "Preparing audio buffer (simulated)...";
             int steps = 10;
             for (int i = 1; i <= steps; i++)
             {
@@ -324,6 +438,10 @@ public class CDViewModel : ViewModelBase
 
             BurnStatusText = "Simulation complete. No disc was written (no optical drive available).";
             _soundService?.PlayBurnComplete();
+        }
+        catch (Exception ex)
+        {
+            BurnStatusText = $"Burn failed: {ex.Message}";
         }
         finally
         {

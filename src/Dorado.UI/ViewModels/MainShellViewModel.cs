@@ -46,7 +46,7 @@ public class MainShellViewModel : ViewModelBase
     private ViewModelBase _currentView = null!;
 
     public PageStack NavigationStack { get; } = new();
-    public bool HasDisc => CDVM != null && (CDVM.HasDisc || IsDiscActive);
+    public bool HasDisc => CDVM != null && (CDVM.HasDisc || IsDiscActive || CDVM.IsRealDriveAvailable);
 
     private bool _isCompactMode;
     private string? _selectedBackgroundArt = "avares://Dorado.UI/Assets/Zune/Backgrounds/DORADO-BACKGROUND-01.PNG";
@@ -801,7 +801,8 @@ public class MainShellViewModel : ViewModelBase
         IReviewService? reviewService = null,
         ICloudSocialService? cloudSocialService = null,
         ICloudSignInService? cloudSignInService = null,
-        IArtistRelationshipService? artistRelationships = null)
+        IArtistRelationshipService? artistRelationships = null,
+        IOpticalDriveService? opticalDriveService = null)
     {
         _playerCoordinator = playerCoordinator;
         _libraryService = libraryService;
@@ -865,7 +866,7 @@ public class MainShellViewModel : ViewModelBase
             ActivePivot = NavigationPivot.Mixview;
         });
 
-        CDVM = new CDViewModel(libraryService, playerCoordinator, _soundEffectService);
+        CDVM = new CDViewModel(libraryService, playerCoordinator, _soundEffectService, opticalDriveService);
         CDVM.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(CDViewModel.HasDisc))
