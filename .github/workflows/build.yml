@@ -164,7 +164,7 @@ jobs:
             --jq '[.[] | select(.isPrerelease)
                        | select(.tagName | startswith("dorado-"))
                        | select(.tagName | startswith("dorado-v") | not)
-                       | .tagName] | .[10:]')
+                       | .tagName] | .[10:] | .[]')
           for t in $tags; do
             echo "deleting stale prerelease $t"
             gh release delete "$t" -R "$GITHUB_REPOSITORY" --yes --cleanup-tag
