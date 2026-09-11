@@ -26,6 +26,7 @@ public partial class App : Avalonia.Application
 {
     private ServiceProvider? _serviceProvider;
     private SyncMdnsAdvertiser? _syncAdvertiser;
+    private SystemMediaControlsCoordinator? _mediaControls;
 
     public override void Initialize()
     {
@@ -50,6 +51,10 @@ public partial class App : Avalonia.Application
         var pluginManager = _serviceProvider.GetRequiredService<PluginManager>();
         _serviceProvider.GetRequiredService<PluginEventBridge>().Attach();
         _ = pluginManager.StartEnabledAsync();
+
+        // OS media integration: push now-playing state to the desktop shell and
+        // route media-key commands back to the player (no-op without an implementation).
+        _mediaControls = _serviceProvider.GetRequiredService<SystemMediaControlsCoordinator>();
 
         // LAN sync: start the phone sync socket only when the user opted in.
         try
@@ -83,7 +88,11 @@ public partial class App : Avalonia.Application
                 DataContext = shellVm
             };
 
-            desktop.Exit += (_, _) => _syncAdvertiser?.Dispose();
+            desktop.Exit += (_, _) =>
+            {
+                _syncAdvertiser?.Dispose();
+                _mediaControls?.Dispose();
+            };
         }
 
         // Signed update check (opt-in). Runs off the UI thread; surfaces a verified
@@ -259,6 +268,11 @@ public partial class App : Avalonia.Application
         // 3. Audio & Hardware Subsystems
         services.AddSingleton<AudioEngine>();
         services.AddSingleton<ZuneUsbHttpInterceptor>();
+
+        // OS media integration (MPRIS2/SMTC). Null fallback keeps the wiring
+        // unconditional; the platform implementation is selected by capability.
+        services.AddSingleton<ISystemMediaControls>(NullSystemMediaControls.Instance);
+        services.AddSingleton<SystemMediaControlsCoordinator>();
 
         // 4. ViewModels
         services.AddSingleton<MainShellViewModel>();
