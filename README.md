@@ -9,7 +9,7 @@
 [![Avalonia UI](https://img.shields.io/badge/Avalonia_UI-11.2-8C15E9?logo=avalonia&logoColor=white)](https://avaloniaui.net/)
 [![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20(x64%20%26%20arm64)-0078D7)]()
 [![Design](https://img.shields.io/badge/Aesthetic-Zune%20Metro%20%2F%20Iris-FA2A55)]()
-![Tests](https://img.shields.io/badge/tests-385%20passing-4c1?logo=xunit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-389%20passing-4c1?logo=xunit&logoColor=white)
 ![Parity](https://img.shields.io/badge/Zune%204.8%20parity-~85--brightgreen)
 
 </div>
@@ -129,7 +129,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **First-launch wizard** (welcome → monitored folders → library scan → done) + **What's New** dialog on version change
 
 ### Listening Intelligence (rune-inspired)
-- **Audio-feature analysis**: deterministic per-track feature vector (BPM/energy/valence/acousticness/danceability/spectral-centroid) persisted in SQLite and cached in memory; the extractor is a documented metadata prior behind a replaceable `IAudioAnalysisService` seam
+- **Audio-feature analysis**: deterministic per-track feature vector (BPM/energy/valence/acousticness/danceability/spectral-centroid) computed by a **real DSP extractor** (short-time FFT spectral centroid, RMS energy, zero-crossing rate, onset-envelope autocorrelation tempo) over decoded PCM, with a metadata prior as the offline fallback; persisted in SQLite and cached in memory behind a replaceable `IAudioAnalysisService` seam
 - **Cosine-similarity recommendations** (per-track, per-album, and favorites-centroid) feeding Mixview and Smart DJ
 - **Dynamic Mixes** (`DynamicMixService`): auto-updating rules — Most Played, Favorites Mix, Similar to Track/Album, Playlists Including Artist — surfaced as one-click mixes on Quickplay
 
@@ -160,7 +160,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **385 unit tests** passing (XUnit + Avalonia headless harness)
+- **389 unit tests** passing (XUnit + Avalonia headless harness)
 
 ---
 

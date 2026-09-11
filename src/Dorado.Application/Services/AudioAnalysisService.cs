@@ -11,20 +11,22 @@ namespace Dorado.Application.Services;
 public sealed class AudioAnalysisService : IAudioAnalysisService
 {
     private readonly IAudioFeatureStore? _store;
+    private readonly IPcmDecoder? _decoder;
     private readonly Dictionary<Guid, AudioFeatures> _features = new();
     private readonly SemaphoreSlim _gate = new(1, 1);
     private bool _loaded;
 
-    public AudioAnalysisService(IAudioFeatureStore? store = null)
+    public AudioAnalysisService(IAudioFeatureStore? store = null, IPcmDecoder? decoder = null)
     {
         _store = store;
+        _decoder = decoder;
     }
 
     public async Task<AudioFeatures> AnalyzeAsync(Track track, CancellationToken cancellationToken = default)
     {
         await EnsureLoadedAsync(cancellationToken).ConfigureAwait(false);
 
-        var features = AudioFeatureExtractor.Extract(track);
+        var features = await ComputeFeaturesAsync(track, cancellationToken).ConfigureAwait(false);
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -107,6 +109,29 @@ public sealed class AudioAnalysisService : IAudioAnalysisService
 
         var favoriteIds = favorites.Select(f => f.Id).ToHashSet();
         return Rank(library.Where(t => !favoriteIds.Contains(t.Id)), centroid, count);
+    }
+
+    private async Task<AudioFeatures> ComputeFeaturesAsync(Track track, CancellationToken cancellationToken)
+    {
+        if (_decoder is not null && !string.IsNullOrWhiteSpace(track.FilePath))
+        {
+            try
+            {
+                var pcm = await _decoder
+                    .DecodeMonoAsync(track.FilePath, TimeSpan.FromSeconds(45), cancellationToken)
+                    .ConfigureAwait(false);
+                if (pcm is not null && pcm.Mono.Length >= 4096)
+                {
+                    return DspFeatureExtractor.Extract(track.Id, pcm.Mono, pcm.SampleRate);
+                }
+            }
+            catch
+            {
+                // fall through to the metadata prior
+            }
+        }
+
+        return AudioFeatureExtractor.Extract(track);
     }
 
     private IReadOnlyList<Track> Rank(IEnumerable<Track> library, double[] target, int count)

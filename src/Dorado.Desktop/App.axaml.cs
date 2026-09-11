@@ -230,6 +230,7 @@ public partial class App : Avalonia.Application
         services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<DialogService>());
         services.AddSingleton<IAudioFeatureStore, SqliteAudioFeatureStore>();
         services.AddSingleton<IReviewService, SqliteReviewService>();
+        services.AddSingleton<IPcmDecoder, BassPcmDecoder>();
         services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
         services.AddSingleton<IDynamicMixService, DynamicMixService>();
 
