@@ -103,6 +103,40 @@ public class SystemMediaControlsTests
         Assert.False(unavailable.IsAvailable);
     }
 
+    [Fact]
+    public async Task MprisControls_BadAddress_IsSafeAndReportsFailure()
+    {
+        // A non-existent bus must never throw; registration simply fails.
+        using var connection = new Tmds.DBus.Protocol.DBusConnection("unix:path=/tmp/dorado-no-such-bus");
+        using var mpris = new Dorado.Infrastructure.Audio.MprisMediaControls(connection);
+
+        Assert.True(mpris.IsAvailable); // a connection object was created; registration is best-effort
+
+        for (int i = 0; i < 200 && mpris.InitializationError is null; i++)
+        {
+            await Task.Delay(10);
+        }
+
+        Assert.NotNull(mpris.InitializationError);
+        Assert.False(mpris.IsRegistered);
+    }
+
+    [Fact]
+    public void Factory_SelectsBySessionBusCapability()
+    {
+        var controls = Dorado.Infrastructure.Audio.SystemMediaControlsFactory.Create();
+        var hasBus = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DBUS_SESSION_BUS_ADDRESS"));
+
+        if (hasBus && OperatingSystem.IsLinux())
+        {
+            Assert.IsType<Dorado.Infrastructure.Audio.MprisMediaControls>(controls);
+        }
+        else
+        {
+            Assert.IsType<NullSystemMediaControls>(controls);
+        }
+    }
+
     private static async Task WaitUntilAsync(Func<bool> condition)
     {
         for (int i = 0; i < 200 && !condition(); i++)

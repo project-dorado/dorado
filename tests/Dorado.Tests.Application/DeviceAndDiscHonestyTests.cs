@@ -73,8 +73,10 @@ public class DeviceAndDiscHonestyTests
         vm.LoadSimulatedDisc();
 
         vm.RipCdCommand.Execute(null);
-        for (int i = 0; i < 200 && vm.RipProgress < 1.0; i++) await Task.Delay(25);
+        await Task.Delay(50);
+        for (int i = 0; i < 400 && vm.IsRipping; i++) await Task.Delay(25);
 
+        Assert.False(vm.IsRipping);
         Assert.Equal(1.0, vm.RipProgress);
         Assert.NotNull(vm.RipStatusText);
         Assert.Contains("No audio files were written", vm.RipStatusText);

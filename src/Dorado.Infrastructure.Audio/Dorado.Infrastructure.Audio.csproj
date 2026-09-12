@@ -12,6 +12,8 @@
     <PackageReference Include="ManagedBass.Mix" Version="4.0.2" />
     <PackageReference Include="ManagedBass.Opus" Version="4.0.2" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
+    <!-- Linux MPRIS2 OS-media integration (patched 0.90+ API; GHSA-xrw6-gwf8-vvr9 fixed). -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.1" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -80,6 +80,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Podcast streams** with episode playback
 - **Smart DJ** that **prioritizes hearts, skips broken hearts** (Tier B1 — fan-favorite Zune differentiator)
 - **Tri-state heart rating** (Favorite / Dislike / Neutral) integrated across playback + Smart DJ
+- **OS media integration** — a Linux **MPRIS2** server (`org.mpris.MediaPlayer2.dorado`) publishes now-playing metadata and accepts media-key/shell commands (Play/Pause/Next/Previous/Seek); capability-guarded via `ISystemMediaControls` (Windows SMTC needs a Windows-targeted TFM)
 
 ### Collection & Library
 - **Music library** with Artist / Album / Song / Genre / Playlist / Podcast / Video / Pictures sub-pivots
@@ -161,7 +162,7 @@ The complete Zune 4.8 desktop software, restructured around the original experie
 - **Hardware-sync skill** (`zune-hardware-sync`) — MTP/MTPZ protocol reference
 - **Plugin protocol skill** (`zune-plugins-protocol`) — JSON-RPC contracts
 - **Design-invariants audit** (`scripts/mcp_tools.py`) — automated `CornerRadius=0`, no drop shadows check on every CI run
-- **431 tests** passing (14 Domain + 416 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
+- **433 tests** passing (14 Domain + 418 Application + 1 golden-image visual gate; XUnit + Avalonia headless/Skia)
 
 ---
 
@@ -190,7 +191,7 @@ Items that remain, in approximate priority order. **No gap is unplanned** — ea
 
 ### Open findings (audited 2026-09-11; remediated M1–M3)
 - See [`docs/parity/audit-2026-09-11.md`](docs/parity/audit-2026-09-11.md) for the full severity-ranked list. **Fixed since:** mosaic artwork binding, Artist-Canvas↔Mosaic-Wall crossfade, now-playing hover/pressed icon variants, Smart DJ timeout + Quick Mix progress, playlist search, and editable Zune Card profile.
-- **Still open:** authentic clean-room Iris mosaic art, the native MPRIS2/SMTC bindings on top of the shipped media-controls seam, Windows IMAPI2 for CD burn, and the hardware/i18n-extraction backlog (MTPZ, UPnP, full per-view string extraction).
+- **Still open:** the Now-Playing Iris art-frame reveal (procedural approximation), Windows SMTC (needs a Windows-targeted TFM), Windows IMAPI2 for CD burn, and the hardware/i18n-extraction backlog (MTPZ, UPnP, full per-view string extraction). Linux MPRIS2 is shipped.
 - The Settings pivot-gating bug was re-verified **fixed** in the 2026-09-11 audit (all sub-pivot notifications fire) — no longer a triage item.
 
 ---
@@ -267,7 +268,7 @@ Verified against the full Zune 4.8 decompiled corpus (821 C# files in `zuneshell
 | L. First-launch & onboarding | **~90%** | First-launch wizard + What's New + FirstConnect wizard |
 | M. Platform services (ZMDB, sharing) | **~60%** | SQLite + FTS5 substitute, plugin host, analysis persistence; UPnP/share/MUI deferred |
 
-**Weighted overall parity: ~88%** (audited 2026-09-11 at ~80–84%, then raised by the M1–M3 remediation plus the follow-on phases — video-mode crossfade, 20-locale i18n, OS media-controls seam, and the capability-gated CD rip/burn pipeline).
+**Weighted overall parity: ~88%** (audited 2026-09-11 at ~80–84%, then raised by the M1–M3 remediation plus the follow-on phases — video-mode crossfade, clean-room Iris mosaic, 20-locale i18n, Linux MPRIS2, and the capability-gated CD rip/burn pipeline).
 
 ---
 
